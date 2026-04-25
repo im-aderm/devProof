@@ -11,14 +11,17 @@ export default function RepositoryDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [repo, setRepo] = useState<any>(null);
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
+  const [generatingAi, setGeneratingAi] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
     } else if (status === "authenticated" && params.id) {
       fetchRepoDetails();
+      fetchAiSummary();
     }
   }, [status, params.id, router]);
 
@@ -34,6 +37,16 @@ export default function RepositoryDetailPage() {
     }
   };
 
+  const fetchAiSummary = async () => {
+    try {
+      const res = await fetch(`/api/repositories/${params.id}/ai-summary`);
+      const result = await res.json();
+      if (result?.summary) setAiSummary(result.summary);
+    } catch (error) {
+      console.error("Failed to fetch AI summary", error);
+    }
+  };
+
   const handleAnalyze = async () => {
     setAnalyzing(true);
     try {
@@ -44,6 +57,19 @@ export default function RepositoryDetailPage() {
       console.error("Failed to analyze repository", error);
     } finally {
       setAnalyzing(false);
+    }
+  };
+
+  const handleGenerateAi = async () => {
+    setGeneratingAi(true);
+    try {
+      const res = await fetch(`/api/repositories/${params.id}/ai-summary`, { method: "POST" });
+      const result = await res.json();
+      setAiSummary(result.summary);
+    } catch (error) {
+      console.error("Failed to generate AI summary", error);
+    } finally {
+      setGeneratingAi(false);
     }
   };
 
@@ -82,12 +108,12 @@ export default function RepositoryDetailPage() {
             <button 
               onClick={handleAnalyze}
               disabled={analyzing}
-              className="flex items-center gap-2 px-6 py-3 skill-gradient text-white rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-3 bg-surface-container-high border border-outline-variant/20 rounded-lg hover:bg-surface-bright transition-colors disabled:opacity-50"
             >
               <span className={`material-symbols-outlined text-sm ${analyzing ? "animate-spin" : ""}`}>
                 {analyzing ? "sync" : "analytics"}
               </span> 
-              {analyzing ? "Analyzing..." : "Deep Analysis"}
+              {analyzing ? "Analyzing..." : "Sync Stats"}
             </button>
           </div>
         </div>
@@ -116,6 +142,29 @@ export default function RepositoryDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-8 space-y-8">
+            <div className="glass-card rounded-xl p-8 border-outline-variant/20">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-headline-md font-bold">AI Project Summary</h3>
+                <button 
+                  onClick={handleGenerateAi}
+                  disabled={generatingAi}
+                  className="text-xs font-bold text-primary uppercase tracking-widest hover:underline disabled:opacity-50 flex items-center gap-2"
+                >
+                  <span className={`material-symbols-outlined text-sm ${generatingAi ? "animate-spin" : ""}`}>auto_awesome</span>
+                  {generatingAi ? "Generating..." : aiSummary ? "Re-generate" : "Generate Summary"}
+                </button>
+              </div>
+              {aiSummary ? (
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
+                   <p className="text-on-surface leading-relaxed italic">&quot;{aiSummary}&quot;</p>
+                </div>
+              ) : (
+                <div className="bg-white/5 border border-dashed border-outline-variant/30 rounded-lg p-12 text-center">
+                  <p className="text-on-surface-variant text-sm italic">Generate a professional AI summary for your portfolio.</p>
+                </div>
+              )}
+            </div>
+
             <div className="glass-card rounded-xl p-8 border-outline-variant/20">
               <h3 className="text-headline-md font-bold mb-6">Improvement Suggestions</h3>
               {repo.metrics?.suggestions && repo.metrics.suggestions.length > 0 ? (

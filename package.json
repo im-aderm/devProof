@@ -19,6 +19,7 @@
     "next-auth": "^4.24.14",
     "nodemailer": "^7.0.13",
     "octokit": "^5.0.5",
+    "openai": "^6.34.0",
     "react": "latest",
     "react-dom": "latest",
     "recharts": "^3.8.1",

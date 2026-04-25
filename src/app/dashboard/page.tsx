@@ -12,7 +12,9 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
+  const [aiSummary, setAiSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [generatingAi, setGeneratingAi] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -22,6 +24,7 @@ export default function DashboardPage() {
         router.push("/onboarding");
       } else {
         fetchDashboardData();
+        fetchAiSummary();
       }
     }
   }, [status, session, router]);
@@ -35,6 +38,29 @@ export default function DashboardPage() {
       console.error("Failed to fetch dashboard data", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAiSummary = async () => {
+    try {
+      const res = await fetch("/api/user/ai-summary");
+      const result = await res.json();
+      if (result) setAiSummary(result);
+    } catch (error) {
+      console.error("Failed to fetch AI summary", error);
+    }
+  };
+
+  const handleGenerateAi = async () => {
+    setGeneratingAi(true);
+    try {
+      const res = await fetch("/api/user/ai-summary", { method: "POST" });
+      const result = await res.json();
+      setAiSummary(result);
+    } catch (error) {
+      console.error("Failed to generate AI summary", error);
+    } finally {
+      setGeneratingAi(false);
     }
   };
 
@@ -54,9 +80,17 @@ export default function DashboardPage() {
       <DashboardHeader profile={data?.profile} name={session?.user?.name || "Developer"} />
       
       <main className="pt-28 pb-12 px-8 max-w-[1440px] mx-auto">
-        <div className="mb-10">
-          <h1 className="text-display-xl font-bold text-on-surface mb-2">Engineer Overview</h1>
-          <p className="text-on-surface-variant">Real-time performance metrics and talent indexing.</p>
+        <div className="mb-10 flex justify-between items-end">
+          <div>
+            <h1 className="text-display-xl font-bold text-on-surface mb-2">Engineer Overview</h1>
+            <p className="text-on-surface-variant">Real-time performance metrics and talent indexing.</p>
+          </div>
+          {aiSummary?.persona && (
+             <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg">
+                <span className="text-primary font-bold uppercase tracking-widest text-[10px]">Persona</span>
+                <p className="text-on-surface font-bold text-sm">{aiSummary.persona}</p>
+             </div>
+          )}
         </div>
 
         {/* Stats Grid */}
@@ -70,7 +104,7 @@ export default function DashboardPage() {
           />
           <StatCard
             label="Top Skill"
-            value={data?.stats.topSkill}
+            value={aiSummary?.topSkills?.[0] || data?.stats.topSkill}
             icon="code"
             color="secondary"
           />
@@ -89,19 +123,56 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Main Content Area */}
           <div className="lg:col-span-8 space-y-8">
             <RecentRepos repos={data?.repos || []} />
             
             <div className="glass-card rounded-xl p-8 border-outline-variant/20">
-              <h3 className="text-headline-md font-bold mb-6">AI Career Insight</h3>
-              <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
-                <p className="text-on-surface leading-relaxed">
-                  Based on your recent activity in <span className="text-primary font-bold">{data?.stats.topSkill}</span>, 
-                  you show a strong proficiency in system architecture. Your consistency has increased by 12% 
-                  over the last 30 days. We recommend exploring distributed systems to further boost your score.
-                </p>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-headline-md font-bold">AI Career Insight</h3>
+                {!aiSummary && (
+                   <button 
+                    onClick={handleGenerateAi}
+                    disabled={generatingAi}
+                    className="text-xs font-bold text-primary uppercase tracking-widest hover:underline disabled:opacity-50"
+                   >
+                    {generatingAi ? "Generating..." : "Generate Insight"}
+                   </button>
+                )}
               </div>
+              
+              {aiSummary ? (
+                <div className="space-y-6">
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
+                    <p className="text-on-surface leading-relaxed italic">
+                      &quot;{aiSummary.summary}&quot;
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="text-xs font-bold uppercase text-on-surface-variant mb-3 tracking-widest">Inferred Skills</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {aiSummary.topSkills?.map((skill: string) => (
+                          <span key={skill} className="px-2 py-1 rounded bg-surface-container-highest text-[10px] font-bold text-on-surface">{skill}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold uppercase text-on-surface-variant mb-3 tracking-widest">Growth Areas</h4>
+                      <ul className="space-y-1">
+                        {aiSummary.growthAreas?.map((area: string) => (
+                          <li key={area} className="text-xs text-on-surface-variant flex items-center gap-2">
+                            <span className="w-1 h-1 rounded-full bg-primary"></span> {area}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white/5 border border-dashed border-outline-variant/30 rounded-lg p-12 text-center">
+                  <p className="text-on-surface-variant text-sm italic">Connect your profile to generate professional AI insights.</p>
+                </div>
+              )}
             </div>
           </div>
 

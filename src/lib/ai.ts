@@ -1,0 +1,61 @@
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+export class AIService {
+  /**
+   * Generates a professional summary of a developer based on their profile and repositories.
+   */
+  static async generateUserSummary(profile: any, repos: any[]) {
+    const repoDetails = repos.map(r => `${r.name}: ${r.description || "No description"} (${r.language})`).join("\n");
+    
+    const prompt = `
+      You are a technical recruiter assistant. Based on the following GitHub profile and repositories, 
+      provide a professional summary of the developer's persona, top skills, and growth areas.
+      
+      Profile Bio: ${profile.bio || "N/A"}
+      Location: ${profile.location || "N/A"}
+      Repositories:
+      ${repoDetails}
+      
+      Format the response as a JSON object with:
+      - summary: A 2-3 sentence professional bio.
+      - persona: A title for the developer (e.g., "Full-Stack System Architect").
+      - topSkills: An array of 5 identified technical skills.
+      - growthAreas: An array of 3 suggested areas for improvement.
+    `;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+    });
+
+    return JSON.parse(response.choices[0].message.content || "{}");
+  }
+
+  /**
+   * Generates a professional summary for a single repository.
+   */
+  static async generateRepoSummary(repo: any) {
+    const prompt = `
+      Summarize the following GitHub repository professionally for a portfolio.
+      Name: ${repo.name}
+      Description: ${repo.description || "N/A"}
+      Language: ${repo.language}
+      Stars: ${repo.stars}
+      
+      Explain what the project likely does and why it is technically significant.
+      Max 3 sentences. Return as a plain string.
+    `;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    return response.choices[0].message.content;
+  }
+}
