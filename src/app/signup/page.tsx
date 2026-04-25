@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import posthog from 'posthog-js'; // Import posthog
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -29,6 +30,9 @@ export default function SignUpPage() {
       if (!res.ok) {
         throw new Error(data.error || "Something went wrong");
       }
+
+      // Track signup completion event
+      posthog.capture('signup_completed');
 
       // Redirect to verification page
       router.push(`/verify?email=${encodeURIComponent(email)}`);

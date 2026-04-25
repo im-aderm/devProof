@@ -6,23 +6,28 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Step1_Welcome from "@/components/onboarding/Step1_Welcome";
 import Step2_SelectGoal from "@/components/onboarding/Step2_SelectGoal";
 import Step3_Analysis from "@/components/onboarding/Step3_Analysis";
+import posthog from 'posthog-js'; // Import posthog
 
 export default function OnboardingPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
+  const [userEmail, setUserEmail] = useState<string | null>(null); // To store user email for events
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
+    } else if (status === "authenticated") {
+      setUserEmail(session?.user?.email || null); // Store email from session
+      if ((session?.user as any)?.onboardingCompleted) {
+        router.push("/dashboard");
+      } else {
+        const s = searchParams.get("step");
+        if (s) setStep(parseInt(s));
+      }
     }
-  }, [status, router]);
-
-  useEffect(() => {
-    const s = searchParams.get("step");
-    if (s) setStep(parseInt(s));
-  }, [searchParams]);
+  }, [status, session, router, searchParams]);
 
   const handleNextStep = () => setStep((prev) => prev + 1);
   const handleBackStep = () => setStep((prev) => prev - 1);
@@ -37,23 +42,23 @@ export default function OnboardingPage() {
 
       if (!res.ok) throw new Error("Failed to save goal");
 
-      setStep(3);
+      // Track onboarding completion event
+      posthog.capture('onboarding_completed', { goal: goal, userEmail: userEmail });
+
+      router.push("/dashboard");
     } catch (error) {
       console.error(error);
+      // Handle error appropriately, e.g., show a message to the user
     }
   };
 
-  if (status === "loading") {
-    return <div className="bg-background min-h-screen flex items-center justify-center text-primary">Loading...</div>;
-  }
-
   return (
     <div className="bg-background text-on-background min-h-screen flex flex-col font-body-base antialiased">
-      <header className="fixed top-0 left-0 w-full flex justify-between items-center px-8 h-16 bg-slate-950/80 backdrop-blur-md z-50 border-b border-white/10 shadow-2xl shadow-indigo-500/5">
+      <header className="fixed top-0 left-0 w-full flex justify-between items-center px-8 h-16 bg-slate-950/80 backdrop-blur-md z-50 border-b border-white/10 shadow-2xl">
         <div className="text-xl font-bold tracking-tighter text-slate-50 uppercase">DevProof</div>
         <div className="flex items-center gap-6">
           <span className="material-symbols-outlined text-slate-400 cursor-pointer hover:text-indigo-300 transition-colors">help_outline</span>
-          <span className="material-symbols-outlined text-slate-400 cursor-pointer hover:text-indigo-300 transition-colors">close</span>
+          <span onClick={() => router.push('/dashboard')} className="material-symbols-outlined text-slate-400 cursor-pointer hover:text-indigo-300 transition-colors">close</span>
         </div>
       </header>
 

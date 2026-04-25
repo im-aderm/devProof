@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { AnalyticsProvider } from "@/components/providers/AnalyticsProvider"; // Import AnalyticsProvider
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,7 +29,9 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} font-sans`}>
         <AuthProvider>
-          {children}
+          <AnalyticsProvider> {/* Wrap children with AnalyticsProvider */}
+            {children}
+          </AnalyticsProvider>
         </AuthProvider>
       </body>
     </html>

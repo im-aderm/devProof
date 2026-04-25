@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+import posthog from 'posthog-js'; // Import posthog
 
 export default function LoginPage() {
   const router = useRouter();
@@ -43,8 +44,10 @@ export default function LoginPage() {
           setError("Invalid email or password.");
         }
       } else {
-        // We can't easily check onboardingCompleted here without another fetch or a refresh
-        // So we'll redirect to a middle route or just check in dashboard
+        // Track GitHub connection if the user signed in via GitHub previously
+        // and is now successfully logging in. This might need refinement.
+        // For now, focus on direct GitHub login event.
+
         router.push("/dashboard");
       }
     } catch (err: any) {
@@ -52,6 +55,11 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGitHubSignIn = () => {
+    signIn("github", { callbackUrl: "/dashboard" });
+    posthog.capture('github_connected'); // Track GitHub connection event
   };
 
   return (
@@ -90,7 +98,7 @@ export default function LoginPage() {
           <div>
             <div className="flex justify-between items-center mb-1">
               <label className="font-label-bold text-[10px] uppercase text-on-surface-variant block">Password</label>
-              <Link href="/forgot-password" size="sm" className="text-[10px] text-primary hover:underline">Forgot?</Link>
+              <Link href="/forgot-password" className="text-[10px] text-primary hover:underline">Forgot?</Link>
             </div>
             <input
               type="password"
@@ -121,7 +129,7 @@ export default function LoginPage() {
         </div>
 
         <button
-          onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
+          onClick={handleGitHubSignIn}
           className="w-full py-3 bg-surface-container-highest border border-outline/20 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-surface-bright transition-all text-sm"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
