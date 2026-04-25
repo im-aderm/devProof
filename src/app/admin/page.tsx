@@ -4,6 +4,7 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Link from "next/link"; // Import Link for navigation
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -18,7 +19,6 @@ export default function AdminPage() {
       // Check if the user is an admin
       // In a real app, this check might be done server-side or via a dedicated API
       // For now, we assume the session data might contain admin status if available
-      // Or we might fetch user details to check isAdmin
       if ((session?.user as any)?.isAdmin) {
         setIsAdmin(true);
         setLoading(false);
@@ -64,7 +64,7 @@ export default function AdminPage() {
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-primary bg-primary/10`}>
                 <span className="material-symbols-outlined">group</span>
               </div>
-              <span className="text-secondary font-label-bold text-[10px] uppercase bg-secondary/10 px-2 py-0.5 rounded-full">View Details</span>
+              <Link href="/admin/users" className="text-secondary font-label-bold text-[10px] uppercase bg-secondary/10 px-2 py-0.5 rounded-full hover:underline">View Details</Link>
             </div>
             <div>
               <p className="text-on-surface-variant text-xs font-label-bold uppercase tracking-wider mb-1">Total Users</p>
