@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-primary": "#4d44e3",
+                    "surface-variant": "#35343e",
+                    "on-primary": "#1d00a5",
+                    "surface-container-high": "#2a2933",
+                    "surface-container-lowest": "#0e0d16",
+                    "primary-fixed": "#e2dfff",
+                    "secondary-container": "#00a572",
+                    "inverse-on-surface": "#302f39",
+                    "inverse-surface": "#e4e1ee",
+                    "outline-variant": "#464555",
+                    "on-surface": "#e4e1ee",
+                    "on-error": "#690005",
+                    "on-secondary-container": "#00311f",
+                    "surface-container-highest": "#35343e",
+                    "on-tertiary-fixed": "#23005c",
+                    "surface-tint": "#c3c0ff",
+                    "on-tertiary-container": "#e3d5ff",
+                    "error-container": "#93000a",
+                    "on-secondary": "#003824",
+                    "secondary-fixed": "#6ffbbe",
+                    "tertiary-container": "#6f3dd9",
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-container": "#1f1f28",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "on-surface-variant": "#c7c4d8",
+                    "on-tertiary-fixed-variant": "#5516be",
+                    "surface-bright": "#393842",
+                    "on-error-container": "#ffdad6",
+                    "on-tertiary": "#3c0091",
+                    "error": "#ffb4ab",
+                    "outline": "#918fa1",
+                    "on-secondary-fixed": "#002113",
+                    "tertiary": "#d0bcff",
+                    "tertiary-fixed-dim": "#d0bcff",
+                    "secondary": "#4edea3",
+                    "primary": "#c3c0ff",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "background": "#13121b",
+                    "primary-container": "#4f46e5",
+                    "surface-dim": "#13121b",
+                    "surface-container-low": "#1b1b24",
+                    "surface": "#13121b",
+                    "on-primary-container": "#dad7ff",
+                    "tertiary-fixed": "#e9ddff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-primary-fixed": "#002113",
+                    "on-background": "#e4e1ee"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "gutter": "24px",
+                    "margin-desktop": "48px",
+                    "container-max": "1280px",
+                    "section-gap": "80px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "display-xl": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-base": ["Inter"],
+                    "label-bold": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "display-xl": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-base": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-bold": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(31, 31, 40, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(228, 225, 238, 0.1);
+        }
+        .glow-effect {
+            box-shadow: 0 0 40px -10px rgba(79, 70, 229, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-base min-h-screen flex flex-col">
+<!-- TopAppBar Mockup for Identity (Navigation Suppressed for Login) -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
+<div class="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+<div class="text-xl font-bold tracking-tighter text-slate-900 dark:text-white font-inter antialiased">
+                DevProof
+            </div>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-sm font-inter text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200" href="#">Features</a>
+<a class="text-sm font-inter text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200" href="#">Showcase</a>
+</div>
+<a class="text-indigo-600 dark:text-indigo-400 font-semibold active:scale-95 transition-transform text-sm" href="#">
+                Get Started
+            </a>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex items-center justify-center px-margin-mobile relative overflow-hidden pt-20">
+<!-- Abstract Background Decorative Elements -->
+<div class="absolute top-[-10%] left-[-5%] w-[40%] h-[60%] bg-primary-container/10 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="absolute bottom-[-10%] right-[-5%] w-[40%] h-[60%] bg-tertiary-container/10 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="w-full max-w-md z-10">
+<!-- Login Card -->
+<div class="glass-panel glow-effect rounded-xl p-8 md:p-10">
+<div class="text-center mb-10">
+<div class="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary-container mb-4 shadow-lg">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Welcome Back</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Precision engineering for your talent profile.</p>
+</div>
+<form class="space-y-6">
+<!-- Social Login -->
+<button class="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg bg-surface-variant border border-outline-variant text-on-surface font-label-bold text-label-bold transition-all hover:bg-surface-container-highest active:scale-95" type="button">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24">
+<path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.744.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+</svg>
+                        Continue with GitHub
+                    </button>
+<div class="relative flex items-center justify-center py-2">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant"></div>
+</div>
+<span class="relative px-4 bg-transparent text-on-surface-variant font-label-bold text-label-bold">OR</span>
+</div>
+<!-- Input Fields -->
+<div class="space-y-4">
+<div>
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-2 ml-1" for="email">EMAIL ADDRESS</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 text-on-surface focus:ring-2 focus:ring-primary-container focus:border-transparent transition-all placeholder:text-outline" id="email" placeholder="engineer@devproof.io" type="email"/>
+</div>
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="font-label-bold text-label-bold text-on-surface-variant ml-1" for="password">PASSWORD</label>
+<a class="font-label-bold text-label-bold text-primary hover:text-primary-fixed-dim transition-colors" href="#">FORGOT PASSWORD?</a>
+</div>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 text-on-surface focus:ring-2 focus:ring-primary-container focus:border-transparent transition-all placeholder:text-outline" id="password" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<!-- Primary Action -->
+<button class="w-full bg-primary-container hover:bg-inverse-primary text-white font-headline-md text-headline-md py-4 rounded-lg shadow-lg active:scale-95 transition-all" type="submit">
+                        Login
+                    </button>
+</form>
+<div class="mt-8 text-center">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                        Don't have an account? 
+                        <a class="text-primary font-label-bold hover:underline" href="#">Sign up for early access</a>
+</p>
+</div>
+</div>
+<!-- Footer-style Links (Simplified for Login) -->
+<div class="mt-8 flex justify-center gap-6 font-body-sm text-body-sm text-outline">
+<a class="hover:text-on-surface transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-on-surface transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-on-surface transition-colors" href="#">System Status</a>
+</div>
+</div>
+</main>
+<!-- Visual Polish: Decorative Background Image -->
+<div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none opacity-20">
+<div class="absolute inset-0 bg-gradient-to-tr from-surface-container-lowest via-background to-surface-container-lowest"></div>
+<img alt="Background detail" class="w-full h-full object-cover mix-blend-overlay blur-sm" data-alt="abstract close-up of high-tech circuit board lines with deep indigo and violet neon lighting and cinematic bokeh" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhmlAPTrbQgzaJ_gXgqoukQbTRbgyF8yhA7SKJFJvBkK2TgFTepztrUwJ2veKXsDi6H8Nnhkfgr2dJ4td-Sq4hwlFBPOu35dzi_etIXb5kY7a-gqQhBeoap5NhhiVoXHlulPk-qRQ6fCbICHhSOtoaVHWuMPryCXEs4oumYNLpeFqySmaiGsNrWKnzVgiCsxXj7BaWVRzDnAzkVoPruVe7JYwkjFBwVlGDQAqOeiIlaYp2RGC_oli51vceFIOm9ZH1MvPrW4aNhYyr"/>
+</div>
+<!-- Footer Identity -->
+<footer class="w-full border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+<div class="flex flex-col md:flex-row justify-between items-center px-8 py-12 max-w-7xl mx-auto gap-4">
+<div class="text-lg font-bold text-slate-900 dark:text-white font-inter">DevProof</div>
+<p class="text-sm font-inter text-slate-500 dark:text-slate-400">© 2024 DevProof. Precision engineering for talent.</p>
+<div class="flex gap-4">
+<span class="text-slate-500 dark:text-slate-400 text-sm hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors cursor-pointer">GitHub</span>
+<span class="text-slate-500 dark:text-slate-400 text-sm hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors cursor-pointer">Security</span>
+</div>
+</div>
+</footer>
+</body></html>

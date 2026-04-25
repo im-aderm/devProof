@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevProof | Public Portfolio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-fixed-variant": "#005236",
+                      "secondary-fixed-dim": "#4edea3",
+                      "outline-variant": "#464555",
+                      "surface-container-high": "#2a2933",
+                      "primary": "#c3c0ff",
+                      "primary-container": "#4f46e5",
+                      "on-primary": "#1d00a5",
+                      "on-primary-container": "#dad7ff",
+                      "primary-fixed-dim": "#c3c0ff",
+                      "surface-container-low": "#1b1b24",
+                      "background": "#13121b",
+                      "on-tertiary-fixed": "#23005c",
+                      "tertiary-fixed": "#e9ddff",
+                      "primary-fixed": "#e2dfff",
+                      "on-error-container": "#ffdad6",
+                      "on-error": "#690005",
+                      "inverse-primary": "#4d44e3",
+                      "on-tertiary-fixed-variant": "#5516be",
+                      "surface-container-highest": "#35343e",
+                      "secondary-fixed": "#6ffbbe",
+                      "tertiary-container": "#6f3dd9",
+                      "surface-dim": "#13121b",
+                      "surface-container": "#1f1f28",
+                      "secondary-container": "#00a572",
+                      "inverse-surface": "#e4e1ee",
+                      "inverse-on-surface": "#302f39",
+                      "surface-container-lowest": "#0e0d16",
+                      "surface-tint": "#c3c0ff",
+                      "on-primary-fixed-variant": "#3323cc",
+                      "secondary": "#4edea3",
+                      "outline": "#918fa1",
+                      "error": "#ffb4ab",
+                      "on-primary-fixed": "#0f0069",
+                      "on-tertiary-container": "#e3d5ff",
+                      "error-container": "#93000a",
+                      "surface-variant": "#35343e",
+                      "on-secondary-container": "#00311f",
+                      "surface": "#13121b",
+                      "surface-bright": "#393842",
+                      "on-surface": "#e4e1ee",
+                      "tertiary-fixed-dim": "#d0bcff",
+                      "on-tertiary": "#3c0091",
+                      "on-secondary-fixed": "#002113",
+                      "on-background": "#e4e1ee",
+                      "on-surface-variant": "#c7c4d8",
+                      "on-secondary": "#003824",
+                      "tertiary": "#d0bcff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "section-gap": "80px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "48px",
+                      "base": "8px",
+                      "container-max": "1280px"
+              },
+              "fontFamily": {
+                      "display-xl": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "label-bold": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "body-base": ["Inter"],
+                      "headline-md": ["Inter"]
+              },
+              "fontSize": {
+                      "display-xl": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "label-bold": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-base": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(31, 31, 40, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(195, 192, 255, 0.1);
+        }
+        .profile-gradient {
+            background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.15), transparent 40%),
+                        radial-gradient(circle at bottom right, rgba(111, 61, 217, 0.15), transparent 40%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-base antialiased profile-gradient min-h-screen">
+<!-- Top Navigation -->
+<nav class="fixed top-0 w-full flex justify-between items-center px-6 py-3 max-w-full mx-auto bg-white/80 dark:bg-slate-950/80 backdrop-blur-md z-50 border-b border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
+<div class="flex items-center gap-8">
+<span class="text-xl font-black tracking-tighter text-slate-900 dark:text-white">DevProof</span>
+<div class="hidden md:flex gap-6">
+<a class="font-inter antialiased text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Portfolio</a>
+<a class="font-inter antialiased text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Analysis</a>
+<a class="font-inter antialiased text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Talent Explorer</a>
+<a class="font-inter antialiased text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Pricing</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-slate-600 dark:text-slate-400 p-2 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-full transition-colors" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-slate-600 dark:text-slate-400 p-2 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-full transition-colors" data-icon="account_circle">account_circle</button>
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-inter antialiased text-sm font-medium hover:opacity-90 active:scale-[0.99] transition-all">Get Started</button>
+</div>
+</nav>
+<main class="pt-24 pb-20 px-6 max-w-container-max mx-auto space-y-section-gap">
+<!-- Hero Section -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<div class="lg:col-span-8 glass-card rounded-xl p-base md:p-8 flex flex-col md:flex-row gap-8 items-center md:items-start">
+<div class="relative">
+<div class="w-32 h-32 md:w-48 md:h-48 rounded-2xl overflow-hidden border-2 border-primary/20">
+<img class="w-full h-full object-cover" data-alt="professional studio portrait of a software engineer with high-key lighting and a neutral tech-focused background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEcqqrASfpvxsAWBicPR-de04JqEKeEyeGrI1GxONw0u-BTlXa2N-TZTsumaWfybTVq40AjC4cTosMpQUrqcByt90DN4EAz-M88TDEuEA8hRlufrIBBmb1pH3emQub4I8rHgnBeVAipBZEip8TS7nuAJTL80l-7UbXj_pMp_nONxlMXgP_JD1s8DwQaVef0pNpGbvrdNz4PaBnEiAeygMvketp3d6rG4uNwtLNmQIsn304YN5G7cDAqdXXQRi5zvUWe2WeO6-K4Q_X"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-secondary text-on-secondary px-3 py-1 rounded-full text-label-bold flex items-center gap-1 shadow-lg">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">verified</span> Verified
+                    </div>
+</div>
+<div class="flex-1 space-y-4 text-center md:text-left">
+<div class="space-y-1">
+<h1 class="font-display-xl text-display-xl text-on-surface">Alex Chen</h1>
+<p class="font-body-base text-on-surface-variant flex items-center justify-center md:justify-start gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="code">code</span>
+                            Senior Full-Stack Engineer @ GitHub
+                        </p>
+</div>
+<div class="flex flex-wrap justify-center md:justify-start gap-3">
+<div class="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant/30">
+<span class="material-symbols-outlined text-on-surface-variant text-lg" data-icon="hub">hub</span>
+<span class="font-label-bold text-on-surface-variant">@alexc-dev</span>
+</div>
+<button class="bg-primary-container text-on-primary-container px-5 py-2 rounded-lg font-label-bold flex items-center gap-2 hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="share">share</span>
+                            Share Profile
+                        </button>
+</div>
+<p class="font-body-base text-on-surface-variant max-w-2xl">
+                        Building high-performance distributed systems and elegant developer tools. Specialist in Rust, TypeScript, and cloud-native architecture. 12+ years of experience translating complex problems into scalable code.
+                    </p>
+</div>
+</div>
+<!-- Readiness Score (Bento Metric Card) -->
+<div class="lg:col-span-4 glass-card rounded-xl p-8 flex flex-col justify-between min-h-[320px]">
+<div>
+<h3 class="font-label-bold text-primary uppercase tracking-widest mb-6">Readiness Score</h3>
+<div class="relative flex items-center justify-center">
+<!-- Custom Gauge UI -->
+<svg class="w-40 h-40 transform -rotate-90">
+<circle class="text-surface-container-highest" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-width="12"></circle>
+<circle class="text-primary-container" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-dasharray="440" stroke-dashoffset="44" stroke-linecap="round" stroke-width="12"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-display-xl text-display-xl text-on-surface">94</span>
+<span class="font-label-bold text-on-surface-variant uppercase">Elite</span>
+</div>
+</div>
+</div>
+<div class="mt-8 space-y-2">
+<p class="font-body-sm text-on-surface-variant">Top 1% of global developers in system architecture and testing coverage.</p>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-tertiary w-[94%]"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Skills Section -->
+<section class="space-y-base">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-6">Technical Arsenal</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="glass-card p-6 rounded-xl space-y-4">
+<h3 class="font-label-bold text-secondary-fixed-dim uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="terminal">terminal</span> Languages
+                    </h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-on-secondary-fixed-variant/20 border border-on-secondary-fixed-variant/40 text-secondary-fixed-dim rounded-full text-label-bold">TypeScript</span>
+<span class="px-3 py-1 bg-on-secondary-fixed-variant/20 border border-on-secondary-fixed-variant/40 text-secondary-fixed-dim rounded-full text-label-bold">Rust</span>
+<span class="px-3 py-1 bg-on-secondary-fixed-variant/20 border border-on-secondary-fixed-variant/40 text-secondary-fixed-dim rounded-full text-label-bold">Go</span>
+<span class="px-3 py-1 bg-on-secondary-fixed-variant/20 border border-on-secondary-fixed-variant/40 text-secondary-fixed-dim rounded-full text-label-bold">Python</span>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl space-y-4">
+<h3 class="font-label-bold text-primary-fixed-dim uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="layers">layers</span> Frameworks
+                    </h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-primary-container/20 border border-primary-container/40 text-primary-fixed-dim rounded-full text-label-bold">React / Next.js</span>
+<span class="px-3 py-1 bg-primary-container/20 border border-primary-container/40 text-primary-fixed-dim rounded-full text-label-bold">Node.js</span>
+<span class="px-3 py-1 bg-primary-container/20 border border-primary-container/40 text-primary-fixed-dim rounded-full text-label-bold">PostgreSQL</span>
+<span class="px-3 py-1 bg-primary-container/20 border border-primary-container/40 text-primary-fixed-dim rounded-full text-label-bold">Redis</span>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl space-y-4">
+<h3 class="font-label-bold text-tertiary-fixed-dim uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="cloud">cloud</span> Cloud &amp; Ops
+                    </h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-tertiary-container/20 border border-tertiary-container/40 text-tertiary-fixed-dim rounded-full text-label-bold">AWS</span>
+<span class="px-3 py-1 bg-tertiary-container/20 border border-tertiary-container/40 text-tertiary-fixed-dim rounded-full text-label-bold">Docker</span>
+<span class="px-3 py-1 bg-tertiary-container/20 border border-tertiary-container/40 text-tertiary-fixed-dim rounded-full text-label-bold">Kubernetes</span>
+<span class="px-3 py-1 bg-tertiary-container/20 border border-tertiary-container/40 text-tertiary-fixed-dim rounded-full text-label-bold">Terraform</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Projects Section -->
+<section class="space-y-6">
+<div class="flex justify-between items-end">
+<h2 class="font-headline-md text-headline-md text-on-surface">Featured Projects</h2>
+<a class="text-primary font-label-bold flex items-center gap-1 hover:underline" href="#">View All Repos <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span></a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Project Card 1 -->
+<div class="group relative overflow-hidden rounded-xl bg-surface-container border border-outline-variant/30 hover:border-primary/50 transition-all">
+<div class="aspect-video overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="modern abstract 3d rendering of connected nodes and data lines in neon indigo and emerald colors representing a distributed network" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvYK7VCmVzNhxJDyCaoisw5VKTVJKfKZc6b5lvlrTkAMVKEHhKZhcOM1AUgx9QmfETSP3hq_l5mZx87Dv14eoXTzdxMT7DueLPvyFw2-QyYV6MfkEsdvbTPR8f0UrOX3skqyUAwdskakRj7lrdOiGNdY8Oyh-WUK1RVxDDXk2m3vRZF2HjciLB8gIeWySe9ODChGOUNwqmJKuEPRxlSMads-TsUkX9VXamug4kKYJcmUWIjELgZt8mui_Vrxl9kak6GJMFL2cr8jCb"/>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-on-surface">Lumina DB</h3>
+<div class="flex gap-2">
+<span class="flex items-center gap-1 text-on-surface-variant font-label-bold">
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span> 2.4k
+                                </span>
+<span class="flex items-center gap-1 text-on-surface-variant font-label-bold">
+<span class="material-symbols-outlined text-sm" data-icon="fork_right">fork_right</span> 180
+                                </span>
+</div>
+</div>
+<p class="font-body-sm text-on-surface-variant">A high-performance, edge-native vector database written in Rust. Optimized for low-latency AI applications and real-time semantic search.</p>
+<div class="flex gap-4 pt-4 border-t border-outline-variant/20">
+<div class="flex items-center gap-1 text-secondary-fixed-dim font-label-bold">
+<div class="w-2 h-2 rounded-full bg-secondary-fixed-dim"></div> Rust
+                            </div>
+<span class="text-on-surface-variant font-label-bold">Updated 2 days ago</span>
+</div>
+</div>
+</div>
+<!-- Project Card 2 -->
+<div class="group relative overflow-hidden rounded-xl bg-surface-container border border-outline-variant/30 hover:border-primary/50 transition-all">
+<div class="aspect-video overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="sleek dashboard interface design with minimalist charts and clean typography in a dark mode professional aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTZttlBr7fZSkeLb19DOegK76zGTf3KkWoFCKBJF2oZqTOzkkwDb4U1iJALmtbJ7k12SCB0nrpotgdicAmbkyAtZe1ldRljRhJAdiEkinyinOouGKEfr9ehr-nZKpWTanIrwIAFnueuc67E6hrb34Aeru__ajxlbz7lgJ4VG8VoAtkxipqF-Gt3LrpNxl7exWaFp-mUNdBYc33sIgltqe-v2fWXibdxZorq-7XOE62chNq5dT4SzukZa_c0LbYLXJA1VpgGJGgt3bA"/>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-on-surface">Flux UI</h3>
+<div class="flex gap-2">
+<span class="flex items-center gap-1 text-on-surface-variant font-label-bold">
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span> 1.8k
+                                </span>
+<span class="flex items-center gap-1 text-on-surface-variant font-label-bold">
+<span class="material-symbols-outlined text-sm" data-icon="fork_right">fork_right</span> 94
+                                </span>
+</div>
+</div>
+<p class="font-body-sm text-on-surface-variant">Next-generation UI component library for React. Built with Radix Primitives and Tailwind CSS for maximum accessibility and performance.</p>
+<div class="flex gap-4 pt-4 border-t border-outline-variant/20">
+<div class="flex items-center gap-1 text-primary-fixed-dim font-label-bold">
+<div class="w-2 h-2 rounded-full bg-primary-fixed-dim"></div> TypeScript
+                            </div>
+<span class="text-on-surface-variant font-label-bold">Updated 1 week ago</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Technical Analysis Bento -->
+<section class="space-y-6">
+<h2 class="font-headline-md text-headline-md text-on-surface">Precision Analysis</h2>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<div class="md:col-span-2 glass-card rounded-xl p-8 space-y-6">
+<h3 class="font-label-bold text-on-surface-variant uppercase tracking-widest">Commit Velocity</h3>
+<div class="h-48 flex items-end gap-1">
+<!-- Simplified Visualization -->
+<div class="flex-1 bg-primary/20 h-24 rounded-t-sm hover:bg-primary transition-colors"></div>
+<div class="flex-1 bg-primary/20 h-32 rounded-t-sm hover:bg-primary transition-colors"></div>
+<div class="flex-1 bg-primary/20 h-16 rounded-t-sm hover:bg-primary transition-colors"></div>
+<div class="flex-1 bg-primary/20 h-40 rounded-t-sm hover:bg-primary transition-colors"></div>
+<div class="flex-1 bg-primary/20 h-36 rounded-t-sm hover:bg-primary transition-colors"></div>
+<div class="flex-1 bg-primary/20 h-44 rounded-t-sm hover:bg-primary transition-colors"></div>
+<div class="flex-1 bg-primary/20 h-28 rounded-t-sm hover:bg-primary transition-colors"></div>
+<div class="flex-1 bg-primary-container h-48 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/20 h-32 rounded-t-sm hover:bg-primary transition-colors"></div>
+<div class="flex-1 bg-primary/20 h-20 rounded-t-sm hover:bg-primary transition-colors"></div>
+</div>
+<p class="font-body-sm text-on-surface-variant">Consistent daily activity with major release peaks every 3 weeks.</p>
+</div>
+<div class="glass-card rounded-xl p-8 flex flex-col justify-between text-center">
+<span class="material-symbols-outlined text-4xl text-secondary" data-icon="task_alt">task_alt</span>
+<div>
+<div class="text-display-xl font-display-xl text-on-surface">99%</div>
+<div class="font-label-bold text-on-surface-variant uppercase">Test Coverage</div>
+</div>
+</div>
+<div class="glass-card rounded-xl p-8 flex flex-col justify-between text-center border-l-4 border-tertiary">
+<span class="material-symbols-outlined text-4xl text-tertiary" data-icon="bug_report">bug_report</span>
+<div>
+<div class="text-display-xl font-display-xl text-on-surface">0.4</div>
+<div class="font-label-bold text-on-surface-variant uppercase">Debt Ratio</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Component -->
+<footer class="bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+<div class="w-full py-12 px-6 flex flex-col md:flex-row justify-between items-center gap-4 max-w-7xl mx-auto">
+<div class="flex flex-col items-center md:items-start gap-2">
+<span class="font-bold text-slate-900 dark:text-white">DevProof</span>
+<p class="text-xs font-normal text-slate-500 dark:text-slate-400">© 2024 DevProof. Precision Engineering Metrics.</p>
+</div>
+<div class="flex gap-8">
+<a class="text-xs font-normal text-slate-500 hover:text-indigo-500 transition-colors" href="#">About</a>
+<a class="text-xs font-normal text-slate-500 hover:text-indigo-500 transition-colors" href="#">Privacy</a>
+<a class="text-xs font-normal text-slate-500 hover:text-indigo-500 transition-colors" href="#">Terms</a>
+<a class="text-xs font-normal text-slate-500 hover:text-indigo-500 transition-colors" href="#">Documentation</a>
+</div>
+<div class="flex gap-4">
+<button class="material-symbols-outlined text-slate-400 hover:text-indigo-600 transition-colors" data-icon="language">language</button>
+<button class="material-symbols-outlined text-slate-400 hover:text-indigo-600 transition-colors" data-icon="terminal">terminal</button>
+</div>
+</div>
+</footer>
+</body></html>
