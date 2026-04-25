@@ -79,6 +79,8 @@ model GitHubProfile {
   company        String?
   blog           String?
   twitter        String?
+  isPublic       Boolean  @default(true)
+  portfolioTheme String   @default("indigo")
   lastSyncedAt   DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

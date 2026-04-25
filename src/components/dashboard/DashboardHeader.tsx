@@ -2,17 +2,35 @@
 
 import { signOut } from "next-auth/react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function DashboardHeader({ profile, name }: { profile: any; name: string }) {
+  const pathname = usePathname();
+
+  const navLinks = [
+    { name: "Overview", href: "/dashboard" },
+    { name: "Repositories", href: "/repositories" },
+    { name: "Readiness", href: "/readiness" },
+    { name: "Resume", href: "/resume" },
+    { name: "Settings", href: "/settings" },
+  ];
+
   return (
     <header className="fixed top-0 left-0 w-full flex justify-between items-center px-8 h-20 bg-slate-950/80 backdrop-blur-md z-50 border-b border-white/5 shadow-2xl">
       <div className="flex items-center gap-12">
         <Link href="/" className="text-xl font-black tracking-tighter text-white">DevProof</Link>
         <nav className="hidden lg:flex items-center gap-8">
-          <Link href="/dashboard" className="text-sm font-bold text-primary uppercase tracking-widest border-b-2 border-primary pb-1">Overview</Link>
-          <Link href="/repositories" className="text-sm font-bold text-on-surface-variant hover:text-on-surface transition-colors uppercase tracking-widest pb-1">Repositories</Link>
-          <Link href="/readiness" className="text-sm font-bold text-on-surface-variant hover:text-on-surface transition-colors uppercase tracking-widest pb-1">Readiness</Link>
-          <Link href="/resume" className="text-sm font-bold text-on-surface-variant hover:text-on-surface transition-colors uppercase tracking-widest pb-1">Resume</Link>
+          {navLinks.map((link) => (
+            <Link 
+              key={link.name} 
+              href={link.href} 
+              className={`text-sm font-bold uppercase tracking-widest pb-1 transition-colors ${
+                pathname === link.href ? "text-primary border-b-2 border-primary" : "text-on-surface-variant hover:text-on-surface"
+              }`}
+            >
+              {link.name}
+            </Link>
+          ))}
         </nav>
       </div>
       <div className="flex items-center gap-6">
