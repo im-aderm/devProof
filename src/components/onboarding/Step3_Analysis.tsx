@@ -6,35 +6,59 @@ import { useRouter } from "next/navigation";
 export default function Step3_Analysis() {
   const router = useRouter();
   const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState("Importing repositories...");
+  const [status, setStatus] = useState("Initializing sync engine...");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
+    const runSync = async () => {
+      try {
+        if (mounted) setStatus("Importing repositories...");
+        const res = await fetch("/api/user/sync", { method: "POST" });
+        
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Sync failed");
+        }
+
+        if (mounted) {
+          setProgress(100);
+          setStatus("Profile analysis complete!");
+          setTimeout(() => {
+            router.push("/dashboard");
+          }, 1500);
+        }
+      } catch (err: any) {
+        if (mounted) {
+          setError(err.message);
+          setStatus("Sync failed. Please try again from the dashboard.");
+        }
+      }
+    };
+
+    // Simulated progress while sync is running
     const interval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        const next = prev + Math.floor(Math.random() * 10) + 5;
-        return next > 100 ? 100 : next;
+        if (prev >= 95) return prev; // Wait for actual API completion to reach 100
+        const next = prev + Math.floor(Math.random() * 5) + 2;
+        return next > 95 ? 95 : next;
       });
-    }, 800);
+    }, 1000);
 
-    return () => clearInterval(interval);
-  }, []);
+    runSync();
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, [router]);
 
   useEffect(() => {
-    if (progress < 30) setStatus("Importing repositories...");
-    else if (progress < 60) setStatus("Detecting technologies...");
-    else if (progress < 90) setStatus("Analyzing codebase quality...");
-    else setStatus("Finalizing Lens score...");
-
-    if (progress === 100) {
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1500);
-    }
-  }, [progress, router]);
+    if (progress > 0 && progress < 30) setStatus("Fetching GitHub profile...");
+    else if (progress >= 30 && progress < 60) setStatus("Mapping repository structure...");
+    else if (progress >= 60 && progress < 95) setStatus("Analyzing technology stacks...");
+  }, [progress]);
 
   return (
     <div className="w-full max-w-2xl text-center z-10 flex flex-col items-center">
@@ -49,7 +73,7 @@ export default function Step3_Analysis() {
         <svg className="absolute inset-0 w-full h-full rotate-[-90deg]">
           <circle className="text-surface-container-highest" cx="128" cy="128" fill="transparent" r="110" stroke="currentColor" strokeWidth="4"></circle>
           <circle
-            className="text-primary-container transition-all duration-700 ease-out"
+            className={`transition-all duration-700 ease-out ${error ? "text-error" : "text-primary-container"}`}
             cx="128" cy="128" fill="transparent" r="110" stroke="currentColor" strokeWidth="4"
             strokeDasharray="691"
             strokeDashoffset={691 - (691 * progress) / 100}
@@ -59,32 +83,49 @@ export default function Step3_Analysis() {
           <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent"></div>
           <div className="relative z-10 flex flex-col items-center">
             <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center mb-3 border border-white/5 shadow-xl animate-[spin_8s_linear_infinite]">
-              <span className="material-symbols-outlined text-4xl text-on-surface">terminal</span>
+              <span className={`material-symbols-outlined text-4xl ${error ? "text-error" : "text-on-surface"}`}>
+                {error ? "error" : "terminal"}
+              </span>
             </div>
-            <span className="text-display-xl font-display-xl text-primary leading-none">{progress}%</span>
+            <span className={`text-display-xl font-display-xl leading-none ${error ? "text-error" : "text-primary"}`}>
+              {error ? "!" : `${progress}%`}
+            </span>
           </div>
         </div>
       </div>
 
-      <h1 className="text-display-xl font-display-xl text-on-surface mb-4">Analyzing your GitHub Profile</h1>
+      <h1 className="text-display-xl font-display-xl text-on-surface mb-4">
+        {error ? "Analysis Failed" : "Analyzing your GitHub Profile"}
+      </h1>
       <p className="text-body-base text-on-surface-variant max-w-lg mx-auto mb-10">
-        We&apos;re scanning repositories, activity, skills, and project quality to build your elite developer identity.
+        {error ? error : "We're scanning repositories, activity, skills, and project quality to build your elite developer identity."}
       </p>
 
-      <div className="max-w-md mx-auto w-full space-y-6">
-        <div className="w-full h-2 bg-surface-container-low rounded-full overflow-hidden border border-outline-variant/10">
-          <div
-            className="h-full bg-gradient-to-r from-primary-container via-tertiary-container to-secondary transition-all duration-700 ease-out"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center gap-3 text-secondary">
-            <span className="material-symbols-outlined text-xl animate-spin">sync</span>
-            <span className="text-body-base font-medium tracking-wide">{status}</span>
+      {error ? (
+        <button
+          onClick={() => router.push("/dashboard")}
+          className="bg-primary-container text-white px-8 py-3 rounded-lg font-bold hover:bg-opacity-90"
+        >
+          Go to Dashboard
+        </button>
+      ) : (
+        <div className="max-w-md mx-auto w-full space-y-6">
+          <div className="w-full h-2 bg-surface-container-low rounded-full overflow-hidden border border-outline-variant/10">
+            <div
+              className="h-full bg-gradient-to-r from-primary-container via-tertiary-container to-secondary transition-all duration-700 ease-out"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            <div className={`flex items-center gap-3 ${progress === 100 ? "text-secondary" : "text-primary"}`}>
+              <span className={`material-symbols-outlined text-xl ${progress < 100 ? "animate-spin" : ""}`}>
+                {progress === 100 ? "check_circle" : "sync"}
+              </span>
+              <span className="text-body-base font-medium tracking-wide">{status}</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -18,6 +18,7 @@
     "next": "latest",
     "next-auth": "^4.24.14",
     "nodemailer": "^7.0.13",
+    "octokit": "^5.0.5",
     "react": "latest",
     "react-dom": "latest",
     "tailwind-merge": "latest",
