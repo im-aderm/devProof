@@ -11,8 +11,12 @@ export default function DashboardPlaceholder() {
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
+    } else if (status === "authenticated") {
+      if (!(session?.user as any)?.onboardingCompleted) {
+        router.push("/onboarding");
+      }
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   if (status === "loading") {
     return <div className="bg-background min-h-screen flex items-center justify-center text-primary">Loading...</div>;
@@ -35,7 +39,7 @@ export default function DashboardPlaceholder() {
           <h2 className="text-headline-md mb-4">Welcome, {session?.user?.name || session?.user?.email}</h2>
           <p className="text-on-surface-variant">
             You have successfully logged into your DevProof dashboard. 
-            Phase 3 will implement the onboarding experience.
+            Phase 4 will implement the GitHub Data Engine.
           </p>
         </div>
       </div>

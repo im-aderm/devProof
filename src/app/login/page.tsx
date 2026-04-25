@@ -43,6 +43,8 @@ export default function LoginPage() {
           setError("Invalid email or password.");
         }
       } else {
+        // We can't easily check onboardingCompleted here without another fetch or a refresh
+        // So we'll redirect to a middle route or just check in dashboard
         router.push("/dashboard");
       }
     } catch (err: any) {

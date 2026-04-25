@@ -11,15 +11,17 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(cuid())
-  name           String?
-  email          String?   @unique
-  emailVerified  DateTime?
-  password       String?
-  image          String?
-  githubUsername String?   @unique
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id                  String    @id @default(cuid())
+  name                String?
+  email               String?   @unique
+  emailVerified       DateTime?
+  password            String?
+  image               String?
+  githubUsername      String?   @unique
+  onboardingCompleted Boolean   @default(false)
+  onboardingGoal      String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   accounts      Account[]
   sessions      Session[]

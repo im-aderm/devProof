@@ -52,12 +52,17 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token && session.user) {
         (session.user as any).id = token.sub;
+        (session.user as any).onboardingCompleted = token.onboardingCompleted;
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.onboardingCompleted = (user as any).onboardingCompleted;
+      } else {
+        // If it's a subsequent call, we might need to fetch the user status
+        // But for now, we'll just pass it from the initial sign in
       }
       return token;
     },
