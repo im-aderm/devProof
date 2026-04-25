@@ -23,16 +23,17 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  githubProfile GitHubProfile?
-  repositories  Repository[]
+  accounts      Account[] @relation("AccountUser")
+  sessions      Session[] @relation("SessionUser")
+  githubProfile GitHubProfile? @relation("GitHubProfileUser")
+  repositories  Repository[] @relation("UserRepositories")
   aiReports     AIReport[]
   readiness     ReadinessScore?
   resume        ResumeProfile?
-  notifications Notification[]
-  auditLogs     AuditLog[]
-  subscription  Subscription?
+  notifications Notification[] @relation("UserNotification")
+  auditLogs     AuditLog[]   @relation("UserAuditLogs")
+  syncLogs      SyncLog[]    @relation("SyncLogUser")
+  subscription  Subscription? @relation("SubscriptionUser")
 }
 
 model Account {
@@ -49,7 +50,7 @@ model Account {
   id_token          String? @db.Text
   session_state     String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("AccountUser", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -59,7 +60,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation("SessionUser", fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
@@ -85,7 +86,7 @@ model GitHubProfile {
   portfolioTheme String   @default("indigo")
   lastSyncedAt   DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("GitHubProfileUser", fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Repository {
@@ -107,7 +108,7 @@ model Repository {
   lastAnalyzedAt DateTime?
 
   metrics   RepositoryMetric?
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User              @relation("UserRepositories", fields: [userId], references: [id], onDelete: Cascade)
   languages RepositoryLanguage[]
 }
 
@@ -179,7 +180,7 @@ model Notification {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("UserNotification", fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AuditLog {
@@ -189,7 +190,7 @@ model AuditLog {
   metadata  Json?
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("UserAuditLogs", fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model SyncLog {
@@ -199,6 +200,8 @@ model SyncLog {
   error     String?
   startedAt DateTime @default(now())
   endedAt   DateTime?
+
+  user User @relation("SyncLogUser", fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Subscription {
@@ -212,5 +215,5 @@ model Subscription {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("SubscriptionUser", fields: [userId], references: [id], onDelete: Cascade)
 }
