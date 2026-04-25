@@ -2,14 +2,13 @@
 
 ## Achievements
 - **In-App Notification System**:
-    - Implemented a real-time notification system within the dashboard header.
-    - Integrated a notification icon displaying the unread count, triggering a dropdown with recent alerts.
+    - Implemented a real-time notification center directly in the dashboard header.
+    - Added a notification icon with an unread count badge, triggering a dropdown for displaying alerts.
     - Enabled users to mark notifications as read, clearing the badge count.
-- **API for Notifications**:
-    - Created `/api/user/notifications` (GET) to fetch all notifications for the logged-in user.
-    - Created `/api/user/notifications` (PATCH) to mark notifications as read.
-- **Notification Types (Infrastructure)**:
-    - The `Notification` model in `prisma/schema.prisma` supports various notification types (e.g., "Weekly Score Update", "Repo Stale Alert", "Resume Ready Alert", "Improvement Reminder"), laying the groundwork for future event-driven notifications.
+- **Notification API**:
+    - Created API endpoints (`GET /api/user/notifications` and `PATCH /api/user/notifications`) to manage user notifications.
+- **Foundation for Future Alerts**:
+    - The `Notification` model in `prisma/schema.prisma` is set up to support various alert types (e.g., "Weekly Score Update", "Repo Stale Alert", "Resume Ready Alert", "Improvement Reminder"), enabling future event-driven re-engagement strategies.
 
 ## Next Steps
 - **Phase 13**: Admin Panel (Developing internal tools for product operations, user management, and system monitoring).
