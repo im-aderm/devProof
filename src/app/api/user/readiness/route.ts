@@ -2,19 +2,18 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ScoringEngine } from "@/lib/scoring";
+import { ScoringEngine, type RepoWithMetrics } from "@/lib/scoring";
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
+    const userId = (session.user as { id: string }).id;
 
-    // Fetch necessary data
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
@@ -22,52 +21,63 @@ export async function GET() {
           include: { metrics: true, languages: true },
         },
         githubProfile: true,
-        aiReports: { where: { type: "USER_SUMMARY" }, orderBy: { createdAt: "desc" }, take: 1 },
       },
     });
 
-    if (!user || !user.githubProfile) {
-      return NextResponse.json({ error: "User profile not found. Please sync GitHub first." }, { status: 400 });
+    if (!user?.githubProfile) {
+      return NextResponse.json(
+        { error: "GitHub profile not found. Please sync GitHub first.", code: "NO_GITHUB_PROFILE" },
+        { status: 400 }
+      );
     }
 
-    const repoMetrics = user.repositories.map(r => r.metrics).filter(Boolean); // Filter out nulls
-    const languages = user.repositories.flatMap(r => r.languages);
-    const aiSummary = user.aiReports[0] ? JSON.parse(user.aiReports[0].content) : null;
+    // Pass full repo objects (which have pushedAt) — not just the metrics
+    const repos: RepoWithMetrics[] = user.repositories.map((r) => ({
+      pushedAt: r.pushedAt,
+      stars: r.stars,
+      forks: r.forks,
+      language: r.language,
+      metrics: r.metrics,
+      languages: r.languages,
+    }));
 
-    const { score, recommendations, checklist } = ScoringEngine.calculateReadinessScore(
-      repoMetrics,
-      user.githubProfile,
-      languages
-    );
+    const result = ScoringEngine.calculateReadinessScore(repos);
 
-    // Store score in DB (optional, but good for tracking)
+    // Persist score for dashboard StatCard usage
     await prisma.readinessScore.upsert({
       where: { userId },
       update: {
-        overallScore: score,
-        projectQuality: checklist.find(item => item.name === "Project Quality")?.score || 0,
-        consistency: checklist.find(item => item.name === "Consistency")?.score || 0,
-        collaboration: checklist.find(item => item.name === "Collaboration")?.score || 0,
-        documentation: checklist.find(item => item.name === "Documentation")?.score || 0,
-        technicalBreadth: checklist.find(item => item.name === "Technical Breadth")?.score || 0,
-        recommendations: recommendations as any,
+        overallScore: result.score,
+        projectQuality: result.projectQuality,
+        consistency: result.consistency,
+        collaboration: result.collaboration,
+        documentation: result.documentation,
+        technicalBreadth: result.technicalBreadth,
+        recommendations: result.recommendations,
       },
       create: {
         userId,
-        overallScore: score,
-        projectQuality: checklist.find(item => item.name === "Project Quality")?.score || 0,
-        consistency: checklist.find(item => item.name === "Consistency")?.score || 0,
-        collaboration: checklist.find(item => item.name === "Collaboration")?.score || 0,
-        documentation: checklist.find(item => item.name === "Documentation")?.score || 0,
-        technicalBreadth: checklist.find(item => item.name === "Technical Breadth")?.score || 0,
-        recommendations: recommendations as any,
+        overallScore: result.score,
+        projectQuality: result.projectQuality,
+        consistency: result.consistency,
+        collaboration: result.collaboration,
+        documentation: result.documentation,
+        technicalBreadth: result.technicalBreadth,
+        recommendations: result.recommendations,
       },
     });
 
-    return NextResponse.json({ score, recommendations, checklist });
-
-  } catch (error: any) {
+    return NextResponse.json({
+      score: result.score,
+      recommendations: result.recommendations,
+      checklist: result.checklist,
+    });
+  } catch (error) {
     console.error("READINESS_API_ERROR", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error", code: "SERVER_ERROR" },
+      { status: 500 }
+    );
   }
 }
+

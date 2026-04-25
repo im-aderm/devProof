@@ -7,29 +7,27 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
+    const userId = session.user.id;
 
-    // Fetch User Profile
-    const profile = await prisma.githubProfile.findUnique({
-      where: { userId },
-    });
+    // Parallel fetch: profile, repos, languages, and readiness score
+    const [profile, repos, languages, readiness] = await Promise.all([
+      prisma.githubProfile.findUnique({ where: { userId } }),
+      prisma.repository.findMany({
+        where: { userId },
+        orderBy: { pushedAt: "desc" },
+        take: 5,
+      }),
+      prisma.repositoryLanguage.findMany({
+        where: { repository: { userId } },
+      }),
+      prisma.readinessScore.findUnique({ where: { userId } }),
+    ]);
 
-    // Fetch Repositories
-    const repos = await prisma.repository.findMany({
-      where: { userId },
-      orderBy: { pushedAt: "desc" },
-      take: 5,
-    });
-
-    // Fetch Language Distribution
-    const languages = await prisma.repositoryLanguage.findMany({
-      where: { repository: { userId } },
-    });
-
+    // Build language distribution
     const languageStats: Record<string, number> = {};
     languages.forEach((lang) => {
       languageStats[lang.name] = (languageStats[lang.name] || 0) + lang.size;
@@ -39,10 +37,10 @@ export async function GET() {
       .map(([name, size]) => ({ name, size }))
       .sort((a, b) => b.size - a.size);
 
-    // Mock Scores (refined in Phase 10)
     const stats = {
-      devScore: 84,
-      growthScore: 12,
+      // Real devScore from ReadinessScore table; 0 + flag if not yet calculated
+      devScore: readiness?.overallScore ?? 0,
+      devScoreCalculated: readiness != null,
       topSkill: sortedLanguages[0]?.name || "N/A",
       repoCount: profile?.publicRepos || 0,
       totalStars: repos.reduce((acc, repo) => acc + repo.stars, 0),
@@ -54,8 +52,11 @@ export async function GET() {
       languages: sortedLanguages.slice(0, 5),
       stats,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("DASHBOARD_API_ERROR", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error", code: "SERVER_ERROR" },
+      { status: 500 }
+    );
   }
 }

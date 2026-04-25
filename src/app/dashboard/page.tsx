@@ -20,11 +20,11 @@ export default function DashboardPage() {
     if (status === "unauthenticated") {
       router.push("/login");
     } else if (status === "authenticated") {
-      if (!(session?.user as any)?.onboardingCompleted) {
+      if (!session?.user?.onboardingCompleted) {
         router.push("/onboarding");
       } else {
-        fetchDashboardData();
-        fetchAiSummary();
+        // Fetch both in parallel
+        Promise.all([fetchDashboardData(), fetchAiSummary()]);
       }
     }
   }, [status, session, router]);
@@ -32,6 +32,7 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       const res = await fetch("/api/user/dashboard");
+      if (!res.ok) throw new Error("Failed to fetch");
       const result = await res.json();
       setData(result);
     } catch (error) {
@@ -44,6 +45,7 @@ export default function DashboardPage() {
   const fetchAiSummary = async () => {
     try {
       const res = await fetch("/api/user/ai-summary");
+      if (!res.ok) return;
       const result = await res.json();
       if (result) setAiSummary(result);
     } catch (error) {
@@ -97,14 +99,18 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           <StatCard
             label="Developer Score"
-            value={`${data?.stats.devScore}/100`}
-            trend="+4.2%"
+            value={
+              data?.stats.devScoreCalculated
+                ? `${data.stats.devScore}/100`
+                : "—"
+            }
+            trend={data?.stats.devScoreCalculated ? undefined : "Visit /readiness to calculate"}
             icon="analytics"
             color="primary"
           />
           <StatCard
             label="Top Skill"
-            value={aiSummary?.topSkills?.[0] || data?.stats.topSkill}
+            value={aiSummary?.topSkills?.[0] ?? data?.stats.topSkill ?? "—"}
             icon="code"
             color="secondary"
           />
@@ -185,35 +191,30 @@ export default function DashboardPage() {
 
             <div className="glass-card rounded-xl p-8 border-outline-variant/20">
               <h3 className="text-headline-md font-bold mb-6">Profile Strength</h3>
-              <div className="space-y-6">
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-xs font-bold uppercase text-on-surface-variant">Documentation</span>
-                    <span className="text-xs font-bold text-secondary">82%</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
-                    <div className="h-full w-[82%] bg-secondary"></div>
-                  </div>
+              {data?.stats.devScoreCalculated ? (
+                <div className="space-y-6">
+                  {[
+                    { label: "Documentation", value: data.stats.documentation ?? 0, color: "bg-secondary", textColor: "text-secondary" },
+                    { label: "Complexity", value: data.stats.projectQuality ?? 0, color: "bg-tertiary", textColor: "text-tertiary" },
+                    { label: "Consistency", value: data.stats.consistency ?? 0, color: "bg-primary", textColor: "text-primary" },
+                  ].map(({ label, value, color, textColor }) => (
+                    <div key={label}>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-xs font-bold uppercase text-on-surface-variant">{label}</span>
+                        <span className={`text-xs font-bold ${textColor}`}>{value}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+                        <div className={`h-full ${color} transition-all duration-700`} style={{ width: `${value}%` }} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-xs font-bold uppercase text-on-surface-variant">Complexity</span>
-                    <span className="text-xs font-bold text-tertiary">65%</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
-                    <div className="h-full w-[65%] bg-tertiary"></div>
-                  </div>
+              ) : (
+                <div className="text-center py-6">
+                  <p className="text-on-surface-variant text-xs italic mb-4">Calculate your readiness score to see profile strength.</p>
+                  <a href="/readiness" className="text-primary text-xs font-bold uppercase tracking-widest hover:underline">Calculate Now →</a>
                 </div>
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-xs font-bold uppercase text-on-surface-variant">Frequency</span>
-                    <span className="text-xs font-bold text-primary">94%</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
-                    <div className="h-full w-[94%] bg-primary"></div>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

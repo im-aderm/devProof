@@ -53,35 +53,50 @@ export const authOptions: NextAuthOptions = {
           throw new Error("UNVERIFIED");
         }
 
-        return user;
+        // Return typed object — matches next-auth.d.ts User interface
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          githubUsername: user.githubUsername ?? undefined,
+          onboardingCompleted: user.onboardingCompleted,
+          isAdmin: user.isAdmin,
+        };
       },
     }),
   ],
   callbacks: {
     async session({ session, token }) {
       if (token && session.user) {
-        (session.user as any).id = token.sub;
-        (session.user as any).onboardingCompleted = token.onboardingCompleted;
-        (session.user as any).githubUsername = token.githubUsername;
-        (session.user as any).accessToken = token.accessToken;
+        // All fields are typed via src/types/next-auth.d.ts — no `as any` needed
+        session.user.id = token.id ?? token.sub ?? "";
+        session.user.onboardingCompleted = token.onboardingCompleted;
+        session.user.githubUsername = token.githubUsername;
+        session.user.isAdmin = token.isAdmin;
+        session.accessToken = token.accessToken;
       }
       return session;
     },
     async jwt({ token, user, account, profile }) {
       if (user) {
         token.id = user.id;
-        token.onboardingCompleted = (user as any).onboardingCompleted;
-        token.githubUsername = (user as any).githubUsername;
+        token.onboardingCompleted = user.onboardingCompleted;
+        token.githubUsername = user.githubUsername;
+        token.isAdmin = user.isAdmin;
       }
       if (account && account.provider === "github") {
         token.accessToken = account.access_token;
-        token.githubUsername = (profile as any).login;
+        token.githubUsername = (profile as { login: string }).login;
 
-        // Update user with github username if not present
-        await prisma.user.update({
+        // Persist github username and fetch latest isAdmin from DB
+        const updated = await prisma.user.update({
           where: { id: token.id as string },
-          data: { githubUsername: (profile as any).login },
+          data: { githubUsername: (profile as { login: string }).login },
+          select: { isAdmin: true, onboardingCompleted: true },
         });
+        token.isAdmin = updated.isAdmin;
+        token.onboardingCompleted = updated.onboardingCompleted;
       }
       return token;
     },

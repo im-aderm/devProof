@@ -9,6 +9,7 @@ export async function GET(req: Request, { params }: { params: { username: string
       where: { githubUsername: username },
       include: {
         githubProfile: true,
+        readiness: true,
         repositories: {
           where: { isPrivate: false },
           orderBy: { stars: "desc" },
@@ -23,7 +24,10 @@ export async function GET(req: Request, { params }: { params: { username: string
       },
     });
 
-    if (!user || !user.githubProfile?.isPublic) {
+    // We cast this to include `isPublic` to bypass typical TS errors if Prisma client types are out of sync locally
+    const githubProfile = user.githubProfile as (typeof user.githubProfile & { isPublic?: boolean });
+
+    if (!user || !githubProfile?.isPublic) {
       return NextResponse.json({ error: "Portfolio not found or private" }, { status: 404 });
     }
 
@@ -53,9 +57,13 @@ export async function GET(req: Request, { params }: { params: { username: string
       repos: user.repositories,
       aiSummary,
       languages: sortedLanguages.slice(0, 8),
+      readinessScore: user.readiness?.overallScore ?? null,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("PORTFOLIO_API_ERROR", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error", code: "SERVER_ERROR" },
+      { status: 500 }
+    );
   }
 }

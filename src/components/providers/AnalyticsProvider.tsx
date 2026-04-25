@@ -4,27 +4,30 @@ import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
 import { useEffect } from "react";
 
-if (process.env.NEXT_PUBLIC_POSTHOG_HOST && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
-  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
-    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-    // Add other options if needed, e.g., for identifying users
-  });
-}
-
 export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
-  // Only render PostHogProvider if the keys are available
-  if (process.env.NEXT_PUBLIC_POSTHOG_HOST && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+  useEffect(() => {
+    const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+    const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+
+    if (key && host && !posthog.__loaded) {
+      posthog.init(key, {
+        api_host: host,
+        capture_pageview: false, // manually track with PostHogProvider
+      });
+    }
+  }, []);
+
+  const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+  const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+
+  if (key && host) {
     return (
-      <PostHogProvider
-        config={{
-          api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-        }}
-        key={process.env.NEXT_PUBLIC_POSTHOG_KEY}
-      >
+      <PostHogProvider client={posthog}>
         {children}
       </PostHogProvider>
     );
   }
-  // If PostHog is not configured, just return children
+
   return <>{children}</>;
 }
+

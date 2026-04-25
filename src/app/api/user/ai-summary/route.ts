@@ -1,38 +1,49 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { AIService } from "@/lib/ai";
-import { GitHubService } from "@/lib/github";
-import rateLimit from 'next-rate-limit'; // Assuming 'next-rate-limit' is available or similar pattern
 
-// Basic rate limiting middleware
-const limiter = rateLimit({
-  interval: 15 * 60 * 1000, // 15 minutes
-  uniqueTokenPerInterval: 500, // 500 requests per interval
-});
+// ---------------------------------------------------------------------------
+// Simple in-memory rate limiter (per-user, resets on server restart)
+// For production, replace with @upstash/ratelimit backed by Redis
+// ---------------------------------------------------------------------------
+const RATE_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const MAX_REQUESTS = 5; // max AI generations per window per user
+const rateLimitStore = new Map<string, { count: number; windowStart: number }>();
 
-const validate = async (schema: z.ZodSchema<any>, request: Request) => {
-  const body = await request.json();
-  return schema.parse(body);
-};
+function isRateLimited(userId: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitStore.get(userId);
 
-// --- API for User Summary ---
-export async function POST(req: Request) {
-  // Rate Limiting
-  const { limited, token } = await limiter.check(req, res);
-  if (limited) {
-    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  if (!entry || now - entry.windowStart > RATE_WINDOW_MS) {
+    rateLimitStore.set(userId, { count: 1, windowStart: now });
+    return false;
   }
 
+  if (entry.count >= MAX_REQUESTS) return true;
+
+  entry.count += 1;
+  return false;
+}
+
+// --- POST: Generate and cache user AI summary ---
+export async function POST() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
+    const userId = (session.user as { id: string }).id;
+
+    if (isRateLimited(userId)) {
+      return NextResponse.json(
+        { error: "Too many requests. Please wait 15 minutes before generating a new AI summary.", code: "RATE_LIMITED" },
+        { status: 429 }
+      );
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
@@ -42,22 +53,35 @@ export async function POST(req: Request) {
           take: 10,
           include: { languages: true },
         },
-        aiReports: { where: { type: "USER_SUMMARY" }, orderBy: { createdAt: "desc" }, take: 1 },
+        aiReports: {
+          where: { type: "USER_SUMMARY" },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+        },
       },
     });
 
-    if (!user || !user.githubProfile) {
-      return NextResponse.json({ error: "GitHub profile not found. Please sync GitHub first." }, { status: 400 });
+    if (!user?.githubProfile) {
+      return NextResponse.json(
+        { error: "GitHub profile not found. Please sync GitHub first.", code: "NO_GITHUB_PROFILE" },
+        { status: 400 }
+      );
     }
 
-    const aiSummary = user.aiReports[0] ? JSON.parse(user.aiReports[0].content) : null;
-
-    if (aiSummary) {
-      // Return cached summary if available
-      return NextResponse.json(aiSummary);
+    // Return cached report if already exists
+    if (user.aiReports[0]) {
+      try {
+        return NextResponse.json(JSON.parse(user.aiReports[0].content));
+      } catch {
+        // Stale / corrupt cache — fall through to regenerate
+        await prisma.aiReport.delete({ where: { id: user.aiReports[0].id } });
+      }
     }
 
-    const generatedSummary = await AIService.generateUserSummary(user.githubProfile, user.repositories);
+    const generatedSummary = await AIService.generateUserSummary(
+      user.githubProfile,
+      user.repositories
+    );
 
     await prisma.aiReport.create({
       data: {
@@ -69,19 +93,24 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(generatedSummary);
-  } catch (error: any) {
-    console.error("AI_SUMMARY_ERROR", error);
-    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
+  } catch (error) {
+    console.error("AI_SUMMARY_POST_ERROR", error);
+    return NextResponse.json(
+      { error: "Internal server error", code: "SERVER_ERROR" },
+      { status: 500 }
+    );
   }
 }
 
+// --- GET: Retrieve cached summary ---
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
     }
-    const userId = (session.user as any).id;
+
+    const userId = (session.user as { id: string }).id;
 
     const report = await prisma.aiReport.findFirst({
       where: { userId, type: "USER_SUMMARY" },
@@ -90,9 +119,17 @@ export async function GET() {
 
     if (!report) return NextResponse.json(null);
 
-    return NextResponse.json(JSON.parse(report.content));
+    try {
+      return NextResponse.json(JSON.parse(report.content));
+    } catch {
+      return NextResponse.json(null);
+    }
   } catch (error) {
     console.error("AI_SUMMARY_GET_ERROR", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error", code: "SERVER_ERROR" },
+      { status: 500 }
+    );
   }
 }
+

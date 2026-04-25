@@ -3,8 +3,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
-/* eslint-disable @next/next/no-img-element */
+import Image from "next/image";
 export default function PublicPortfolioPage() {
   const params = useParams();
   const [data, setData] = useState<any>(null);
@@ -65,9 +64,11 @@ export default function PublicPortfolioPage() {
         <div className="relative z-10 max-w-5xl mx-auto px-8">
           <div className="flex flex-col md:flex-row items-center gap-10 text-center md:text-left">
             <div className="relative">
-              <img 
-                src={data.user.image || `https://ui-avatars.com/api/?name=${data.user.name}&background=4f46e5&color=fff`} 
-                alt={data.user.name} 
+              <Image
+                src={data.user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.user.name || "U")}&background=4f46e5&color=fff`}
+                alt={`${data.user.name} profile photo`}
+                width={160}
+                height={160}
                 className="w-40 h-40 rounded-full border-4 border-primary/20 shadow-2xl object-cover"
               />
               <div className="absolute bottom-2 right-2 w-8 h-8 bg-secondary rounded-full flex items-center justify-center border-4 border-background">
@@ -116,12 +117,20 @@ export default function PublicPortfolioPage() {
               <div className="glass-card p-8 rounded-2xl border-primary/20 relative overflow-hidden">
                 <div className="relative z-10">
                   <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Lens Score</p>
-                  <h3 className="text-6xl font-black text-primary mb-4">84<span className="text-2xl text-on-surface-variant">/100</span></h3>
-                  <div className="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden mb-6">
-                    <div className="h-full bg-primary" style={{ width: '84%' }}></div>
-                  </div>
+                  {data.readinessScore != null ? (
+                    <>
+                      <h3 className="text-6xl font-black text-primary mb-4">
+                        {data.readinessScore}<span className="text-2xl text-on-surface-variant">/100</span>
+                      </h3>
+                      <div className="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden mb-6">
+                        <div className="h-full bg-primary" style={{ width: `${data.readinessScore}%` }} />
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-on-surface-variant text-sm italic mb-6">Score not yet calculated.</p>
+                  )}
                   <p className="text-xs text-on-surface-variant leading-relaxed italic">
-                    Scored in the top 2% of contributors globally based on code impact and documentation quality.
+                    Verified developer readiness score powered by DevProof.
                   </p>
                 </div>
                 <div className="absolute top-0 right-0 p-4 opacity-10">
