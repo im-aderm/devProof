@@ -9,7 +9,9 @@ export class AIService {
    * Generates a professional summary of a developer based on their profile and repositories.
    */
   static async generateUserSummary(profile: any, repos: any[]) {
-    const repoDetails = repos.map(r => `${r.name}: ${r.description || "No description"} (${r.language})`).join("\n");
+    const repoDetails = repos
+      .map(r => `${r.name}: ${r.description || "No description"} (${r.language})`)
+      .join("\n");
     
     const prompt = `
       You are a technical recruiter assistant. Based on the following GitHub profile and repositories, 
@@ -27,13 +29,23 @@ export class AIService {
       - growthAreas: An array of 3 suggested areas for improvement.
     `;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-    });
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+      });
 
-    return JSON.parse(response.choices[0].message.content || "{}");
+      return JSON.parse(response.choices[0].message.content || "{}");
+    } catch (error) {
+      console.error("AI_USER_SUMMARY_ERROR", error);
+      return {
+        summary: "Profile summary unavailable at this time.",
+        persona: "Developer",
+        topSkills: [],
+        growthAreas: []
+      };
+    }
   }
 
   /**
@@ -45,17 +57,21 @@ export class AIService {
       Name: ${repo.name}
       Description: ${repo.description || "N/A"}
       Language: ${repo.language}
-      Stars: ${repo.stars}
       
       Explain what the project likely does and why it is technically significant.
       Max 3 sentences. Return as a plain string.
     `;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }],
-    });
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: prompt }],
+      });
 
-    return response.choices[0].message.content;
+      return response.choices[0].message.content;
+    } catch (error) {
+      console.error("AI_REPO_SUMMARY_ERROR", error);
+      return "Repository summary unavailable.";
+    }
   }
 }

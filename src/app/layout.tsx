@@ -1,17 +1,32 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/components/providers/AuthProvider";
-import { AnalyticsProvider } from "@/components/providers/AnalyticsProvider"; // Import AnalyticsProvider
+import { AnalyticsProvider } from "@/components/providers/AnalyticsProvider";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
 
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+});
+
 export const metadata: Metadata = {
-  title: "DevProof | Elite Talent Lens",
-  description: "Turn your GitHub activity into professional proof-of-skill assets.",
+  title: "DevProof | GitHub Intelligence Platform",
+  description: "Analyze and compare public GitHub profiles and repositories instantly with the Obsidian Ledger protocol.",
+  openGraph: {
+    title: "DevProof | The Obsidian Ledger",
+    description: "Transform GitHub activity into professional proof-of-skill assets.",
+    type: "website",
+    siteName: "DevProof",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DevProof | GitHub Intelligence",
+    description: "Deep architectural audits of public repositories and profiles.",
+  },
 };
 
 export default function RootLayout({
@@ -27,12 +42,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${inter.variable} font-sans`}>
-        <AuthProvider>
-          <AnalyticsProvider> {/* Wrap children with AnalyticsProvider */}
-            {children}
-          </AnalyticsProvider>
-        </AuthProvider>
+      <body className={`${inter.variable} ${manrope.variable} font-sans bg-background text-on-surface antialiased`}>
+        <AnalyticsProvider>
+          {children}
+        </AnalyticsProvider>
       </body>
     </html>
   );

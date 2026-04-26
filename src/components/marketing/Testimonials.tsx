@@ -47,7 +47,7 @@ export default function Testimonials() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {testimonials.map((t, i) => (
             <div key={i} className={`glass-card rounded-xl border-l-4 p-8 ${t.border}`}>
-              <p className="font-body-base text-on-surface mb-8 leading-relaxed italic">
+              <p className="text-body-base text-on-surface mb-8 leading-relaxed italic">
                 &quot;{t.content}&quot;
               </p>
               <div className="flex items-center gap-4">

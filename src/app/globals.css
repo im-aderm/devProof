@@ -2,53 +2,73 @@
 @config "../../tailwind.config.ts";
 
 @layer base {
-  :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --error: 0 62.8% 30.6%;
-    --error-foreground: 0 0% 98%;
-    --outline: 240 4.9% 83.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --radius: 0.5rem;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-outline-variant;
-  }
   body {
-    @apply bg-background text-on-background font-body-base antialiased;
+    @apply bg-background text-on-surface text-body-md antialiased;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-[rgba(31,31,40,0.6)] backdrop-blur-xl border border-[rgba(195,192,255,0.1)];
+    @apply bg-surface-container-low/80 backdrop-blur-xl border border-outline-variant;
   }
 
-  .glass-panel {
-    @apply backdrop-blur-xl bg-[rgba(31,31,40,0.7)] border border-[rgba(145,143,161,0.1)];
-  }
-
-  .skill-gradient {
-    background: linear-gradient(180deg, #4f46e5 0%, #4338ca 100%);
+  .primary-gradient-text {
+    @apply bg-primary-gradient bg-clip-text text-transparent;
   }
 }
 
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Print Styles for Premium PDF Export */
+@media print {
+  .no-print, header, nav, button, footer {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .bg-background, .bg-surface-container-low, .bg-surface-container-high, .bg-surface-container-lowest {
+    background: transparent !important;
+    border: 1px solid #eee !important;
+    box-shadow: none !important;
+  }
+
+  .text-on-surface, .text-on-surface-variant {
+    color: black !important;
+  }
+
+  .text-primary, .text-primary-container {
+    color: #2ECC71 !important;
+  }
+
+  .bg-primary-gradient {
+    background: #2ECC71 !important;
+    color: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  main {
+    padding-top: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .rounded-2xl, .rounded-xl {
+    border-radius: 8px !important;
+  }
+
+  section {
+    page-break-inside: avoid;
+    margin-bottom: 2rem !important;
+  }
+
+  @page {
+    margin: 1cm;
+  }
 }

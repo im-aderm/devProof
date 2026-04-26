@@ -1,157 +1,151 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
 
-// Mock components for comparison metrics
-const MetricComparison = ({ title, valueA, valueB, icon, color }: { title: string; valueA: string | number; valueB: string | number; icon: string; color: string }) => (
-  <div className="glass-card rounded-xl p-6 border-outline-variant/20 flex items-center justify-between gap-4">
-    <div className="flex items-center gap-3">
-      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colorMap[color]}`}>
-        <span className="material-symbols-outlined">{icon}</span>
-      </div>
-      <span className="text-on-surface font-bold">{title}</span>
-    </div>
-    <div className="flex items-center gap-6">
-      <span className="text-on-surface font-bold">{valueA}</span>
-      <span className="text-on-surface-variant">vs</span>
-      <span className="text-on-surface font-bold">{valueB}</span>
-    </div>
-  </div>
-);
-
-const colorMap = {
-  primary: "text-primary bg-primary/10",
-  secondary: "text-secondary bg-secondary/10",
-  tertiary: "text-tertiary bg-tertiary/10",
-};
-
-export default function ComparePage() {
-  const { data: session, status } = useSession();
+export default function CompareEntryPage() {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<"users" | "repos">("users");
+  
+  // User state
   const [userA, setUserA] = useState("");
   const [userB, setUserB] = useState("");
-  const [comparisonData, setComparisonData] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }
-  }, [status, router]);
+  // Repo state
+  const [repoA, setRepoA] = useState(""); // format: owner/repo
+  const [repoB, setRepoB] = useState(""); // format: owner/repo
 
-  const handleCompare = async () => {
-    if (!userA || !userB) {
-      setError("Please enter both GitHub usernames.");
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    setComparisonData(null);
-
-    try {
-      const res = await fetch(`/api/compare/${userA}/${userB}`);
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || "Failed to compare users.");
+  const handleCompare = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (activeTab === "users") {
+      if (userA.trim() && userB.trim()) {
+        router.push(`/compare/users/${userA.trim()}/${userB.trim()}`);
       }
-      const data = await res.json();
-      setComparisonData(data);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    } else {
+      if (repoA.includes("/") && repoB.includes("/")) {
+        const [oA, rA] = repoA.trim().split("/");
+        const [oB, rB] = repoB.trim().split("/");
+        router.push(`/compare/repos/${oA}/${rA}/${oB}/${rB}`);
+      }
     }
   };
 
-  if (status === "loading") {
-    return <div className="bg-background min-h-screen flex items-center justify-center text-primary">Loading...</div>;
-  }
-
   return (
-    <div className="bg-background text-on-background min-h-screen">
-      <DashboardHeader profile={null} name={session?.user?.name || "Developer"} />
+    <div className="bg-background min-h-screen">
+      <DashboardHeader name="Compare" />
+      
+      <main className="pt-32 px-12 max-w-4xl mx-auto text-center">
+        <h1 className="font-display text-display-md text-on-surface mb-4">Benchmarking Protocol</h1>
+        <p className="text-on-surface-variant text-body-lg mb-12 max-w-2xl mx-auto">
+          Compare two GitHub identities or repositories side-by-side to analyze performance, quality, and architectural parity.
+        </p>
 
-      <main className="pt-28 pb-12 px-8 max-w-[1440px] mx-auto">
-        <div className="mb-10">
-          <h1 className="text-display-xl font-bold text-on-surface mb-2">Compare Developers</h1>
-          <p className="text-on-surface-variant">Benchmark skills and contributions side-by-side.</p>
+        {/* Tab Switcher */}
+        <div className="flex justify-center mb-8">
+           <div className="bg-surface-container-low p-1.5 rounded-xl border border-outline-variant/20 flex gap-2">
+              <button 
+                onClick={() => setActiveTab("users")}
+                className={`px-8 py-2.5 rounded-lg text-label-md font-bold uppercase tracking-widest transition-all ${activeTab === "users" ? "bg-surface-container-highest text-primary shadow-lg" : "text-on-surface-variant hover:text-on-surface"}`}
+              >
+                Users
+              </button>
+              <button 
+                onClick={() => setActiveTab("repos")}
+                className={`px-8 py-2.5 rounded-lg text-label-md font-bold uppercase tracking-widest transition-all ${activeTab === "repos" ? "bg-surface-container-highest text-primary shadow-lg" : "text-on-surface-variant hover:text-on-surface"}`}
+              >
+                Repositories
+              </button>
+           </div>
         </div>
 
-        <div className="glass-card rounded-xl p-8 mb-10 border-outline-variant/20">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-            <div className="flex flex-col w-full md:w-1/3">
-              <label className="font-label-bold text-xs uppercase text-on-surface-variant block mb-2">GitHub Username 1</label>
-              <input
-                type="text"
-                value={userA}
-                onChange={(e) => setUserA(e.target.value)}
-                className="w-full bg-surface-container-high border border-outline/20 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-                placeholder="e.g., octocat"
-              />
+        <form onSubmit={handleCompare} className="glass-card p-12 rounded-2xl border border-outline-variant/20 shadow-2xl space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center z-10 hidden md:flex">
+               <span className="text-primary font-bold italic">VS</span>
             </div>
-            <div className="text-center text-on-surface-variant">vs</div>
-            <div className="flex flex-col w-full md:w-1/3">
-              <label className="font-label-bold text-xs uppercase text-on-surface-variant block mb-2">GitHub Username 2</label>
-              <input
-                type="text"
-                value={userB}
-                onChange={(e) => setUserB(e.target.value)}
-                className="w-full bg-surface-container-high border border-outline/20 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-                placeholder="e.g., torvalds"
-              />
-            </div>
-            <button
-              onClick={handleCompare}
-              disabled={loading || !userA || !userB}
-              className="px-10 py-4 skill-gradient text-white rounded-lg font-bold hover:opacity-90 transition-all disabled:opacity-50 mt-6 md:mt-0"
-            >
-              {loading ? "Comparing..." : "Compare"}
-            </button>
-          </div>
-          {error && <p className="text-error text-center mt-6">{error}</p>}
-        </div>
 
-        {comparisonData && (
-          <div className="glass-card rounded-xl p-8 border-outline-variant/20">
-            <h2 className="text-headline-lg font-bold text-on-surface mb-8">Comparison Results</h2>
-            <div className="space-y-8">
-              <MetricComparison
-                title="Overall Readiness Score"
-                valueA={comparisonData.userA.readinessScore || "N/A"}
-                valueB={comparisonData.userB.readinessScore || "N/A"}
-                icon="rocket_launch"
-                color="primary"
-              />
-              <MetricComparison
-                title="Top Skill"
-                valueA={comparisonData.userA.topSkill || "N/A"}
-                valueB={comparisonData.userB.topSkill || "N/A"}
-                icon="code"
-                color="secondary"
-              />
-              <MetricComparison
-                label="Repositories"
-                valueA={comparisonData.userA.repoCount || 0}
-                valueB={comparisonData.userB.repoCount || 0}
-                icon="inventory_2"
-                color="tertiary"
-              />
-              <MetricComparison
-                label="Total Stars"
-                valueA={comparisonData.userA.totalStars || 0}
-                valueB={comparisonData.userB.totalStars || 0}
-                icon="grade"
-                color="primary"
-              />
-               {/* Add more metrics like Language Diversity, Collaboration etc. */}
-            </div>
+            {activeTab === "users" ? (
+              <>
+                <div className="space-y-4">
+                  <label className="text-label-md font-bold text-on-surface-variant uppercase tracking-widest block text-left">Primary Subject</label>
+                  <div className="flex items-center px-6 bg-surface-container-low rounded-xl border border-outline-variant focus-within:border-primary transition-all">
+                    <span className="material-symbols-outlined text-on-surface-variant mr-3">person</span>
+                    <input 
+                      type="text" 
+                      placeholder="Username A"
+                      value={userA}
+                      onChange={(e) => setUserA(e.target.value)}
+                      className="w-full bg-transparent border-none py-4 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <label className="text-label-md font-bold text-on-surface-variant uppercase tracking-widest block text-left">Comparison Subject</label>
+                  <div className="flex items-center px-6 bg-surface-container-low rounded-xl border border-outline-variant focus-within:border-primary transition-all">
+                    <span className="material-symbols-outlined text-on-surface-variant mr-3">person</span>
+                    <input 
+                      type="text" 
+                      placeholder="Username B"
+                      value={userB}
+                      onChange={(e) => setUserB(e.target.value)}
+                      className="w-full bg-transparent border-none py-4 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none"
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="space-y-4">
+                  <label className="text-label-md font-bold text-on-surface-variant uppercase tracking-widest block text-left">Primary Repository</label>
+                  <div className="flex items-center px-6 bg-surface-container-low rounded-xl border border-outline-variant focus-within:border-primary transition-all">
+                    <span className="material-symbols-outlined text-on-surface-variant mr-3">folder</span>
+                    <input 
+                      type="text" 
+                      placeholder="owner/repo"
+                      value={repoA}
+                      onChange={(e) => setRepoA(e.target.value)}
+                      className="w-full bg-transparent border-none py-4 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <label className="text-label-md font-bold text-on-surface-variant uppercase tracking-widest block text-left">Comparison Repository</label>
+                  <div className="flex items-center px-6 bg-surface-container-low rounded-xl border border-outline-variant focus-within:border-primary transition-all">
+                    <span className="material-symbols-outlined text-on-surface-variant mr-3">folder</span>
+                    <input 
+                      type="text" 
+                      placeholder="owner/repo"
+                      value={repoB}
+                      onChange={(e) => setRepoB(e.target.value)}
+                      className="w-full bg-transparent border-none py-4 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
-        )}
+
+          <button 
+            type="submit"
+            className="w-full py-5 bg-primary-gradient text-surface-container-lowest font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/10 active:scale-95 uppercase tracking-widest"
+          >
+            Initiate Comparative Audit
+          </button>
+        </form>
+
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+           {[
+             { title: "Skill Mapping", desc: "Compare technical core stacks and language concentrations." },
+             { title: "Velocity Check", desc: "Benchmark PR frequency and issue resolution rates." },
+             { title: "Quality Audit", desc: "Analyze average project scores and README standards." },
+           ].map(item => (
+             <div key={item.title} className="p-6 bg-surface-container-low rounded-xl border border-outline-variant/10">
+                <h4 className="text-primary font-bold text-label-md uppercase mb-2">{item.title}</h4>
+                <p className="text-on-surface-variant text-body-sm">{item.desc}</p>
+             </div>
+           ))}
+        </div>
       </main>
     </div>
   );

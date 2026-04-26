@@ -7,7 +7,7 @@ export default function TermsPage() {
       <Navbar />
       <main className="flex-1 pt-40 pb-20 px-6 max-w-4xl mx-auto">
         <h1 className="text-display-xl mb-8">Terms of Service</h1>
-        <div className="prose prose-invert max-w-none space-y-6 text-on-surface-variant font-body-base">
+        <div className="prose prose-invert max-w-none space-y-6 text-on-surface-variant text-body-base">
           <p>Last updated: April 25, 2026</p>
           <p>
             By accessing or using DevProof, you agree to be bound by these Terms of Service.

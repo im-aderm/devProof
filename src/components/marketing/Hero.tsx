@@ -1,4 +1,19 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 export default function Hero() {
+  const [username, setUsername] = useState("");
+  const router = useRouter();
+
+  const handleAnalyze = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (username.trim()) {
+      router.push(`/u/${username.trim()}`);
+    }
+  };
+
   return (
     <section className="relative mx-auto max-w-container-max overflow-hidden px-6 py-20 lg:py-32">
       <div className="pointer-events-none absolute left-1/2 top-0 h-full w-full -translate-x-1/2 opacity-20">
@@ -15,25 +30,27 @@ export default function Hero() {
         <h1 className="font-display-xl text-display-xl text-on-surface mb-6">
           Turn Your GitHub Into <span className="text-primary">Proof of Skill</span>
         </h1>
-        <p className="font-body-base text-body-base text-on-surface-variant mx-auto mb-12 max-w-2xl">
+        <p className="text-body-base text-on-surface-variant mx-auto mb-12 max-w-2xl">
           The elite talent lens for high-growth startups. We analyze your code history to build a
           high-fidelity portfolio that technical recruiters actually trust.
         </p>
-        <div className="glass-card mx-auto flex max-w-xl flex-col items-center justify-center gap-4 rounded-xl p-2 sm:flex-row">
+        <form onSubmit={handleAnalyze} className="glass-card mx-auto flex max-w-xl flex-col items-center justify-center gap-4 rounded-xl p-2 sm:flex-row">
           <div className="relative flex w-full flex-1 items-center">
             <span className="material-symbols-outlined text-outline absolute left-4">
               alternate_email
             </span>
             <input
-              className="font-body-base text-on-surface w-full bg-transparent py-3 pl-12 border-none focus:ring-0"
+              className="text-body-base text-on-surface w-full bg-transparent py-3 pl-12 border-none focus:ring-0"
               placeholder="github-username"
               type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
           </div>
-          <button className="skill-gradient font-headline-md text-body-base flex w-full items-center justify-center gap-2 rounded-lg px-8 py-3 text-white transition-all hover:opacity-90 sm:w-auto">
+          <button type="submit" className="skill-gradient font-headline-md text-body-base flex w-full items-center justify-center gap-2 rounded-lg px-8 py-3 text-white transition-all hover:opacity-90 sm:w-auto">
             Analyze <span className="material-symbols-outlined">analytics</span>
           </button>
-        </div>
+        </form>
         <p className="font-label-bold text-label-bold text-outline mt-4 uppercase tracking-widest">
           No password required. Public repos only.
         </p>

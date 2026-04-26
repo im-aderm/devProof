@@ -1,10 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSession } from "next-auth/react";
-
 export default function Navbar() {
-  const { data: session, status } = useSession();
 
   return (
     <header className="fixed top-0 z-50 mx-auto flex w-full max-w-full items-center justify-between border-b border-slate-200 bg-white/80 px-6 py-3 font-inter antialiased shadow-sm backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/80 dark:shadow-none">
@@ -40,29 +37,12 @@ export default function Navbar() {
         </nav>
       </div>
       <div className="flex items-center gap-4">
-        {status === "authenticated" ? (
           <Link
             href="/dashboard"
             className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.99] dark:bg-indigo-400 dark:text-slate-950"
           >
             Dashboard
           </Link>
-        ) : (
-          <>
-            <Link
-              href="/login"
-              className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-            >
-              Log In
-            </Link>
-            <Link
-              href="/signup"
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.99] dark:bg-indigo-400 dark:text-slate-950"
-            >
-              Get Started
-            </Link>
-          </>
-        )}
       </div>
     </header>
   );

@@ -1,19 +1,16 @@
 // ---------------------------------------------------------------------------
-// Typed interfaces for the scoring engine
+// Pure functional scoring engine for public GitHub analysis
 // ---------------------------------------------------------------------------
-export interface RepoWithMetrics {
-  pushedAt: Date;
+
+export interface RepoMetrics {
+  name: string;
+  description: string | null;
+  language: string | null;
   stars: number;
   forks: number;
-  language: string | null;
-  metrics: RepoMetric | null;
-  languages: { name: string; size: number }[];
-}
-
-export interface RepoMetric {
-  readmeScore: number | null;
-  complexity: number | null;
-  freshness: number | null;
+  pushedAt: string;
+  languages: Record<string, number>;
+  readme?: string | null;
 }
 
 export interface ReadinessResult {
@@ -36,19 +33,10 @@ export class ScoringEngine {
 
     let score = 20; // Base score for having a README
 
-    // Length check
     if (readme.length > 500) score += 20;
     if (readme.length > 2000) score += 20;
 
-    // Keywords check (best practices)
-    const keywords = [
-      "installation",
-      "usage",
-      "license",
-      "contributing",
-      "getting started",
-      "features",
-    ];
+    const keywords = ["installation", "usage", "license", "contributing", "getting started", "features"];
     keywords.forEach((word) => {
       if (readme.toLowerCase().includes(word)) score += 5;
     });
@@ -59,29 +47,21 @@ export class ScoringEngine {
   /**
    * Calculates a complexity score based on metadata.
    */
-  static calculateComplexityScore(
-    stars: number,
-    forks: number,
-    language: string | null
-  ): number {
+  static calculateComplexityScore(stars: number, forks: number, hasLanguage: boolean): number {
     let score = 40; // Base score
-
-    score += Math.min(stars * 2, 30); // Stars impact
-    score += Math.min(forks * 5, 20); // Forks impact
-
-    if (language) score += 10; // Extra points for defined language
-
+    score += Math.min(stars * 2, 30);
+    score += Math.min(forks * 5, 20);
+    if (hasLanguage) score += 10;
     return Math.min(score, 100);
   }
 
   /**
    * Calculates freshness score based on last push date.
    */
-  static calculateFreshnessScore(pushedAt: Date): number {
+  static calculateFreshnessScore(pushedAt: string): number {
+    const pushDate = new Date(pushedAt);
     const now = new Date();
-    const diffInDays = Math.floor(
-      (now.getTime() - pushedAt.getTime()) / (1000 * 3600 * 24)
-    );
+    const diffInDays = Math.floor((now.getTime() - pushDate.getTime()) / (1000 * 3600 * 24));
 
     if (diffInDays < 30) return 100;
     if (diffInDays < 90) return 80;
@@ -92,55 +72,39 @@ export class ScoringEngine {
   }
 
   /**
-   * Calculates MLH/Internship Readiness Score.
-   *
-   * Weights:
-   *  - Project Quality:    30% (avg README + Complexity from stored metrics)
-   *  - Consistency:        20% (freshness of most recently pushed repo)
-   *  - Collaboration:      15% (proxied at 75 — replace with real PR/issue data)
-   *  - Documentation:      15% (derived from README quality)
-   *  - Technical Breadth:  20% (unique language count across all repos)
-   *
-   * @param repos  Full repository records including their metrics and languages.
-   *               NOTE: pushedAt is on the Repository, NOT on RepositoryMetric.
+   * Calculates Public GitHub Readiness Score.
    */
-  static calculateReadinessScore(repos: RepoWithMetrics[]): ReadinessResult {
+  static calculateReadinessScore(repos: RepoMetrics[], profile?: any): ReadinessResult {
     let projectQuality = 0;
     let consistency = 0;
     let documentation = 0;
     let technicalBreadth = 0;
 
     if (repos.length > 0) {
-      // Project Quality — average of stored README and Complexity scores
-      const analyzedRepos = repos.filter((r) => r.metrics?.readmeScore != null);
+      // Project Quality — based on metadata and README scores (if available)
+      const qualityScores = repos.map(r => {
+        const comp = this.calculateComplexityScore(r.stars, r.forks, !!r.language);
+        const read = r.readme !== undefined ? this.calculateReadmeScore(r.readme) : 50; // default if not fetched
+        return (comp + read) / 2;
+      });
+      projectQuality = Math.round(qualityScores.reduce((a, b) => a + b, 0) / repos.length);
 
-      if (analyzedRepos.length > 0) {
-        const avgReadme =
-          analyzedRepos.reduce((acc, r) => acc + (r.metrics!.readmeScore ?? 0), 0) /
-          analyzedRepos.length;
-        const avgComplexity =
-          analyzedRepos.reduce((acc, r) => acc + (r.metrics!.complexity ?? 0), 0) /
-          analyzedRepos.length;
-        projectQuality = Math.round((avgReadme + avgComplexity) / 2);
-      }
+      // Consistency — freshness of most recently pushed repo
+      const sortedRepos = [...repos].sort((a, b) => new Date(b.pushedAt).getTime() - new Date(a.pushedAt).getTime());
+      consistency = this.calculateFreshnessScore(sortedRepos[0].pushedAt);
 
-      // Consistency — FIX: pushedAt lives on Repository, not RepositoryMetric
-      const latestRepo = repos
-        .slice()
-        .sort((a, b) => new Date(b.pushedAt).getTime() - new Date(a.pushedAt).getTime())[0];
-      consistency = ScoringEngine.calculateFreshnessScore(new Date(latestRepo.pushedAt));
-
-      // Documentation — derived from README quality
-      documentation = Math.round(projectQuality * 0.75);
+      // Documentation — derived from project quality
+      documentation = Math.round(projectQuality * 0.8);
 
       // Technical Breadth — unique languages across all repos
-      const uniqueLanguages = new Set(repos.flatMap((r) => r.languages.map((l) => l.name)));
+      const uniqueLanguages = new Set(repos.flatMap((r) => Object.keys(r.languages)));
       technicalBreadth = Math.min(uniqueLanguages.size * 10, 100);
     }
 
-    // Collaboration: proxied at 75 until GitHub PR/issue data is integrated.
-    // TODO: Replace with real data from GitHub API (contributions, PRs, reviews).
-    const collaboration = 75;
+    // Collaboration: Use real stats if provided, otherwise estimate from repo metadata
+    const collaboration = profile?.prCount !== undefined
+      ? Math.min(profile.prCount * 5 + profile.issueCount * 2 + profile.reviewCount * 5, 100)
+      : Math.min(repos.reduce((acc, r) => acc + r.forks, 0) * 2, 100);
 
     const totalScore = Math.round(
       projectQuality * 0.3 +
@@ -151,30 +115,10 @@ export class ScoringEngine {
     );
 
     const recommendations: string[] = [];
-    if (projectQuality < 70)
-      recommendations.push("Improve READMEs and project complexity for better quality scores.");
-    if (consistency < 70)
-      recommendations.push("Maintain consistent commit activity across your repositories.");
-    if (collaboration < 70)
-      recommendations.push(
-        "Consider contributing to open-source projects or collaborating on team projects."
-      );
-    if (documentation < 70)
-      recommendations.push(
-        "Ensure all projects have clear documentation, including setup and usage instructions."
-      );
-    if (technicalBreadth < 70)
-      recommendations.push(
-        "Explore new programming languages or frameworks to broaden your technical scope."
-      );
-
-    const checklist = [
-      { name: "Project Quality", score: projectQuality },
-      { name: "Consistency", score: consistency },
-      { name: "Collaboration", score: collaboration },
-      { name: "Documentation", score: documentation },
-      { name: "Technical Breadth", score: technicalBreadth },
-    ];
+    if (projectQuality < 70) recommendations.push("Increase repository complexity and stars.");
+    if (consistency < 70) recommendations.push("Maintain more frequent commit activity.");
+    if (documentation < 70) recommendations.push("Improve README quality across projects.");
+    if (technicalBreadth < 70) recommendations.push("Broaden your tech stack across more languages.");
 
     return {
       score: totalScore,
@@ -184,7 +128,13 @@ export class ScoringEngine {
       documentation,
       technicalBreadth,
       recommendations,
-      checklist,
+      checklist: [
+        { name: "Project Quality", score: projectQuality },
+        { name: "Consistency", score: consistency },
+        { name: "Collaboration", score: collaboration },
+        { name: "Documentation", score: documentation },
+        { name: "Technical Breadth", score: technicalBreadth },
+      ],
     };
   }
 }

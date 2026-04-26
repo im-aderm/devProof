@@ -6,7 +6,7 @@ export default function CTA() {
           Stop Explaining. <br />
           <span className="text-primary">Start Proving.</span>
         </h2>
-        <p className="font-body-base text-on-surface-variant mx-auto mb-10 max-w-xl">
+        <p className="text-body-base text-on-surface-variant mx-auto mb-10 max-w-xl">
           Join 12,000+ developers who are letting their code do the talking. Build your elite
           portfolio in seconds.
         </p>
