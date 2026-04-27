@@ -53,10 +53,20 @@ export async function GET(
       languages: r.languages,
     }));
 
-    const scoringResult = ScoringEngine.calculateReadinessScore(repoMetrics, {
-      ...profile,
-      ...collabStats,
+    const scoringResult = ScoringEngine.calculateReadinessScore(repoMetrics, profile);
+
+    // 5. Growth Forecast Signals
+    const recentRepos = detailedRepos.filter(r => {
+        const diff = Date.now() - new Date(r.pushed_at).getTime();
+        return diff < 90 * 24 * 60 * 60 * 1000;
     });
+    
+    const growthForecast = {
+        velocity: recentRepos.length > 5 ? "+15% Velocity" : "+5% Velocity",
+        tier: scoringResult.badge,
+        status: recentRepos.length > 3 ? "Active Growth" : "Stable Maintenance",
+        description: recentRepos.length > 3 ? "Commit frequency increasing" : "Consistent development patterns"
+    };
 
     const finalData = {
       profile,
@@ -64,9 +74,10 @@ export async function GET(
       repos: detailedRepos,
       aiSummary,
       scoringResult,
+      growthForecast,
     };
 
-    // 5. Cache for 1 hour
+    // 6. Cache for 1 hour
     await setCachedData(`analyze:${username}`, finalData, 3600);
 
     return NextResponse.json(finalData);

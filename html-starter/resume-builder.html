@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevProof Resume Builder</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#3323cc",
+                        "surface": "#fcf8ff",
+                        "primary-container": "#4f46e5",
+                        "light-text-primary": "#0F172A",
+                        "dark-text-primary": "#F8FAFC",
+                        "surface-container-low": "#f5f2ff",
+                        "inverse-surface": "#302f39",
+                        "on-secondary-container": "#006172",
+                        "on-primary-container": "#dad7ff",
+                        "secondary-container": "#57dffe",
+                        "on-secondary-fixed-variant": "#004e5c",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#dcd8e5",
+                        "dark-text-secondary": "#CBD5E1",
+                        "surface-bright": "#fcf8ff",
+                        "secondary-fixed": "#acedff",
+                        "background": "#fcf8ff",
+                        "surface-container-highest": "#e4e1ee",
+                        "outline": "#777587",
+                        "inverse-primary": "#c3c0ff",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f3effc",
+                        "warning": "#F59E0B",
+                        "tertiary-container": "#a44100",
+                        "dark-card": "#1E293B",
+                        "surface-tint": "#4d44e3",
+                        "error": "#F43F5E",
+                        "dark-border": "#334155",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#1b1b24",
+                        "dark-surface": "#111827",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#351000",
+                        "light-surface": "#FFFFFF",
+                        "success": "#10B981",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#f0ecf9",
+                        "on-error-container": "#93000a",
+                        "light-bg": "#F8FAFC",
+                        "light-text-secondary": "#64748B",
+                        "tertiary": "#7e3000",
+                        "on-background": "#1b1b24",
+                        "dark-bg": "#0B1120",
+                        "surface-variant": "#e4e1ee",
+                        "outline-variant": "#c7c4d8",
+                        "on-secondary-fixed": "#001f26",
+                        "secondary": "#00687a",
+                        "on-primary-fixed": "#0f0069",
+                        "on-surface-variant": "#464555",
+                        "on-tertiary-fixed-variant": "#7b2f00",
+                        "tertiary-fixed": "#ffdbcc",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-tertiary-container": "#ffd2be",
+                        "primary-fixed": "#e2dfff",
+                        "primary": "#3525cd",
+                        "light-border": "#E5E7EB",
+                        "secondary-fixed-dim": "#4cd7f6",
+                        "surface-container-high": "#eae6f4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "3xl": "64px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "container-max": "1440px",
+                        "md": "16px",
+                        "base": "8px",
+                        "content-max": "1280px",
+                        "xl": "32px",
+                        "2xl": "48px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "caption": ["Inter"],
+                        "body": ["Inter"],
+                        "h1": ["Inter"],
+                        "h3": ["Inter"],
+                        "h2": ["Inter"],
+                        "small": ["Inter"],
+                        "hero-title": ["Inter"],
+                        "h4": ["Inter"]
+                    },
+                    "fontSize": {
+                        "caption": ["12px", {"lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "body": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "h1": ["40px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "h3": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "h2": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "small": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "hero-title": ["56px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "h4": ["20px", {"lineHeight": "1.5", "fontWeight": "500"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e4e1ee;
+            border-radius: 10px;
+        }
+        .preview-canvas {
+            aspect-ratio: 1 / 1.414;
+            width: 100%;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-light-text-primary antialiased">
+<!-- TopNavBar -->
+<header class="bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60 shadow-sm fixed top-0 sticky z-50 flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-cyan-500">DevProof</span>
+<div class="h-6 w-px bg-outline-variant mx-2"></div>
+<h2 class="font-h4 text-h4 text-on-surface">Resume Builder</h2>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg border border-outline-variant hover:bg-surface-container transition-colors font-small text-small">
+<span class="material-symbols-outlined text-md">layers</span>
+                Change Template
+            </button>
+<button class="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-600 text-white font-semibold shadow-lg shadow-indigo-200 active:scale-95 transition-all duration-200">
+<span class="material-symbols-outlined text-md">download</span>
+                Export as PDF
+            </button>
+<button class="p-2 rounded-full hover:bg-slate-50 transition-colors text-slate-500">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<img alt="User avatar" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="professional headshot of a software engineer with a friendly expression in a modern office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaoQ0NkoEJrUQ-wC1HTENriaxDsztSXqy4BuDygN_qpt7gQ7HIPcHWAryeaFlOmK6hepdwtOKzMSCcib-Agfq3J9myrOnTh4R5VSPCsY4YCpI_1JV6bCrGaNWP2Wh4lGr1Zc0ayVJ7RFPmCu_pj-Pn7Zio_r6HKgYYVf8eY_rK2TMUK2vsqEIgs76e_N2KWFBAdSEHCT7rOpGOhXuhccMuX3pgp3v-hm96SyBU6Fp9Suey6mhIfYr4_mBPXWp-nvge7RcZhiik4uIf"/>
+</div>
+</header>
+<main class="flex h-[calc(100vh-64px)] overflow-hidden">
+<!-- Left Panel: Form Editor -->
+<section class="w-1/2 h-full overflow-y-auto bg-surface-container-lowest border-r border-outline-variant p-lg space-y-xl">
+<!-- Profile Section -->
+<div class="bg-white rounded-xl border border-outline-variant p-lg shadow-sm">
+<div class="flex items-center gap-3 mb-lg">
+<span class="material-symbols-outlined text-primary" data-icon="person">person</span>
+<h3 class="font-h3 text-h3">Personal Profile</h3>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<div class="space-y-xs">
+<label class="font-caption text-caption text-on-surface-variant">Full Name</label>
+<input class="w-full rounded-xl border-outline-variant focus:ring-2 focus:ring-primary p-md text-small font-body" type="text" value="Alex Rivera"/>
+</div>
+<div class="space-y-xs">
+<label class="font-caption text-caption text-on-surface-variant">Job Title</label>
+<input class="w-full rounded-xl border-outline-variant focus:ring-2 focus:ring-primary p-md text-small font-body" type="text" value="Senior Fullstack Engineer"/>
+</div>
+<div class="space-y-xs">
+<label class="font-caption text-caption text-on-surface-variant">Email Address</label>
+<input class="w-full rounded-xl border-outline-variant focus:ring-2 focus:ring-primary p-md text-small font-body" type="email" value="alex.rivera@devproof.io"/>
+</div>
+<div class="space-y-xs">
+<label class="font-caption text-caption text-on-surface-variant">Location</label>
+<input class="w-full rounded-xl border-outline-variant focus:ring-2 focus:ring-primary p-md text-small font-body" type="text" value="San Francisco, CA"/>
+</div>
+</div>
+</div>
+<!-- Experience Section -->
+<div class="bg-white rounded-xl border border-outline-variant p-lg shadow-sm">
+<div class="flex items-center justify-between mb-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="work">work</span>
+<h3 class="font-h3 text-h3">Professional Experience</h3>
+</div>
+<button class="text-primary font-semibold text-small flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-base">add_circle</span>
+                        Add Experience
+                    </button>
+</div>
+<div class="space-y-lg">
+<!-- Item 1 -->
+<div class="p-md rounded-lg border border-surface-container-high bg-surface-container-low relative group">
+<button class="absolute top-2 right-2 text-outline hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">delete</span>
+</button>
+<div class="grid grid-cols-2 gap-md mb-md">
+<input class="bg-transparent font-semibold text-body border-none p-0 focus:ring-0" type="text" value="TechFlow Systems"/>
+<input class="bg-transparent text-right text-small text-on-surface-variant border-none p-0 focus:ring-0" type="text" value="Jan 2021 - Present"/>
+</div>
+<textarea class="w-full bg-white rounded-lg border-outline-variant text-small h-24 p-md">Led the migration of legacy microservices to a serverless architecture using AWS Lambda and Node.js, resulting in a 40% reduction in infrastructure costs.</textarea>
+</div>
+<!-- Item 2 -->
+<div class="p-md rounded-lg border border-surface-container-high bg-surface-container-low relative group">
+<button class="absolute top-2 right-2 text-outline hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">delete</span>
+</button>
+<div class="grid grid-cols-2 gap-md mb-md">
+<input class="bg-transparent font-semibold text-body border-none p-0 focus:ring-0" type="text" value="DataSphere Inc"/>
+<input class="bg-transparent text-right text-small text-on-surface-variant border-none p-0 focus:ring-0" type="text" value="Mar 2018 - Dec 2020"/>
+</div>
+<textarea class="w-full bg-white rounded-lg border-outline-variant text-small h-24 p-md">Architected a real-time data visualization dashboard using React and D3.js, supporting over 50,000 daily active users.</textarea>
+</div>
+</div>
+</div>
+<!-- Skills Section -->
+<div class="bg-white rounded-xl border border-outline-variant p-lg shadow-sm">
+<div class="flex items-center gap-3 mb-lg">
+<span class="material-symbols-outlined text-primary" data-icon="terminal">terminal</span>
+<h3 class="font-h3 text-h3">Technical Skills</h3>
+</div>
+<div class="flex flex-wrap gap-sm">
+<span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-caption font-medium border border-indigo-100 flex items-center gap-2">TypeScript <span class="material-symbols-outlined text-[14px] cursor-pointer">close</span></span>
+<span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-caption font-medium border border-indigo-100 flex items-center gap-2">React <span class="material-symbols-outlined text-[14px] cursor-pointer">close</span></span>
+<span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-caption font-medium border border-indigo-100 flex items-center gap-2">Node.js <span class="material-symbols-outlined text-[14px] cursor-pointer">close</span></span>
+<span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-caption font-medium border border-indigo-100 flex items-center gap-2">PostgreSQL <span class="material-symbols-outlined text-[14px] cursor-pointer">close</span></span>
+<span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-caption font-medium border border-indigo-100 flex items-center gap-2">AWS <span class="material-symbols-outlined text-[14px] cursor-pointer">close</span></span>
+<span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-caption font-medium border border-indigo-100 flex items-center gap-2">Docker <span class="material-symbols-outlined text-[14px] cursor-pointer">close</span></span>
+<button class="px-3 py-1 border border-dashed border-outline text-on-surface-variant rounded-full text-caption font-medium hover:bg-slate-50">+ Add Skill</button>
+</div>
+</div>
+<!-- Education Section -->
+<div class="bg-white rounded-xl border border-outline-variant p-lg shadow-sm">
+<div class="flex items-center gap-3 mb-lg">
+<span class="material-symbols-outlined text-primary" data-icon="school">school</span>
+<h3 class="font-h3 text-h3">Education</h3>
+</div>
+<div class="space-y-md">
+<div class="grid grid-cols-2 gap-md">
+<div class="space-y-xs">
+<label class="font-caption text-caption text-on-surface-variant">Institution</label>
+<input class="w-full rounded-xl border-outline-variant text-small" type="text" value="University of California, Berkeley"/>
+</div>
+<div class="space-y-xs">
+<label class="font-caption text-caption text-on-surface-variant">Degree</label>
+<input class="w-full rounded-xl border-outline-variant text-small" type="text" value="B.S. Computer Science"/>
+</div>
+</div>
+</div>
+</div>
+<div class="h-24"></div> <!-- Spacer -->
+</section>
+<!-- Right Panel: Live Preview -->
+<section class="w-1/2 h-full bg-slate-100 overflow-y-auto flex justify-center p-3xl relative">
+<!-- Preview Controls -->
+<div class="absolute top-8 right-8 flex flex-col gap-2 z-10">
+<button class="w-10 h-10 bg-white rounded-full shadow-lg border border-outline-variant flex items-center justify-center hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined">zoom_in</span>
+</button>
+<button class="w-10 h-10 bg-white rounded-full shadow-lg border border-outline-variant flex items-center justify-center hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined">zoom_out</span>
+</button>
+</div>
+<!-- Resume Template Canvas -->
+<div class="preview-canvas bg-white shadow-2xl p-3xl flex flex-col text-[#1e293b]">
+<!-- Header -->
+<header class="border-b-2 border-primary-container pb-lg mb-lg">
+<h1 class="text-h1 font-h1 text-[#0f172a] mb-xs">Alex Rivera</h1>
+<p class="text-h4 font-h4 text-primary-container mb-md">Senior Fullstack Engineer</p>
+<div class="flex flex-wrap gap-md text-small text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">mail</span> alex.rivera@devproof.io</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> San Francisco, CA</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">link</span> github.com/arivera</span>
+</div>
+</header>
+<div class="grid grid-cols-3 gap-xl flex-1">
+<!-- Main Content -->
+<div class="col-span-2 space-y-lg">
+<section>
+<h4 class="font-h4 text-h4 border-b border-outline-variant pb-xs mb-md uppercase tracking-wider text-primary">Experience</h4>
+<div class="space-y-md">
+<div>
+<div class="flex justify-between items-baseline mb-1">
+<h5 class="font-bold text-body">TechFlow Systems</h5>
+<span class="text-caption text-on-surface-variant">2021 — Present</span>
+</div>
+<p class="italic text-small mb-sm">Senior Software Engineer</p>
+<ul class="list-disc list-inside text-small space-y-1 text-on-surface-variant leading-relaxed">
+<li>Led migration of legacy microservices to AWS Lambda.</li>
+<li>Reduced infrastructure overhead by 40% annually.</li>
+<li>Mentored 4 junior developers in TypeScript best practices.</li>
+</ul>
+</div>
+<div>
+<div class="flex justify-between items-baseline mb-1">
+<h5 class="font-bold text-body">DataSphere Inc</h5>
+<span class="text-caption text-on-surface-variant">2018 — 2020</span>
+</div>
+<p class="italic text-small mb-sm">Fullstack Developer</p>
+<ul class="list-disc list-inside text-small space-y-1 text-on-surface-variant leading-relaxed">
+<li>Architected real-time dashboard using React and D3.js.</li>
+<li>Improved page load speeds by 65% via code-splitting.</li>
+</ul>
+</div>
+</div>
+</section>
+<section>
+<h4 class="font-h4 text-h4 border-b border-outline-variant pb-xs mb-md uppercase tracking-wider text-primary">Projects</h4>
+<div class="space-y-md">
+<div>
+<h5 class="font-bold text-body">Open-Source DevProof Core</h5>
+<p class="text-small text-on-surface-variant leading-relaxed">Creator of a developer intelligence platform that analyzes GitHub commit patterns to predict engineering readiness metrics.</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Sidebar -->
+<div class="col-span-1 space-y-lg">
+<section>
+<h4 class="font-h4 text-h4 border-b border-outline-variant pb-xs mb-md uppercase tracking-wider text-primary">Skills</h4>
+<div class="space-y-xs">
+<p class="text-small font-bold">Languages</p>
+<p class="text-small text-on-surface-variant">TypeScript, Python, Go, SQL</p>
+</div>
+<div class="space-y-xs mt-md">
+<p class="text-small font-bold">Frameworks</p>
+<p class="text-small text-on-surface-variant">React, Next.js, Node.js, Express</p>
+</div>
+<div class="space-y-xs mt-md">
+<p class="text-small font-bold">Tools</p>
+<p class="text-small text-on-surface-variant">AWS, Docker, K8s, Terraform</p>
+</div>
+</section>
+<section>
+<h4 class="font-h4 text-h4 border-b border-outline-variant pb-xs mb-md uppercase tracking-wider text-primary">Education</h4>
+<div>
+<p class="text-small font-bold">UC Berkeley</p>
+<p class="text-small text-on-surface-variant">B.S. Computer Science</p>
+<p class="text-caption text-outline">Class of 2018</p>
+</div>
+</section>
+<section class="bg-surface-container-low p-md rounded-lg border border-surface-container-high">
+<div class="flex items-center gap-2 mb-sm">
+<span class="material-symbols-outlined text-success" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-caption font-bold text-success uppercase tracking-widest">Verified by DevProof</span>
+</div>
+<p class="text-[10px] text-on-surface-variant leading-tight">This resume has been cross-referenced with authenticated GitHub contributions and verified work history.</p>
+</section>
+</div>
+</div>
+<footer class="mt-auto pt-lg border-t border-outline-variant text-center">
+<p class="text-[10px] text-outline italic">Generated via DevProof Professional Intelligence Platform</p>
+</footer>
+</div>
+</section>
+</main>
+<!-- Side Navigation Mini (Suppressed but available via icons if needed) -->
+<nav class="fixed left-0 top-16 bottom-0 w-16 bg-white border-r border-outline-variant flex flex-col items-center py-6 gap-6 z-40">
+<div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+</div>
+<div class="p-3 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition-all cursor-pointer rounded-xl">
+<span class="material-symbols-outlined">dashboard</span>
+</div>
+<div class="p-3 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition-all cursor-pointer rounded-xl">
+<span class="material-symbols-outlined">folder_open</span>
+</div>
+<div class="p-3 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition-all cursor-pointer rounded-xl">
+<span class="material-symbols-outlined">person_pin</span>
+</div>
+<div class="mt-auto p-3 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition-all cursor-pointer rounded-xl">
+<span class="material-symbols-outlined">settings</span>
+</div>
+</nav>
+</body></html>

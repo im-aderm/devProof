@@ -10,19 +10,23 @@ export default function DashboardHeader({ name }: { name: string }) {
       </Link>
 
       <nav className="hidden md:flex items-center gap-10">
-        <Link href="/dashboard" className="text-label-md font-bold uppercase tracking-widest text-primary">Analyzer</Link>
+        <Link href="/" className="text-label-md font-bold uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-colors">Home</Link>
+        <Link href="/dashboard" className="text-label-md font-bold uppercase tracking-widest text-primary">Analyze</Link>
         <Link href="/compare" className="text-label-md font-bold uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-colors">Compare</Link>
-        <Link href="/review" className="text-label-md font-bold uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-colors">AI Review</Link>
+        <Link href="/review" className="text-label-md font-bold uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-colors">Review</Link>
       </nav>
 
-      <div className="flex items-center gap-4">
-        <div className="text-right hidden sm:block">
+      <div className="flex items-center gap-6">
+        <div className="text-right hidden xl:block">
           <p className="text-label-md font-bold text-on-surface uppercase tracking-widest">{name}</p>
-          <p className="text-[10px] text-primary uppercase font-bold tracking-[0.2em]">Open Source Access</p>
+          <p className="text-[10px] text-primary uppercase font-bold tracking-[0.2em]">Live Intelligence</p>
         </div>
-        <div className="w-12 h-12 rounded-xl bg-surface-container-high border border-outline-variant flex items-center justify-center">
-          <span className="material-symbols-outlined text-primary">shield_person</span>
-        </div>
+        <Link 
+          href="/"
+          className="px-6 py-2.5 bg-primary text-surface-container-lowest text-[10px] font-bold uppercase tracking-widest rounded-lg hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+        >
+          Analyze Now
+        </Link>
       </div>
     </header>
   );

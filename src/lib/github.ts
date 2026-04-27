@@ -21,12 +21,13 @@ export class GitHubService {
   }
 
   /**
-   * Fetches all public repositories for a user (beyond the 100 limit).
+   * Fetches public repositories for a user.
+   * @param max Optional limit on how many repos to fetch.
    */
-  async getAllUserRepositories(username: string) {
+  async getUserRepositories(username: string, max?: number) {
     let allRepos: any[] = [];
     let page = 1;
-    const perPage = 100;
+    const perPage = max && max < 100 ? max : 100;
 
     while (true) {
       const { data } = await this.octokit.rest.repos.listForUser({
@@ -38,11 +39,16 @@ export class GitHubService {
       });
 
       allRepos = [...allRepos, ...data];
-      if (data.length < perPage) break;
+      if (data.length < perPage || (max && allRepos.length >= max)) break;
       page++;
     }
 
-    return allRepos;
+    return max ? allRepos.slice(0, max) : allRepos;
+  }
+
+  // Legacy name for compatibility
+  async getAllUserRepositories(username: string) {
+    return this.getUserRepositories(username);
   }
 
   async getRepositoryLanguages(owner: string, repo: string) {
@@ -69,11 +75,15 @@ export class GitHubService {
   }
 
   async getSearchCount(q: string) {
-    const { data } = await this.octokit.rest.search.issuesAndPullRequests({
-      q,
-      per_page: 1,
-    });
-    return data.total_count;
+    try {
+      const { data } = await this.octokit.rest.search.issuesAndPullRequests({
+        q,
+        per_page: 1,
+      });
+      return data.total_count;
+    } catch (error) {
+      return 0;
+    }
   }
 
   async getUserCollaborationStats(username: string) {
@@ -90,19 +100,58 @@ export class GitHubService {
    * Fetches full repository details including languages in parallel.
    */
   async getDetailedRepositories(username: string, limit = 10) {
-    const repos = await this.getAllUserRepositories(username);
-    const subset = repos.slice(0, limit);
-
+    // Only fetch as many repos as we need for details
+    const repos = await this.getUserRepositories(username, limit);
+    
     const detailedRepos = await Promise.all(
-      subset.map(async (repo) => {
-        const languages = await this.getRepositoryLanguages(username, repo.name);
-        return {
-          ...repo,
-          languages,
-        };
+      repos.map(async (repo) => {
+        try {
+          const languages = await this.getRepositoryLanguages(username, repo.name);
+          return {
+            ...repo,
+            languages,
+          };
+        } catch (e) {
+          return {
+            ...repo,
+            languages: {},
+          };
+        }
       })
     );
 
     return detailedRepos;
+  }
+
+  /**
+   * Fetches contribution heatmap data using GitHub GraphQL API.
+   */
+  async getContributionHeatmap(username: string) {
+    const query = `
+      query($username: String!) {
+        user(login: $username) {
+          contributionsCollection {
+            contributionCalendar {
+              totalContributions
+              weeks {
+                contributionDays {
+                  contributionCount
+                  date
+                  color
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    try {
+      const response: any = await this.octokit.graphql(query, { username });
+      return response.user.contributionsCollection.contributionCalendar;
+    } catch (error) {
+      console.error("GITHUB_GRAPHQL_ERROR", error);
+      return null;
+    }
   }
 }

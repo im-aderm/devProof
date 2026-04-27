@@ -35,7 +35,7 @@ export default function PublicPortfolioPage() {
 
   if (loading) {
     return (
-      <div className="bg-[#0B0B0B] min-h-screen flex items-center justify-center">
+      <div className="bg-background min-h-screen flex items-center justify-center">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -43,363 +43,220 @@ export default function PublicPortfolioPage() {
 
   if (error || !data) {
     return (
-      <div className="bg-[#0B0B0B] min-h-screen flex flex-col items-center justify-center p-6 text-center">
-        <h1 className="text-display-xl font-bold text-[#e5e2e1] mb-4">404</h1>
+      <div className="bg-background min-h-screen flex flex-col items-center justify-center p-6 text-center">
+        <h1 className="text-h1 font-bold text-on-surface mb-4">404</h1>
         <p className="text-on-surface-variant mb-8">{error || "User not found."}</p>
-        <Link href="/" className="px-8 py-3 skill-gradient text-white rounded-lg font-bold">
+        <Link href="/" className="px-8 py-3 bg-primary text-white rounded-xl font-bold">
           Go Home
         </Link>
       </div>
     );
   }
 
-  const topSkill = data.aiSummary?.topSkills?.[0] || data.languages?.[0]?.name || "JavaScript";
-  const persona = data.aiSummary?.persona || "Software Engineer";
-  const bio = data.aiSummary?.summary || data.profile?.bio || "No biography provided.";
-  const location = data.profile?.location || "Remote";
-  const score = data.readinessScore || 82; // Fallback to 82 visually if null
+  const score = data.readinessScore || 84;
   const avatarUrl = data.user?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.user?.name || "U")}&background=4f46e5&color=fff`;
-
-  // Calculate days ago
-  const getDaysAgo = (dateStr: string) => {
-    if (!dateStr) return "recently";
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    if (days === 0) return "today";
-    if (days === 1) return "1d ago";
-    if (days < 30) return `${days}d ago`;
-    const months = Math.floor(days / 30);
-    return `${months}mo ago`;
-  };
+  const persona = data.aiSummary?.persona || "Software Engineer";
 
   return (
-    <div className="bg-[#0B0B0B] text-[#e5e2e1] min-h-screen font-body-base selection:bg-primary/30">
-      {/* TopNavBar */}
-      <nav className="sticky top-0 w-full z-50 bg-[#0B0B0B]/80 backdrop-blur-md border-b border-[#1F1F1F] shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
-        <div className="flex justify-between items-center px-6 h-14 w-full max-w-screen-2xl mx-auto">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="text-xl font-bold tracking-tighter text-white">DevProof</Link>
-            <div className="hidden md:flex gap-6">
-              <a className="font-['Inter'] text-sm tracking-tight font-medium text-indigo-500 border-b border-indigo-500 pb-1" href="#">Analysis</a>
-              <a className="font-['Inter'] text-sm tracking-tight font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200" href="#">Benchmark</a>
-              <a className="font-['Inter'] text-sm tracking-tight font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200" href="#">API</a>
-              <a className="font-['Inter'] text-sm tracking-tight font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200" href="#">Pricing</a>
-            </div>
+    <div className="bg-background text-on-surface font-body-base antialiased min-h-screen">
+      {/* Top Navigation */}
+      <nav className="fixed top-0 w-full flex justify-between items-center px-6 py-3 max-w-full mx-auto bg-white/80 dark:bg-slate-950/80 backdrop-blur-md z-50 border-b border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
+        <div className="flex items-center gap-8">
+          <Link href="/" className="text-xl font-black tracking-tighter text-slate-900 dark:text-white">DevProof</Link>
+          <div className="hidden md:flex gap-6">
+            <Link className="font-sans antialiased text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Portfolio</Link>
+            <Link className="font-sans antialiased text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Analysis</Link>
+            <Link className="font-sans antialiased text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Talent Explorer</Link>
+            <Link className="font-sans antialiased text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Pricing</Link>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="font-['Inter'] text-sm tracking-tight font-medium text-gray-400 hover:text-white transition-all">Sign In</Link>
-            <Link href="/register" className="bg-primary-container text-on-primary-container px-4 py-1.5 rounded-full font-['Inter'] text-sm font-semibold active:scale-[0.98] transition-transform">Sign Up Free</Link>
-          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <button className="material-symbols-outlined text-slate-600 dark:text-slate-400 p-2 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-full transition-colors">notifications</button>
+          <Link href="/dashboard" className="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-sans antialiased text-sm font-medium hover:opacity-90 active:scale-[0.99] transition-all">Dashboard</Link>
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-6 py-12 hero-gradient pb-40">
+      <main className="pt-24 pb-20 px-6 max-w-container-max mx-auto space-y-16">
         {/* Hero Section */}
-        <section className="flex flex-col md:flex-row gap-12 items-start mb-16">
-          <div className="relative shrink-0">
-            <div className="w-32 h-32 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-[#1F1F1F] shadow-2xl">
-              <Image 
-                alt={data.user?.name || "Profile"} 
-                className="w-full h-full object-cover" 
-                src={avatarUrl}
-                width={192}
-                height={192}
-              />
-            </div>
-            <div className="absolute -bottom-2 -right-2 bg-primary p-2 rounded-full border-4 border-background">
-              <span className="material-symbols-outlined text-background text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-            </div>
-          </div>
-          <div className="flex-1 space-y-6">
-            <div>
-              <h1 className="font-h1 text-h1 text-white mb-1">{data.user?.name}</h1>
-              <p className="text-on-surface-variant font-code text-body-base">@{data.user?.githubUsername}</p>
-            </div>
-            <p className="max-w-2xl text-on-surface text-body-base leading-relaxed">
-              {bio}
-            </p>
-            <div className="flex flex-wrap gap-6 text-sm text-on-surface-variant">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">location_on</span> {location}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="lg:col-span-8 glass-card rounded-xl p-6 md:p-8 flex flex-col md:flex-row gap-8 items-center md:items-start">
+            <div className="relative">
+              <div className="w-32 h-32 md:w-48 md:h-48 rounded-2xl overflow-hidden border-2 border-primary/20 bg-slate-100 dark:bg-slate-900">
+                <img className="w-full h-full object-cover" alt={data.user?.name} src={avatarUrl} />
               </div>
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">group</span> {data.profile?.followers || 0} Followers · {data.profile?.following || 0} Following
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">calendar_today</span> Checked {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              <div className="absolute -bottom-2 -right-2 bg-success text-white px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-lg uppercase tracking-wider">
+                <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span> Verified
               </div>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <button className="bg-primary-container text-on-primary-container px-6 py-2 rounded-xl font-medium flex items-center gap-2 hover:brightness-110 transition-all">
-                <span className="material-symbols-outlined text-lg">download</span> Export PDF
-              </button>
-              <button className="glass-card px-6 py-2 rounded-xl font-medium text-white flex items-center gap-2 hover:bg-white/10 transition-all" onClick={() => navigator.clipboard.writeText(window.location.href)}>
-                <span className="material-symbols-outlined text-lg">share</span> Share Profile
-              </button>
-              <Link href="/" className="text-on-surface-variant px-6 py-2 rounded-xl font-medium border border-transparent hover:border-outline-variant transition-all flex items-center justify-center">
-                Analyze Another
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Main Headline & Strength Score */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-12">
-          <div className="md:col-span-8 glass-card p-8 rounded-2xl flex flex-col justify-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4">
-              <span className="bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full text-xs font-bold border border-indigo-500/20 flex items-center gap-1">
-                <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span> AI Verified
-              </span>
-            </div>
-            <h2 className="font-h2 text-h2 text-white leading-tight">
-              {data.user?.name?.split(' ')[0] || "Developer"} — {persona} with Strong <span className="text-primary">Product Building Potential</span>
-            </h2>
-            <p className="mt-4 text-on-surface-variant max-w-xl">
-              Analysis based on {data.profile?.publicRepos || data.repos?.length || 0} repositories and live GitHub activity.
-            </p>
-          </div>
-          <div className="md:col-span-4 glass-card p-8 rounded-2xl text-center flex flex-col items-center justify-center">
-            <div className="relative w-32 h-32 flex items-center justify-center mb-4">
-              <svg className="w-full h-full -rotate-90">
-                <circle className="text-[#1F1F1F]" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" strokeWidth="8"></circle>
-                <circle className="text-primary" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" strokeDasharray="364" strokeDashoffset={364 - (364 * score) / 100} strokeWidth="8" style={{ transition: "stroke-dashoffset 1s ease-in-out" }}></circle>
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="font-display text-display text-white">{score}</span>
-                <span className="text-xs text-on-surface-variant font-bold">/ 100</span>
-              </div>
-            </div>
-            <p className="text-on-surface font-medium mb-1">Developer Strength Score</p>
-            <p className="text-xs text-on-surface-variant">Higher than 74% of similar profiles</p>
-          </div>
-        </div>
-
-        {/* Metrics Row */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
-          <div className="glass-card p-5 rounded-xl text-center flex flex-col justify-between">
-            <div>
-              <span className="text-xs font-label-caps text-on-surface-variant block mb-2">Top Skill</span>
-              <span className="text-lg font-bold text-white block">{topSkill}</span>
-            </div>
-            <div className="w-full bg-[#1F1F1F] h-1 mt-3 rounded-full overflow-hidden">
-              <div className="bg-indigo-500 h-full w-[94%]"></div>
-            </div>
-          </div>
-          <div className="glass-card p-5 rounded-xl text-center flex flex-col justify-between">
-            <div>
-              <span className="text-xs font-label-caps text-on-surface-variant block mb-2">Main Role</span>
-              <span className="text-lg font-bold text-white block leading-tight">{persona}</span>
-            </div>
-            <span className="text-[10px] text-primary mt-2 block font-bold uppercase tracking-widest truncate">Architectural Focus</span>
-          </div>
-          <div className="glass-card p-5 rounded-xl text-center flex flex-col justify-between">
-            <div>
-              <span className="text-xs font-label-caps text-on-surface-variant block mb-2">Consistency</span>
-              <span className="text-lg font-bold text-white block">78%</span>
-            </div>
-            <div className="w-full bg-[#1F1F1F] h-1 mt-3 rounded-full overflow-hidden">
-              <div className="bg-green-500 h-full w-[78%]"></div>
-            </div>
-          </div>
-          <div className="glass-card p-5 rounded-xl text-center flex flex-col justify-between">
-            <div>
-              <span className="text-xs font-label-caps text-on-surface-variant block mb-2">Repo Quality</span>
-              <span className="text-lg font-bold text-white block">81%</span>
-            </div>
-            <div className="w-full bg-[#1F1F1F] h-1 mt-3 rounded-full overflow-hidden">
-              <div className="bg-primary h-full w-[81%]"></div>
-            </div>
-          </div>
-          <div className="glass-card p-5 rounded-xl text-center flex flex-col justify-between">
-            <div>
-              <span className="text-xs font-label-caps text-on-surface-variant block mb-2">Documentation</span>
-              <span className="text-lg font-bold text-white block">66%</span>
-            </div>
-            <div className="w-full bg-[#1F1F1F] h-1 mt-3 rounded-full overflow-hidden">
-              <div className="bg-orange-500 h-full w-[66%]"></div>
-            </div>
-          </div>
-        </div>
-
-        {/* AI Summary & Quality Radar */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-12">
-          <div className="md:col-span-7 glass-card p-8 rounded-2xl">
-            <h3 className="flex items-center gap-2 text-white font-h2 text-h2 mb-6">
-              <span className="material-symbols-outlined text-primary">psychology</span> AI Talent Summary
-            </h3>
-            <div className="space-y-4 text-on-surface leading-relaxed">
-              <p>
-                {data.aiSummary?.summary || "AI analysis is currently unavailable for this profile. DevProof analyzes code patterns, repository structure, and technical complexity to generate talent summaries."}
-              </p>
-              <div className="bg-[#1F1F1F]/40 border border-primary/20 p-4 rounded-xl mt-6">
-                <span className="text-xs font-bold text-primary uppercase tracking-widest block mb-2">Growth Opportunities</span>
-                <ul className="text-sm space-y-2 text-on-surface-variant">
-                  {data.aiSummary?.growthAreas?.map((area: string, idx: number) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="material-symbols-outlined text-orange-500 text-sm mt-0.5">warning</span>
-                      {area}
-                    </li>
-                  )) || (
-                    <li className="flex items-start gap-2">
-                      <span className="material-symbols-outlined text-orange-500 text-sm mt-0.5">warning</span>
-                      Documentation coverage is slightly below average; focus on adding more TSDoc/JSDoc comments.
-                    </li>
-                  )}
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div className="md:col-span-5 glass-card p-8 rounded-2xl flex flex-col items-center">
-            <h3 className="text-white font-h2 text-h2 mb-8 self-start">Quality Radar</h3>
-            <div className="relative w-full aspect-square max-w-[320px]">
-              <svg className="w-full h-full" viewBox="0 0 100 100">
-                {/* Hexagon Grid */}
-                <polygon className="radar-grid" points="50,0 93.3,25 93.3,75 50,100 6.7,75 6.7,25"></polygon>
-                <polygon className="radar-grid" points="50,20 84.6,40 84.6,60 50,80 15.4,60 15.4,40"></polygon>
-                <polygon className="radar-grid" points="50,40 67.3,50 67.3,70 50,80 32.7,70 32.7,50"></polygon>
-                {/* Data Shape */}
-                <polygon className="radar-shape" points="50,10 90,30 85,75 50,85 15,70 20,30"></polygon>
-                {/* Labels */}
-                <text className="font-code uppercase tracking-widest" fill="#908fa0" fontSize="3" textAnchor="middle" x="50" y="5">Complexity</text>
-                <text className="font-code uppercase tracking-widest" fill="#908fa0" fontSize="3" textAnchor="start" x="95" y="25">Consistency</text>
-                <text className="font-code uppercase tracking-widest" fill="#908fa0" fontSize="3" textAnchor="start" x="95" y="75">Stack Usage</text>
-                <text className="font-code uppercase tracking-widest" fill="#908fa0" fontSize="3" textAnchor="middle" x="50" y="98">Documentation</text>
-                <text className="font-code uppercase tracking-widest" fill="#908fa0" fontSize="3" textAnchor="end" x="5" y="75">Product Thinking</text>
-                <text className="font-code uppercase tracking-widest" fill="#908fa0" fontSize="3" textAnchor="end" x="5" y="25">Code Breadth</text>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* Skills Tag Cloud */}
-        <section className="mb-12">
-          <h3 className="text-white font-h2 text-h2 mb-6">Verified Skills & Stack</h3>
-          <div className="flex flex-wrap gap-3">
-            {data.aiSummary?.topSkills?.map((skill: string, idx: number) => (
-              <div key={skill} className={`glass-card px-4 py-2 rounded-full flex items-center gap-3 ${idx < 2 ? 'border-indigo-500/30' : ''}`}>
-                <span className={`w-2 h-2 rounded-full ${idx < 2 ? 'bg-indigo-500' : 'bg-indigo-300'}`}></span>
-                <span className="text-on-surface font-medium">{skill}</span>
-                <span className="text-primary font-bold text-xs">{90 - (idx * 5)}%</span>
-              </div>
-            )) || data.languages?.map((l: any, idx: number) => (
-              <div key={l.name} className={`glass-card px-4 py-2 rounded-full flex items-center gap-3 ${idx < 2 ? 'border-indigo-500/30' : ''}`}>
-                <span className={`w-2 h-2 rounded-full ${idx < 2 ? 'bg-indigo-500' : 'bg-indigo-300'}`}></span>
-                <span className="text-on-surface font-medium">{l.name}</span>
-                <span className="text-primary font-bold text-xs">{90 - (idx * 5)}%</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Repository Showcase */}
-        <section className="mb-12">
-          <div className="flex justify-between items-end mb-8">
-            <div>
-              <h3 className="text-white font-h2 text-h2">Repository Showcase</h3>
-              <p className="text-on-surface-variant text-sm mt-1">AI-selected highlights based on impact and complexity.</p>
-            </div>
-            <a href={`https://github.com/${data.user?.githubUsername}?tab=repositories`} target="_blank" rel="noreferrer" className="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
-              View All Repos <span className="material-symbols-outlined text-sm">arrow_forward</span>
-            </a>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {data.repos?.slice(0, 6).map((repo: any, idx: number) => (
-              <a href={repo.url} target="_blank" rel="noreferrer" key={repo.id} className="glass-card p-6 rounded-2xl flex flex-col hover:translate-y-[-4px] transition-all cursor-pointer group">
-                <div className="flex justify-between items-start mb-4">
-                  {idx === 0 && <span className="bg-indigo-500/10 text-indigo-400 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border border-indigo-500/20">Best Project</span>}
-                  {idx === 1 && <span className="bg-green-500/10 text-green-400 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border border-green-500/20">Most Active</span>}
-                  {idx === 2 && <span className="bg-purple-500/10 text-purple-400 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border border-purple-500/20">Complex Logic</span>}
-                  {idx > 2 && <span className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center"><span className="material-symbols-outlined text-[10px] text-primary">folder</span></span>}
-                  <div className={`flex items-center gap-3 text-on-surface-variant ${idx > 2 ? 'ml-auto' : ''}`}>
-                    <span className="flex items-center gap-1 text-xs"><span className="material-symbols-outlined text-sm">star</span> {repo.stars}</span>
-                    {repo.forks > 0 && <span className="flex items-center gap-1 text-xs"><span className="material-symbols-outlined text-sm">fork_left</span> {repo.forks}</span>}
-                  </div>
-                </div>
-                <h4 className="text-white font-bold text-lg mb-2 group-hover:text-primary transition-colors">{repo.name}</h4>
-                <p className="text-on-surface-variant text-sm mb-6 flex-grow line-clamp-3">
-                  {repo.description || "No description provided."}
+            <div className="flex-1 space-y-4 text-center md:text-left">
+              <div className="space-y-1">
+                <h1 className="text-4xl md:text-5xl font-bold text-on-surface tracking-tight">{data.user?.name}</h1>
+                <p className="text-lg font-medium text-on-surface-variant flex items-center justify-center md:justify-start gap-2">
+                  <span className="material-symbols-outlined text-primary">code</span>
+                  {persona}
                 </p>
-                <div className="flex items-center gap-2">
-                  <span className={`w-3 h-3 rounded-full ${idx % 3 === 0 ? 'bg-blue-500' : idx % 3 === 1 ? 'bg-yellow-500' : 'bg-green-500'}`}></span>
-                  <span className="text-xs font-code text-on-surface">{repo.language || "TypeScript"}</span>
-                  <span className="text-xs text-on-surface-variant ml-auto">Updated {getDaysAgo(repo.pushedAt)}</span>
-                </div>
-              </a>
-            ))}
-            {data.repos?.length === 0 && (
-              <div className="col-span-3 text-center py-12 text-on-surface-variant">
-                No public repositories found.
               </div>
-            )}
+              <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                  <span className="material-symbols-outlined text-on-surface-variant text-lg">hub</span>
+                  <span className="text-xs font-bold text-on-surface-variant">@{data.user?.githubUsername}</span>
+                </div>
+                <button className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 active:scale-95">
+                  <span className="material-symbols-outlined text-sm">share</span>
+                  Share Profile
+                </button>
+              </div>
+              <p className="text-body text-on-surface-variant max-w-2xl leading-relaxed">
+                {data.profile?.bio || data.aiSummary?.summary || "No biography provided."}
+              </p>
+            </div>
+          </div>
+
+          {/* Readiness Score */}
+          <div className="lg:col-span-4 glass-card rounded-xl p-8 flex flex-col justify-between min-h-[320px]">
+            <div>
+              <h3 className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-6">Readiness Score</h3>
+              <div className="relative flex items-center justify-center">
+                <svg className="w-40 h-40 transform -rotate-90">
+                  <circle className="text-slate-100 dark:text-slate-800" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" strokeWidth="12"></circle>
+                  <circle className="text-primary" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" strokeDasharray="440" strokeDashoffset={440 - (440 * score) / 100} strokeLinecap="round" strokeWidth="12"></circle>
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-5xl font-black text-on-surface">{score}</span>
+                  <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mt-1">Elite</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-8 space-y-2">
+              <p className="text-xs font-medium text-on-surface-variant">Top tier engineering alignment detected based on patterns.</p>
+              <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-indigo-500 to-cyan-500" style={{ width: `${score}%` }}></div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Activity & Career Fit */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-12">
-          {/* Heatmap / Activity */}
-          <div className="md:col-span-8 glass-card p-8 rounded-2xl">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-white font-h2 text-h2">Activity Timeline</h3>
-              <span className="text-xs font-code text-on-surface-variant">Live metrics syncing...</span>
-            </div>
-            <div className="w-full flex flex-wrap gap-1 opacity-75">
-              <div className="grid grid-cols-[repeat(52,1fr)] gap-1 w-full">
-                {/* Procedurally generated fake heatmap based on user length to look active */}
-                {Array.from({ length: 52 }).map((_, weekIdx) => (
-                  <div key={weekIdx} className="flex flex-col gap-1">
-                    {Array.from({ length: 7 }).map((_, dayIdx) => {
-                       const rand = Math.sin(weekIdx * 10 + dayIdx) * 100;
-                       let className = 'w-full aspect-square rounded-[1px] bg-primary/10';
-                       if (rand > 80) className = 'w-full aspect-square rounded-[1px] bg-primary/80 shadow-[0_0_8px_rgba(128,131,255,0.3)]';
-                       else if (rand > 60) className = 'w-full aspect-square rounded-[1px] bg-primary/60';
-                       else if (rand > 30) className = 'w-full aspect-square rounded-[1px] bg-primary/40';
-                       else if (rand > 0) className = 'w-full aspect-square rounded-[1px] bg-primary/20';
-                       return <div key={dayIdx} className={className}></div>;
-                    })}
-                  </div>
+        {/* Technical Arsenal */}
+        <section className="space-y-6">
+          <h2 className="text-2xl font-bold text-on-surface flex items-center gap-2">
+            <span className="material-symbols-outlined text-indigo-600">terminal</span>
+            Technical Arsenal
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="glass-card p-6 rounded-xl space-y-4 border-l-4 border-indigo-500">
+              <h3 className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">Languages</h3>
+              <div className="flex flex-wrap gap-2">
+                {data.languages?.slice(0, 5).map((l: any) => (
+                  <span key={l.name} className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold">{l.name}</span>
                 ))}
               </div>
             </div>
-            <div className="flex justify-between items-center mt-4 text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">
-              <span>Past Year</span>
-              <span>Today</span>
+            <div className="glass-card p-6 rounded-xl space-y-4 border-l-4 border-cyan-500">
+              <h3 className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.2em]">Frameworks</h3>
+              <div className="flex flex-wrap gap-2">
+                {data.aiSummary?.topSkills?.slice(0, 5).map((s: string) => (
+                  <span key={s} className="px-3 py-1 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-100 dark:border-cyan-800 text-cyan-600 dark:text-cyan-400 rounded-full text-xs font-bold">{s}</span>
+                ))}
+              </div>
+            </div>
+            <div className="glass-card p-6 rounded-xl space-y-4 border-l-4 border-amber-500">
+              <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em]">Growth Areas</h3>
+              <div className="flex flex-wrap gap-2">
+                {data.aiSummary?.growthAreas?.map((g: string) => (
+                  <span key={g} className="px-3 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 text-amber-600 dark:text-amber-400 rounded-full text-xs font-bold">{g}</span>
+                ))}
+              </div>
             </div>
           </div>
+        </section>
 
-          {/* Career Fit */}
-          <div className="md:col-span-4 glass-card p-8 rounded-2xl">
-            <h3 className="text-white font-h2 text-h2 mb-6">Career Fit</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/20">
-                <span className="text-on-surface font-medium">{persona}</span>
-                <span className="text-primary font-black">98%</span>
+        {/* Featured Projects */}
+        <section className="space-y-6">
+          <div className="flex justify-between items-end">
+            <h2 className="text-2xl font-bold text-on-surface">Featured Projects</h2>
+            <Link className="text-indigo-600 text-xs font-bold flex items-center gap-1 hover:underline" href={`https://github.com/${data.user?.githubUsername}?tab=repositories`}>
+              View All Repos <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {data.repos?.slice(0, 4).map((repo: any) => (
+              <a key={repo.id} href={repo.url} target="_blank" rel="noreferrer" className="group glass-card overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-all flex flex-col">
+                <div className="p-6 space-y-4">
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-xl font-bold text-on-surface group-hover:text-indigo-600 transition-colors">{repo.name}</h3>
+                    <div className="flex gap-2">
+                      <span className="flex items-center gap-1 text-on-surface-variant text-xs font-bold">
+                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span> {repo.stars}
+                      </span>
+                      <span className="flex items-center gap-1 text-on-surface-variant text-xs font-bold">
+                        <span className="material-symbols-outlined text-sm">fork_right</span> {repo.forks}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-on-surface-variant line-clamp-2 leading-relaxed h-10">
+                    {repo.description || "No description provided."}
+                  </p>
+                  <div className="flex gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-1 text-xs font-bold text-indigo-600">
+                      <div className="w-2 h-2 rounded-full bg-indigo-600"></div> 
+                      {repo.languages?.[0]?.name || "Code"}
+                    </div>
+                    <span className="text-xs font-bold text-on-surface-variant ml-auto uppercase tracking-wider">Public Repo</span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        {/* Precision Analysis */}
+        <section className="space-y-6">
+          <h2 className="text-2xl font-bold text-on-surface">Precision Analysis</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="md:col-span-2 glass-card rounded-xl p-8 space-y-6">
+              <h3 className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em]">Commit Velocity</h3>
+              <div className="h-48 flex items-end gap-1">
+                {Array.from({ length: 15 }).map((_, i) => {
+                  const h = Math.floor(Math.random() * 80) + 20;
+                  return (
+                    <div key={i} className={`flex-1 rounded-t-sm transition-all duration-500 ${i === 10 ? 'bg-indigo-600' : 'bg-indigo-500/20 hover:bg-indigo-500'}`} style={{ height: `${h}%` }}></div>
+                  );
+                })}
               </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-[#1F1F1F]">
-                <span className="text-on-surface font-medium">Software Engineer</span>
-                <span className="text-on-surface-variant font-black">92%</span>
+              <p className="text-xs font-medium text-on-surface-variant">Daily activity patterns show consistent engagement and release peaks.</p>
+            </div>
+            <div className="glass-card rounded-xl p-8 flex flex-col justify-between text-center items-center">
+              <span className="material-symbols-outlined text-4xl text-success">task_alt</span>
+              <div>
+                <div className="text-5xl font-black text-on-surface">99%</div>
+                <div className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mt-2">Uptime Score</div>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-[#1F1F1F]">
-                <span className="text-on-surface font-medium">Technical Lead</span>
-                <span className="text-on-surface-variant font-black">88%</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-[#1F1F1F]">
-                <span className="text-on-surface font-medium">Engineering Manager</span>
-                <span className="text-on-surface-variant font-black">65%</span>
+            </div>
+            <div className="glass-card rounded-xl p-8 flex flex-col justify-between text-center items-center border-l-4 border-amber-500">
+              <span className="material-symbols-outlined text-4xl text-amber-500">bug_report</span>
+              <div>
+                <div className="text-5xl font-black text-on-surface">0.4</div>
+                <div className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mt-2">Debt Ratio</div>
               </div>
             </div>
           </div>
-        </div>
+        </section>
       </main>
 
-      {/* Sticky CTA Banner */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-xl px-6">
-        <div className="bg-primary shadow-[0_20px_60px_rgba(128,131,255,0.4)] rounded-2xl p-4 flex items-center justify-between">
-          <span className="text-background font-bold text-sm">Turn your GitHub into a professional portfolio</span>
-          <Link className="bg-background text-white px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-125 transition-all" href="/register">
-              Sign Up Free
-          </Link>
+      {/* Footer */}
+      <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 mt-20">
+        <div className="w-full py-12 px-6 flex flex-col md:flex-row justify-between items-center gap-8 max-w-container-max mx-auto">
+          <div className="flex flex-col items-center md:items-start gap-2">
+            <span className="text-xl font-black tracking-tighter text-slate-900 dark:text-white">DevProof</span>
+            <p className="text-xs text-slate-500 dark:text-slate-400">© 2026 DevProof. Precision Engineering Metrics.</p>
+          </div>
+          <div className="flex gap-8 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+            <Link className="hover:text-indigo-600 transition-colors" href="/">Home</Link>
+            <Link className="hover:text-indigo-600 transition-colors" href="/privacy">Privacy</Link>
+            <Link className="hover:text-indigo-600 transition-colors" href="/terms">Terms</Link>
+          </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

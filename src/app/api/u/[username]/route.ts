@@ -1,43 +1,6 @@
 import { NextResponse } from "next/server";
 import { GitHubService } from "@/lib/github";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-async function generateDynamicUserSummary(profile: any, repos: any[]) {
-  try {
-    const repoDetails = repos.map((r) => `${r.name}: ${r.description || "No description"} (${r.languages[0]?.name || "N/A"})`).join("\n");
-    
-    const prompt = `
-      You are a technical recruiter assistant. Based on the following GitHub profile and repositories, 
-      provide a professional summary of the developer's persona, top skills, and growth areas.
-      
-      Profile Bio: ${profile.bio || "N/A"}
-      Location: ${profile.location || "N/A"}
-      Repositories:
-      ${repoDetails}
-      
-      Format the response as a JSON object with:
-      - summary: A 2-3 sentence professional bio.
-      - persona: A title for the developer (e.g., "Full-Stack System Architect").
-      - topSkills: An array of 5 identified technical skills.
-      - growthAreas: An array of 3 suggested areas for improvement.
-    `;
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-    });
-
-    return JSON.parse(response.choices[0].message?.content || "{}");
-  } catch (error) {
-    console.error("AI_SUMMARY_ERROR", error);
-    return null;
-  }
-}
+import { AIService } from "@/lib/ai";
 
 export async function GET(req: Request, { params }: { params: Promise<{ username: string }> }) {
   try {
@@ -89,11 +52,20 @@ export async function GET(req: Request, { params }: { params: Promise<{ username
         }
       }));
 
-      const aiSummary = await generateDynamicUserSummary(profile, repoData);
+      const aiSummary = await AIService.generateUserSummary(profile, repoData);
+      const heatmap = await github.getContributionHeatmap(username);
 
       const sortedLanguages = Object.entries(languageStats)
         .map(([name, size]) => ({ name, size }))
         .sort((a, b) => b.size - a.size);
+
+      // Calculate a dynamic score based on real metrics
+      const totalStars = repoData.reduce((acc, r) => acc + (r.stars || 0), 0);
+      const totalContributions = heatmap?.totalContributions || 0;
+      const baseScore = 60;
+      const starBonus = Math.min(20, totalStars * 2);
+      const contributionBonus = Math.min(20, Math.floor(totalContributions / 50));
+      const readinessScore = Math.min(99, baseScore + starBonus + contributionBonus);
 
       return NextResponse.json({
         user: {
@@ -114,7 +86,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ username
         repos: repoData,
         aiSummary,
         languages: sortedLanguages.slice(0, 8),
-        readinessScore: null,
+        readinessScore,
+        heatmap,
       });
 
     } catch (githubError: any) {

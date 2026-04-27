@@ -1,9 +1,8 @@
-import IORedis from "ioredis";
-
-const redis = new IORedis(process.env.REDIS_URL || "redis://localhost:6379");
+import redis from "./redis";
 
 /**
  * Redis-backed rate limiter for public tool stability.
+ * Falls back to allowing the request if Redis is unavailable.
  */
 export async function rateLimit(
   identifier: string,
@@ -13,6 +12,11 @@ export async function rateLimit(
   const key = `ratelimit:${identifier}`;
   
   try {
+    // Gracefully pass if Redis is down
+    if (redis.status !== "ready") {
+      return { success: true, remaining: 1, reset: Date.now() };
+    }
+
     const current = await redis.get(key);
     const count = current ? parseInt(current) : 0;
 
@@ -36,11 +40,10 @@ export async function rateLimit(
     return {
       success: true,
       remaining: limit - (count + 1),
-      reset: Date.now() + windowMs, // Approximation for UI
+      reset: Date.now() + windowMs,
     };
   } catch (error) {
-    console.error("RATE_LIMIT_ERROR", error);
-    // Fallback to allow request if Redis fails (don't block users)
+    // Fallback to allow request if Redis fails
     return { success: true, remaining: 1, reset: Date.now() };
   }
 }

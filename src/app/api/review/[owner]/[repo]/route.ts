@@ -2,11 +2,10 @@ import { NextResponse } from "next/server";
 import { GitHubService } from "@/lib/github";
 import { rateLimit } from "@/lib/rate-limit";
 import { getCachedData, setCachedData } from "@/lib/cache";
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 export async function GET(
   request: Request,
@@ -36,18 +35,26 @@ export async function GET(
     const github = new GitHubService();
     
     // 2. Fetch Repo Context
-    const [repoData, treeData, readme] = await Promise.all([
-      github.octokit.rest.repos.get({ owner, repo }).then(r => r.data),
-      github.octokit.rest.git.getTree({ owner, repo, tree_sha: 'HEAD', recursive: 'true' }).then(r => r.data).catch(() => null),
+    const repoData = await github.octokit.rest.repos.get({ owner, repo }).then(r => r.data);
+    
+    const [treeData, readme] = await Promise.all([
+      github.octokit.rest.git.getTree({ 
+        owner, 
+        repo, 
+        tree_sha: repoData.default_branch || 'HEAD', 
+        recursive: 'true' 
+      }).then(r => r.data).catch(() => null),
       github.getRepositoryReadme(owner, repo),
     ]);
 
     // 3. Extract structure context
     const fileList = treeData?.tree
-      .filter(item => item.type === 'blob')
-      .map(item => item.path)
-      .slice(0, 100)
-      .join('\n');
+      ? treeData.tree
+          .filter((item: any) => item.type === 'blob')
+          .map((item: any) => item.path)
+          .slice(0, 100)
+          .join('\n')
+      : "N/A";
 
     // 4. Perform AI Review
     const prompt = `
@@ -63,7 +70,7 @@ export async function GET(
       README Preview:
       ${readme?.substring(0, 1000) || "N/A"}
       
-      Provide a comprehensive review in JSON format:
+      Provide a comprehensive review strictly in JSON format:
       - structureScore: (0-100)
       - readabilityScore: (0-100)
       - maintainabilityScore: (0-100)
@@ -73,13 +80,10 @@ export async function GET(
       - bestPracticesScore: (0-100)
     `;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-    });
-
-    const review = JSON.parse(response.choices[0].message.content || "{}");
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const jsonStr = text.replace(/```json\n?|\n?```/g, "").trim();
+    const review = JSON.parse(jsonStr || "{}");
 
     const finalData = {
       repoData: {
@@ -93,9 +97,13 @@ export async function GET(
     await setCachedData(cacheKey, finalData, 3600);
     return NextResponse.json(finalData);
   } catch (error: any) {
-    console.error("REVIEW_API_ERROR", error);
+    console.error("REVIEW_API_ERROR_FULL", {
+      message: error.message,
+      stack: error.stack,
+      status: error.status,
+    });
     return NextResponse.json(
-      { error: "Failed to perform AI code review" },
+      { error: `Failed to perform AI code review: ${error.message}` },
       { status: 500 }
     );
   }

@@ -1,21 +1,24 @@
-import IORedis from "ioredis";
-
-const redis = new IORedis(process.env.REDIS_URL || "redis://localhost:6379");
+import redis from "./redis";
 
 export async function getCachedData<T>(key: string): Promise<T | null> {
   try {
+    // If redis status is not 'ready', don't even try to get data
+    if (redis.status !== "ready") return null;
+    
     const cached = await redis.get(key);
     return cached ? JSON.parse(cached) : null;
   } catch (error) {
-    console.error("REDIS_GET_ERROR", error);
+    // Fail silently to memory/no-cache
     return null;
   }
 }
 
 export async function setCachedData(key: string, data: any, ttlSeconds: number = 3600) {
   try {
+    if (redis.status !== "ready") return;
+    
     await redis.set(key, JSON.stringify(data), "EX", ttlSeconds);
   } catch (error) {
-    console.error("REDIS_SET_ERROR", error);
+    // Fail silently
   }
 }

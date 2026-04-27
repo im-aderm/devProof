@@ -1,8 +1,7 @@
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 export class AIService {
   /**
@@ -22,7 +21,7 @@ export class AIService {
       Repositories:
       ${repoDetails}
       
-      Format the response as a JSON object with:
+      Return the response strictly as a JSON object with:
       - summary: A 2-3 sentence professional bio.
       - persona: A title for the developer (e.g., "Full-Stack System Architect").
       - topSkills: An array of 5 identified technical skills.
@@ -30,13 +29,11 @@ export class AIService {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" },
-      });
-
-      return JSON.parse(response.choices[0].message.content || "{}");
+      const result = await model.generateContent(prompt);
+      const text = result.response.text();
+      // Clean up potential markdown code blocks from Gemini response
+      const jsonStr = text.replace(/```json\n?|\n?```/g, "").trim();
+      return JSON.parse(jsonStr || "{}");
     } catch (error) {
       console.error("AI_USER_SUMMARY_ERROR", error);
       return {
@@ -63,12 +60,8 @@ export class AIService {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: prompt }],
-      });
-
-      return response.choices[0].message.content;
+      const result = await model.generateContent(prompt);
+      return result.response.text().trim();
     } catch (error) {
       console.error("AI_REPO_SUMMARY_ERROR", error);
       return "Repository summary unavailable.";

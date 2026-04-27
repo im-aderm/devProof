@@ -1,6 +1,7 @@
 {
   "name": "devproof",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,6 +11,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@tailwindcss/container-queries": "^0.1.1",
     "class-variance-authority": "latest",
     "clsx": "latest",
