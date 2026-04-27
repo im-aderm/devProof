@@ -20,7 +20,7 @@ export const redis = new IORedis(REDIS_URL, {
 // Handle connection errors globally to prevent "Unhandled error event" crashes
 redis.on("error", (error) => {
   // Only log once to avoid flooding logs
-  if (error.code === "ECONNREFUSED") {
+  if ((error as any).code === "ECONNREFUSED") {
     // We expect this if Redis isn't installed/running
     return;
   }

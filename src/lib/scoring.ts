@@ -101,9 +101,16 @@ export class ScoringEngine {
     if (profile.company || profile.twitter_username) profScore += 25;
     const professionalism = profScore;
 
-    // Documentation helper for Radar
-    const documentation = Math.round(projectQuality * 0.9);
+    // Documentation helper - use actual README scoring logic
+    const readmeScores = repos.map(r => this.calculateReadmeScore(r.readme || null));
+    const documentation = repos.length > 0 ? Math.round(readmeScores.reduce((a, b) => a + b, 0) / repos.length) : 0;
 
+    // Consistency helper - measure regularity of pushes
+    const recentPushes = repos.filter(r => {
+        const diff = Date.now() - new Date(r.pushedAt).getTime();
+        return diff < 60 * 24 * 60 * 60 * 1000; // Last 60 days
+    }).length;
+    const consistency = Math.min(recentPushes * 15, 100);
 
     // Weighted Total Score
     const totalScore = Math.round(
@@ -114,8 +121,8 @@ export class ScoringEngine {
       professionalism * 0.15
     );
 
-    // Percentile Estimate (Mock)
-    const percentile = Math.min(Math.round(totalScore * 0.95 + Math.random() * 5), 99);
+    // Percentile Estimate (Deterministic based on score)
+    const percentile = Math.min(Math.round(totalScore * 0.9 + 5), 99);
 
     // Badge
     let badge = "Beginner";
@@ -135,7 +142,7 @@ export class ScoringEngine {
       percentile,
       badge,
       projectQuality,
-      consistency: activityScore, // Map consistency to activity for UI
+      consistency,
       collaboration: Math.min(profile.followers * 5, 100),
       documentation,
       technicalBreadth,
@@ -145,7 +152,7 @@ export class ScoringEngine {
       recommendations,
       checklist: [
         { name: "Project Quality", score: projectQuality },
-        { name: "Consistency", score: activityScore },
+        { name: "Consistency", score: consistency },
         { name: "Collaboration", score: Math.min(profile.followers * 5, 100) },
         { name: "Documentation", score: documentation },
         { name: "Technical Breadth", score: technicalBreadth },
@@ -155,7 +162,7 @@ export class ScoringEngine {
         { subject: 'Maintainability', A: projectQuality, fullMark: 100 },
         { subject: 'Testing Signals', A: Math.round(projectQuality * 0.7), fullMark: 100 },
         { subject: 'Architecture', A: Math.round(technicalBreadth * 0.8 + projectQuality * 0.2), fullMark: 100 },
-        { subject: 'Consistency', A: activityScore, fullMark: 100 },
+        { subject: 'Consistency', A: consistency, fullMark: 100 },
       ]
     };
   }

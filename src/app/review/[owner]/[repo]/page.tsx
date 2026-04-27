@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import ExportDropdown from "@/components/dashboard/ExportDropdown";
+import Sidebar from "@/components/layout/Sidebar";
+import TopNavbar from "@/components/layout/TopNavbar";
+import { GlassCard, SummaryCard } from "@/components/ui/Cards";
+import { PrimaryButton } from "@/components/ui/Buttons";
+import { motion } from "framer-motion";
 
 export default function ReviewResultsPage() {
   const { owner, repo } = useParams();
@@ -33,141 +36,181 @@ export default function ReviewResultsPage() {
 
   if (loading) {
     return (
-      <div className="bg-background min-h-screen flex flex-col items-center justify-center">
-        <div className="w-16 h-16 bg-surface-container-high rounded-2xl flex items-center justify-center mb-6 border border-outline-variant/20 animate-pulse">
-          <span className="material-symbols-outlined text-4xl text-primary animate-bounce">psychology</span>
-        </div>
-        <h1 className="font-display text-headline-md text-on-surface mb-2">Architect Thinking...</h1>
-        <p className="text-on-surface-variant font-sans animate-pulse">Performing deep structural analysis of {owner}/{repo}</p>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full mb-8"
+        />
+        <h1 className="text-2xl font-black text-text-primary uppercase tracking-widest animate-pulse">
+          Architectural Audit: {repo}
+        </h1>
+        <p className="text-text-secondary mt-4 font-bold uppercase tracking-widest text-xs opacity-50">
+          Performing deep structural evaluation...
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-background min-h-screen flex flex-col items-center justify-center p-8">
-        <span className="material-symbols-outlined text-6xl text-error mb-4">warning</span>
-        <h1 className="font-display text-headline-lg text-on-surface mb-4">Review Aborted</h1>
-        <p className="text-on-surface-variant mb-8 max-w-md text-center">{error}</p>
-        <button 
-          onClick={() => router.push("/review")}
-          className="px-8 py-3 bg-surface-container-high text-on-surface rounded-lg font-bold border border-outline-variant hover:bg-surface-container-highest transition-all"
-        >
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8 text-center">
+        <div className="w-20 h-20 bg-error/10 rounded-3xl flex items-center justify-center mb-8 border border-error/20">
+          <span className="material-symbols-outlined text-4xl text-error">warning</span>
+        </div>
+        <h1 className="text-3xl font-black text-text-primary mb-4 uppercase tracking-tighter">Review Aborted</h1>
+        <p className="text-text-secondary mb-10 max-w-md mx-auto font-medium leading-relaxed">{error}</p>
+        <PrimaryButton onClick={() => router.push("/")} icon="arrow_back">
           Return to Entry
-        </button>
+        </PrimaryButton>
       </div>
     );
   }
 
   const { review } = data;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="bg-background min-h-screen pb-24">
-      <DashboardHeader name="AI Review" />
+    <div className="min-h-screen bg-background">
+      <Sidebar />
+      <div className="pl-64 flex flex-col min-h-screen">
+        <TopNavbar />
+        
+        <main className="p-8 md:p-12 max-w-7xl mx-auto w-full">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="flex flex-col gap-12"
+          >
+            {/* Page Header */}
+            <section className="flex flex-col md:flex-row justify-between items-end gap-8">
+               <div className="text-left space-y-4">
+                  <motion.span variants={itemVariants} className="text-xs font-black text-primary uppercase tracking-[0.4em]">Full Architectural Review</motion.span>
+                  <motion.h1 variants={itemVariants} className="text-5xl font-black text-text-primary tracking-tighter uppercase leading-none">{repo}</motion.h1>
+                  <motion.p variants={itemVariants} className="text-text-secondary text-lg font-medium italic">High-fidelity engineering standard evaluation protocol.</motion.p>
+               </div>
+               <motion.div variants={itemVariants} className="flex gap-6 items-center">
+                  <PrimaryButton icon="download">Export Dossier</PrimaryButton>
+                  <div className="px-8 py-4 bg-surface rounded-3xl border border-border text-center shadow-sm">
+                     <span className="block text-3xl font-black text-primary tracking-tighter">{review.bestPracticesScore}</span>
+                     <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">Purity Index</span>
+                  </div>
+               </motion.div>
+            </section>
 
-      <main className="pt-32 px-12 max-w-7xl mx-auto">
-        {/* Report Hero */}
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-           <div className="text-left">
-              <span className="text-label-md font-bold text-primary uppercase tracking-[0.3em] mb-4 block">Architectural Audit Result</span>
-              <h1 className="font-display text-display-md text-on-surface leading-none mb-2">{repo}</h1>
-              <p className="text-on-surface-variant text-body-lg">Full-scale engineering standard evaluation.</p>
-           </div>
-           <div className="flex gap-4 items-center">
-              <ExportDropdown data={data} filename={`devproof-review-${repo}`} />
-              <div className="px-8 py-6 bg-surface-container-low rounded-xl border border-outline-variant text-center">
-                 <span className="block text-3xl font-display font-bold text-primary">{review.bestPracticesScore}</span>
-                 <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Standards Index</span>
-              </div>
-           </div>
-        </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+               <div className="lg:col-span-8 space-y-12">
+                  
+                  {/* Architectural Observations */}
+                  <section className="space-y-8">
+                     <h2 className="text-xl font-black text-text-primary uppercase tracking-tighter flex items-center gap-4">
+                        Structural Observations
+                        <div className="h-px flex-grow bg-border/50"></div>
+                     </h2>
+                     <div className="grid grid-cols-1 gap-4">
+                        {review.observations.map((obs: string, idx: number) => (
+                          <motion.div key={idx} variants={itemVariants} className="p-8 bg-surface rounded-3xl border-l-4 border-primary border-y border-r border-border group hover:bg-surface-variant transition-all shadow-sm">
+                             <p className="text-sm font-medium text-text-primary leading-relaxed">{obs}</p>
+                          </motion.div>
+                        ))}
+                     </div>
+                  </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-           {/* Primary Analysis */}
-           <div className="lg:col-span-8 space-y-20">
-              
-              {/* Core Observations */}
-              <section>
-                 <h2 className="font-display text-headline-sm text-on-surface uppercase tracking-widest mb-10 flex items-center gap-4">
-                    Architectural Observations
-                    <div className="h-px flex-grow bg-surface-container-highest"></div>
-                 </h2>
-                 <div className="grid grid-cols-1 gap-6">
-                    {review.observations.map((obs: string, idx: number) => (
-                      <div key={idx} className="p-8 bg-surface-container-low rounded-xl border-l-4 border-primary group hover:bg-surface-container-high transition-all">
-                         <p className="text-body-lg text-on-surface leading-relaxed">{obs}</p>
-                      </div>
-                    ))}
-                 </div>
-              </section>
-
-              {/* Refactor Directives */}
-              <section className="bg-surface-container-low p-12 rounded-2xl border border-outline-variant">
-                 <h2 className="font-display text-headline-md text-on-surface mb-8">Refactoring Directives</h2>
-                 <div className="space-y-8">
-                    {review.suggestedRefactors.map((ref: string, idx: number) => (
-                      <div key={idx} className="flex gap-6 items-start">
-                         <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <span className="material-symbols-outlined text-primary text-xl font-bold">handyman</span>
-                         </div>
-                         <div>
-                            <h4 className="text-on-surface font-bold text-body-lg mb-2">Directive 0{idx + 1}</h4>
-                            <p className="text-on-surface-variant text-body-md leading-relaxed">{ref}</p>
-                         </div>
-                      </div>
-                    ))}
-                 </div>
-              </section>
-           </div>
-
-           {/* Performance Sidebar */}
-           <div className="lg:col-span-4 space-y-12">
-              
-              {/* Scoring Pillars */}
-              <section className="p-8 bg-surface-container-low rounded-2xl border border-outline-variant">
-                 <h3 className="text-label-md font-bold text-on-surface uppercase tracking-[0.2em] mb-10">Audit Pillars</h3>
-                 <div className="space-y-12">
-                    {[
-                      { name: "Structure", score: review.structureScore },
-                      { name: "Readability", score: review.readinessScore || review.readabilityScore }, // handle key diffs
-                      { name: "Maintainability", score: review.maintainabilityScore },
-                    ].map((pillar) => (
-                      <div key={pillar.name}>
-                        <div className="flex justify-between items-end mb-3">
-                           <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{pillar.name}</span>
-                           <span className="text-body-sm font-bold text-primary">{pillar.score}%</span>
+                  {/* Refactoring Directives */}
+                  <motion.div variants={itemVariants}>
+                     <GlassCard className="relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-10 transition-opacity pointer-events-none">
+                           <span className="material-symbols-outlined text-[120px] text-primary">terminal</span>
                         </div>
-                        <div className="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
-                           <div className="h-full bg-primary-gradient transition-all duration-1000" style={{ width: `${pillar.score}%` }}></div>
+                        <h2 className="text-sm font-black text-text-primary uppercase tracking-widest mb-10 flex items-center gap-3">
+                           <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>handyman</span>
+                           Refactoring Directives
+                        </h2>
+                        <div className="space-y-10 relative z-10">
+                           {review.suggestedRefactors.map((ref: string, idx: number) => (
+                             <div key={idx} className="flex gap-8 items-start group/item">
+                                <div className="w-12 h-12 rounded-2xl bg-surface-variant flex items-center justify-center flex-shrink-0 border border-border group-hover/item:border-primary/30 transition-colors">
+                                   <span className="text-lg font-black text-primary">0{idx + 1}</span>
+                                </div>
+                                <div className="space-y-2">
+                                   <p className="text-sm font-medium text-text-secondary leading-relaxed group-hover/item:text-text-primary transition-colors">{ref}</p>
+                                </div>
+                             </div>
+                           ))}
                         </div>
-                      </div>
-                    ))}
-                 </div>
-              </section>
+                     </GlassCard>
+                  </motion.div>
+               </div>
 
-              {/* Missing Practices */}
-              <section className="p-8 bg-surface-container-high rounded-2xl border border-outline-variant">
-                 <h3 className="text-label-md font-bold text-error uppercase tracking-[0.2em] mb-8 text-center">Missing Engineering Pillars</h3>
-                 <div className="space-y-4">
-                    {review.missingPractices.map((practice: string) => (
-                      <div key={practice} className="p-4 bg-surface-container-low rounded-xl flex items-center gap-4 text-on-surface-variant text-body-sm border border-outline-variant/10">
-                         <span className="material-symbols-outlined text-error text-lg">close</span>
-                         {practice}
-                      </div>
-                    ))}
-                 </div>
-              </section>
+               {/* Right Sidebar */}
+               <div className="lg:col-span-4 space-y-8">
+                  
+                  {/* Scoring Pillars */}
+                  <motion.div variants={itemVariants}>
+                     <SummaryCard title="Engineering Pillars" icon="shield">
+                        <div className="space-y-10 pt-4">
+                           {[
+                              { name: "Structure", score: review.structureScore },
+                              { name: "Readability", score: review.readinessScore || review.readabilityScore || 0 },
+                              { name: "Maintainability", score: review.maintainabilityScore },
+                           ].map((pillar) => (
+                              <div key={pillar.name}>
+                                 <div className="flex justify-between items-end mb-3">
+                                    <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest">{pillar.name}</span>
+                                    <span className="text-xs font-black text-primary">{pillar.score}%</span>
+                                 </div>
+                                 <div className="h-1.5 w-full bg-surface-variant rounded-full overflow-hidden border border-border">
+                                    <motion.div 
+                                       initial={{ width: 0 }}
+                                       animate={{ width: `${pillar.score}%` }}
+                                       transition={{ duration: 1, delay: 0.2 }}
+                                       className="h-full primary-gradient"
+                                    ></motion.div>
+                                 </div>
+                              </div>
+                           ))}
+                        </div>
+                     </SummaryCard>
+                  </motion.div>
 
-              {/* Action Button */}
-              <button 
-                 onClick={() => router.push("/")}
-                 className="w-full py-5 bg-surface-container-lowest text-on-surface text-label-md font-bold uppercase tracking-widest rounded-xl border border-outline-variant hover:bg-surface-container-high transition-all"
-              >
-                 Archive Review
-              </button>
-           </div>
-        </div>
-      </main>
+                  {/* Missing Practices */}
+                  <motion.div variants={itemVariants}>
+                     <SummaryCard title="Missing Pillars" icon="warning">
+                        <div className="space-y-4 pt-2">
+                           {review.missingPractices.map((practice: string) => (
+                             <div key={practice} className="p-5 bg-surface-variant rounded-2xl flex items-center gap-5 text-xs font-black uppercase tracking-widest text-text-secondary border border-border group hover:border-error/30 transition-all">
+                                <span className="material-symbols-outlined text-error text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+                                {practice}
+                             </div>
+                           ))}
+                        </div>
+                     </SummaryCard>
+                  </motion.div>
+
+                  {/* Final Action */}
+                  <motion.div variants={itemVariants}>
+                     <PrimaryButton className="w-full py-5" onClick={() => router.push("/")} icon="archive">
+                        Archive Audit Results
+                     </PrimaryButton>
+                  </motion.div>
+               </div>
+            </div>
+          </motion.div>
+        </main>
+      </div>
     </div>
   );
 }

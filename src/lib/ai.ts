@@ -33,7 +33,18 @@ export class AIService {
       const text = result.response.text();
       // Clean up potential markdown code blocks from Gemini response
       const jsonStr = text.replace(/```json\n?|\n?```/g, "").trim();
-      return JSON.parse(jsonStr || "{}");
+      
+      try {
+        return JSON.parse(jsonStr || "{}");
+      } catch (parseError) {
+        console.error("AI_JSON_PARSE_ERROR", parseError, "Raw text:", text);
+        return {
+          summary: "Could not parse detailed summary, but profile indicates active development.",
+          persona: "Developer",
+          topSkills: [],
+          growthAreas: []
+        };
+      }
     } catch (error) {
       console.error("AI_USER_SUMMARY_ERROR", error);
       return {

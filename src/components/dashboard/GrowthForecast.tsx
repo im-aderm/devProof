@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 interface GrowthForecastProps {
   velocity: string;
   tier: string;
@@ -9,26 +11,35 @@ interface GrowthForecastProps {
 
 export default function GrowthForecast({ velocity, tier, status, description }: GrowthForecastProps) {
   return (
-    <div className="space-y-6">
-      <div className="flex items-start gap-4 p-4 bg-surface-container-low rounded-xl border border-outline-variant">
-        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-          <span className="material-symbols-outlined text-primary">trending_up</span>
+    <div className="space-y-4">
+      <motion.div 
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="flex items-start gap-4 p-5 bg-surface border border-border rounded-2xl group hover:border-primary/30 transition-all"
+      >
+        <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center flex-shrink-0 border border-indigo-100 dark:border-indigo-800/50">
+          <span className="material-symbols-outlined text-primary text-2xl">trending_up</span>
         </div>
         <div>
-          <h4 className="text-on-surface font-bold text-sm mb-1">{velocity}</h4>
-          <p className="text-on-surface-variant text-xs">{description}</p>
+          <h4 className="text-text-primary font-black text-sm mb-1 uppercase tracking-tight">{velocity}</h4>
+          <p className="text-text-secondary text-xs leading-relaxed">{description}</p>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="flex items-start gap-4 p-4 bg-surface-container-low rounded-xl border border-outline-variant">
-        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-          <span className="material-symbols-outlined text-primary">verified</span>
+      <motion.div 
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
+        className="flex items-start gap-4 p-5 bg-surface border border-border rounded-2xl group hover:border-primary/30 transition-all"
+      >
+        <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center flex-shrink-0 border border-indigo-100 dark:border-indigo-800/50">
+          <span className="material-symbols-outlined text-primary text-2xl">insights</span>
         </div>
         <div>
-          <h4 className="text-on-surface font-bold text-sm mb-1">{tier} Tier</h4>
-          <p className="text-on-surface-variant text-xs">Projected growth trend: {status}</p>
+          <h4 className="text-text-primary font-black text-sm mb-1 uppercase tracking-tight">{tier} Projection</h4>
+          <p className="text-text-secondary text-xs leading-relaxed">System status: {status}. Trajectory optimized for high-performance engineering.</p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

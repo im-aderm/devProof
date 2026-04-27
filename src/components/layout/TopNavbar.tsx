@@ -1,45 +1,100 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
+import { useState, useRef, useEffect } from "react";
 
-export default function TopNavbar() {
+interface TopNavbarProps {
+  onMenuClick?: () => void;
+}
+
+export default function TopNavbar({ onMenuClick }: TopNavbarProps) {
   const { data: session } = useSession();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
-    <header className="bg-background/80 backdrop-blur-md sticky top-0 z-40 border-b border-outline-variant/10 shadow-sm flex items-center justify-between px-6 h-20 w-full">
-      <div className="flex items-center gap-4 flex-1">
-        <div className="relative w-full max-w-md">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
-          <input 
-            className="w-full bg-surface-container-high/50 border-none rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/50 transition-all outline-none text-on-surface" 
-            placeholder="Search Intelligence Ledger..." 
-            type="text"
-          />
+    <header className="bg-background/80 backdrop-blur-xl border-b border-border sticky top-0 z-40 flex items-center justify-between px-8 md:px-12 h-24 w-full">
+      <div className="flex items-center gap-6 flex-1">
+        {onMenuClick && (
+          <button 
+            onClick={onMenuClick}
+            className="md:hidden p-2 text-text-secondary hover:text-white transition-colors"
+          >
+            <span className="material-symbols-outlined">menu</span>
+          </button>
+        )}
+        
+        <div className="max-w-xl w-full hidden md:block">
+          <div className="relative group">
+            <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors text-xl">search</span>
+            <input 
+              type="text" 
+              placeholder="Execute Global Command..." 
+              className="w-full pl-14 pr-6 py-3 bg-white/5 border border-white/5 rounded-2xl focus:ring-1 focus:ring-primary/40 outline-none font-black text-[10px] uppercase tracking-[0.2em] transition-all placeholder:text-white/10"
+            />
+          </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-3">
-          <button className="p-2.5 text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-colors active:scale-95 duration-200">
-            <span className="material-symbols-outlined">notifications</span>
-          </button>
+      <div className="flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-4 px-6 py-2.5 bg-white/5 border border-white/5 rounded-2xl">
+           <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></div>
+           <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Protocol Active</span>
         </div>
 
-        <div className="h-8 w-px bg-outline-variant/20"></div>
+        <div className="relative" ref={dropdownRef}>
+          <button 
+            onClick={() => setShowDropdown(!showDropdown)}
+            className="flex items-center gap-4 p-1 rounded-2xl hover:bg-white/5 transition-all group"
+          >
+            <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors shadow-2xl">
+              <img 
+                className="w-full h-full object-cover" 
+                src={session?.user?.image || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120&auto=format&fit=crop"} 
+                alt={session?.user?.name || "User"}
+              />
+            </div>
+            <div className="hidden lg:block text-left">
+              <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1.5">{session?.user?.name || "Developer"}</p>
+              <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em]">System Op</p>
+            </div>
+          </button>
 
-        <div className="flex items-center gap-4 pl-2">
-          <div className="text-right hidden sm:block">
-            <p className="text-sm font-black text-on-surface leading-none uppercase tracking-tight">{session?.user?.name || "Guest Developer"}</p>
-            <p className="text-[10px] font-bold text-primary tracking-widest mt-1.5 uppercase opacity-80">Verified Intel</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/20 hover:ring-primary/40 transition-all cursor-pointer shadow-lg shadow-primary/10">
-            <img 
-              alt="User" 
-              className="w-full h-full object-cover" 
-              src={session?.user?.image || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120&auto=format&fit=crop"} 
-            />
-          </div>
+          {showDropdown && (
+            <div className="absolute top-full right-0 mt-4 w-64 bg-surface border border-white/10 rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] p-3 z-50 overflow-hidden">
+               <div className="px-5 py-4 border-b border-white/5 mb-2">
+                  <p className="text-[10px] font-black text-white uppercase tracking-widest">{session?.user?.email}</p>
+               </div>
+               <Link href="/u/profile" className="flex items-center gap-4 px-5 py-4 rounded-2xl hover:bg-white/5 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white">
+                  <span className="material-symbols-outlined text-lg">person</span>
+                  Ledger Profile
+               </Link>
+               <Link href="/settings" className="flex items-center gap-4 px-5 py-4 rounded-2xl hover:bg-white/5 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white">
+                  <span className="material-symbols-outlined text-lg">settings</span>
+                  Configuration
+               </Link>
+               <button 
+                 onClick={() => signOut()}
+                 className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl hover:bg-rose-500/10 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-rose-500 mt-2"
+               >
+                  <span className="material-symbols-outlined text-lg">logout</span>
+                  Terminate
+               </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

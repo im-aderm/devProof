@@ -2,48 +2,24 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import Link from "next/link";
-
-function PremiumOverlay({ title }: { title: string }) {
-  return (
-    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 bg-dark-bg/60 backdrop-blur-xl rounded-3xl border border-white/10 text-center">
-      <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-indigo-500/40">
-        <span className="material-symbols-outlined text-white text-3xl">lock</span>
-      </div>
-      <h4 className="text-2xl font-bold mb-3">Unlock {title}</h4>
-      <p className="text-slate-300 mb-8 max-w-sm">Comparing developers and repositories requires a verified GitHub identity. Sign in to unlock full architectural benchmarking.</p>
-      <Link 
-        href="/login" 
-        className="px-10 py-4 bg-white text-slate-900 rounded-2xl font-bold text-lg hover:scale-105 transition-all active:scale-95 shadow-xl"
-      >
-        Connect GitHub to Unlock
-      </Link>
-    </div>
-  );
-}
+import Sidebar from "@/components/layout/Sidebar";
+import TopNavbar from "@/components/layout/TopNavbar";
+import { GlassCard } from "@/components/ui/Cards";
+import { PrimaryButton } from "@/components/ui/Buttons";
+import { motion } from "framer-motion";
 
 export default function CompareEntryPage() {
   const router = useRouter();
-  const { data: session } = useSession();
-  const isPremium = !!session;
   const [activeTab, setActiveTab] = useState<"users" | "repos">("users");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
-  // User state
   const [userA, setUserA] = useState("");
   const [userB, setUserB] = useState("");
-
-  // Repo state
-  const [repoA, setRepoA] = useState(""); // format: owner/repo
-  const [repoB, setRepoB] = useState(""); // format: owner/repo
+  const [repoA, setRepoA] = useState("");
+  const [repoB, setRepoB] = useState("");
 
   const handleCompare = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isPremium) {
-      router.push("/login");
-      return;
-    }
     if (activeTab === "users") {
       if (userA.trim() && userB.trim()) {
         router.push(`/compare/users/${userA.trim()}/${userB.trim()}`);
@@ -58,125 +34,140 @@ export default function CompareEntryPage() {
   };
 
   return (
-    <div className="bg-background min-h-screen">
-      <DashboardHeader name="Compare" />
-      
-      <main className="pt-32 px-12 max-w-4xl mx-auto text-center">
-        <h1 className="font-display text-display-md text-on-surface mb-4">Benchmarking Protocol</h1>
-        <p className="text-on-surface-variant text-body-lg mb-12 max-w-2xl mx-auto">
-          Compare two GitHub identities or repositories side-by-side to analyze performance, quality, and architectural parity.
-        </p>
+    <div className="min-h-screen bg-background font-body">
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <div className="md:pl-64 flex flex-col min-h-screen transition-all duration-300 w-full">
+        <TopNavbar onMenuClick={() => setIsSidebarOpen(true)} />
+        
+        <main className="p-8 md:p-12 max-w-5xl mx-auto w-full">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col gap-12"
+          >
+            <section className="text-center space-y-4">
+              <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Benchmarking Protocol</span>
+              <h1 className="text-5xl font-black text-text-primary tracking-tighter uppercase">Comparative Matrix</h1>
+              <p className="text-text-secondary text-lg font-medium max-w-2xl mx-auto italic">
+                Analyze architectural parity and performance signatures between identities or repositories.
+              </p>
+            </section>
 
-        {/* Tab Switcher */}
-        <div className="flex justify-center mb-8">
-           <div className="bg-surface-container-low p-1.5 rounded-xl border border-outline-variant/20 flex gap-2">
-              <button 
-                onClick={() => setActiveTab("users")}
-                className={`px-8 py-2.5 rounded-lg text-label-md font-bold uppercase tracking-widest transition-all ${activeTab === "users" ? "bg-surface-container-highest text-primary shadow-lg" : "text-on-surface-variant hover:text-on-surface"}`}
-              >
-                Users
-              </button>
-              <button 
-                onClick={() => setActiveTab("repos")}
-                className={`px-8 py-2.5 rounded-lg text-label-md font-bold uppercase tracking-widest transition-all ${activeTab === "repos" ? "bg-surface-container-highest text-primary shadow-lg" : "text-on-surface-variant hover:text-on-surface"}`}
-              >
-                Repositories
-              </button>
-           </div>
-        </div>
-
-        <form onSubmit={handleCompare} className="relative glass-card p-12 rounded-2xl border border-outline-variant/20 shadow-2xl space-y-8 overflow-hidden">
-          {!isPremium && <PremiumOverlay title="Benchmarking" />}
-          
-          <div className={!isPremium ? "blur-xl pointer-events-none select-none opacity-20" : "grid grid-cols-1 md:grid-cols-2 gap-8 relative"}>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center z-10 hidden md:flex">
-               <span className="text-primary font-bold italic">VS</span>
+            <div className="flex justify-center">
+               <div className="bg-surface-variant/50 p-1.5 rounded-2xl border border-border flex gap-2">
+                  <button 
+                    onClick={() => setActiveTab("users")}
+                    className={`px-10 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === "users" ? "bg-surface text-primary shadow-lg" : "text-text-secondary hover:text-text-primary"}`}
+                  >
+                    Identities
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab("repos")}
+                    className={`px-10 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === "repos" ? "bg-surface text-primary shadow-lg" : "text-text-secondary hover:text-text-primary"}`}
+                  >
+                    Repositories
+                  </button>
+               </div>
             </div>
 
-            {activeTab === "users" ? (
-              <>
-                <div className="space-y-4">
-                  <label className="text-label-md font-bold text-on-surface-variant uppercase tracking-widest block text-left">Primary Subject</label>
-                  <div className="flex items-center px-6 bg-surface-container-low rounded-xl border border-outline-variant focus-within:border-primary transition-all">
-                    <span className="material-symbols-outlined text-on-surface-variant mr-3">person</span>
-                    <input 
-                      type="text" 
-                      placeholder="Username A"
-                      value={userA}
-                      onChange={(e) => setUserA(e.target.value)}
-                      className="w-full bg-transparent border-none py-4 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <label className="text-label-md font-bold text-on-surface-variant uppercase tracking-widest block text-left">Comparison Subject</label>
-                  <div className="flex items-center px-6 bg-surface-container-low rounded-xl border border-outline-variant focus-within:border-primary transition-all">
-                    <span className="material-symbols-outlined text-on-surface-variant mr-3">person</span>
-                    <input 
-                      type="text" 
-                      placeholder="Username B"
-                      value={userB}
-                      onChange={(e) => setUserB(e.target.value)}
-                      className="w-full bg-transparent border-none py-4 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none"
-                    />
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="space-y-4">
-                  <label className="text-label-md font-bold text-on-surface-variant uppercase tracking-widest block text-left">Primary Repository</label>
-                  <div className="flex items-center px-6 bg-surface-container-low rounded-xl border border-outline-variant focus-within:border-primary transition-all">
-                    <span className="material-symbols-outlined text-on-surface-variant mr-3">folder</span>
-                    <input 
-                      type="text" 
-                      placeholder="owner/repo"
-                      value={repoA}
-                      onChange={(e) => setRepoA(e.target.value)}
-                      className="w-full bg-transparent border-none py-4 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <label className="text-label-md font-bold text-on-surface-variant uppercase tracking-widest block text-left">Comparison Repository</label>
-                  <div className="flex items-center px-6 bg-surface-container-low rounded-xl border border-outline-variant focus-within:border-primary transition-all">
-                    <span className="material-symbols-outlined text-on-surface-variant mr-3">folder</span>
-                    <input 
-                      type="text" 
-                      placeholder="owner/repo"
-                      value={repoB}
-                      onChange={(e) => setRepoB(e.target.value)}
-                      className="w-full bg-transparent border-none py-4 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0 outline-none"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
+            <GlassCard className="!p-12 shadow-2xl relative overflow-hidden">
+               <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
+                  <span className="material-symbols-outlined text-[160px] text-primary">compare_arrows</span>
+               </div>
 
-          {isPremium && (
-            <button 
-              type="submit"
-              className="w-full py-5 bg-primary-gradient text-surface-container-lowest font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/10 active:scale-95 uppercase tracking-widest"
-            >
-              Initiate Comparative Audit
-            </button>
-          )}
-        </form>
+               <form onSubmit={handleCompare} className="space-y-10 relative z-10">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative">
+                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl bg-surface border-2 border-border flex items-center justify-center z-10 hidden md:flex shadow-xl">
+                        <span className="text-primary font-black italic text-xs">VS</span>
+                     </div>
 
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-           {[
-             { title: "Skill Mapping", desc: "Compare technical core stacks and language concentrations." },
-             { title: "Velocity Check", desc: "Benchmark PR frequency and issue resolution rates." },
-             { title: "Quality Audit", desc: "Analyze average project scores and README standards." },
-           ].map(item => (
-             <div key={item.title} className="p-6 bg-surface-container-low rounded-xl border border-outline-variant/10">
-                <h4 className="text-primary font-bold text-label-md uppercase mb-2">{item.title}</h4>
-                <p className="text-on-surface-variant text-body-sm">{item.desc}</p>
-             </div>
-           ))}
-        </div>
-      </main>
+                     {activeTab === "users" ? (
+                       <>
+                         <div className="space-y-3">
+                           <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">Lead Identity</label>
+                           <div className="flex items-center px-6 bg-surface-variant/30 rounded-2xl border border-border focus-within:border-primary/50 transition-all">
+                             <span className="material-symbols-outlined text-text-secondary mr-4">person</span>
+                             <input 
+                               type="text" 
+                               placeholder="Username Alpha"
+                               value={userA}
+                               onChange={(e) => setUserA(e.target.value)}
+                               className="w-full bg-transparent border-none py-5 text-text-primary placeholder:text-text-secondary/30 focus:ring-0 outline-none font-bold"
+                             />
+                           </div>
+                         </div>
+                         <div className="space-y-3">
+                           <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">Comparison Identity</label>
+                           <div className="flex items-center px-6 bg-surface-variant/30 rounded-2xl border border-border focus-within:border-primary/50 transition-all">
+                             <span className="material-symbols-outlined text-text-secondary mr-4">person</span>
+                             <input 
+                               type="text" 
+                               placeholder="Username Beta"
+                               value={userB}
+                               onChange={(e) => setUserB(e.target.value)}
+                               className="w-full bg-transparent border-none py-5 text-text-primary placeholder:text-text-secondary/30 focus:ring-0 outline-none font-bold"
+                             />
+                           </div>
+                         </div>
+                       </>
+                     ) : (
+                       <>
+                         <div className="space-y-3">
+                           <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">Primary Repository</label>
+                           <div className="flex items-center px-6 bg-surface-variant/30 rounded-2xl border border-border focus-within:border-primary/50 transition-all">
+                             <span className="material-symbols-outlined text-text-secondary mr-4">folder</span>
+                             <input 
+                               type="text" 
+                               placeholder="owner/repo"
+                               value={repoA}
+                               onChange={(e) => setRepoA(e.target.value)}
+                               className="w-full bg-transparent border-none py-5 text-text-primary placeholder:text-text-secondary/30 focus:ring-0 outline-none font-bold"
+                             />
+                           </div>
+                         </div>
+                         <div className="space-y-3">
+                           <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">Comparison Repository</label>
+                           <div className="flex items-center px-6 bg-surface-variant/30 rounded-2xl border border-border focus-within:border-primary/50 transition-all">
+                             <span className="material-symbols-outlined text-text-secondary mr-4">folder</span>
+                             <input 
+                               type="text" 
+                               placeholder="owner/repo"
+                               value={repoB}
+                               onChange={(e) => setRepoB(e.target.value)}
+                               className="w-full bg-transparent border-none py-5 text-text-primary placeholder:text-text-secondary/30 focus:ring-0 outline-none font-bold"
+                             />
+                           </div>
+                         </div>
+                       </>
+                     )}
+                  </div>
+
+                  <PrimaryButton 
+                    type="submit"
+                    className="w-full py-5 text-lg"
+                    icon="analytics"
+                  >
+                    Initiate Comparative Audit
+                  </PrimaryButton>
+               </form>
+            </GlassCard>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+               {[
+                 { title: "Skill Mapping", desc: "Compare technical core stacks and language concentrations across all ledgers.", icon: "architecture" },
+                 { title: "Velocity Check", desc: "Benchmark PR frequency and issue resolution rates for elite performance profiling.", icon: "speed" },
+                 { title: "Quality Audit", desc: "Analyze system-level abstraction layers and documentation standards.", icon: "verified" },
+               ].map(item => (
+                 <div key={item.title} className="p-8 bg-surface rounded-3xl border border-border group hover:border-primary/30 transition-all shadow-sm space-y-4">
+                    <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
+                    <h4 className="text-sm font-black text-text-primary uppercase tracking-widest">{item.title}</h4>
+                    <p className="text-xs text-text-secondary leading-relaxed font-medium italic">{item.desc}</p>
+                 </div>
+               ))}
+            </div>
+          </motion.div>
+        </main>
+      </div>
     </div>
   );
 }

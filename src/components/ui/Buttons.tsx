@@ -5,19 +5,22 @@ export function PrimaryButton({
   icon,
   onClick,
   className = "",
-  disabled = false
+  disabled = false,
+  type = "button"
 }: {
   children: React.ReactNode;
   icon?: string;
   onClick?: () => void;
   className?: string;
   disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`bg-primary-container text-on-primary-container px-5 py-2 rounded-lg font-label-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-50 disabled:pointer-events-none ${className}`}
+      type={type}
+      className={`primary-gradient text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 dark:shadow-none flex items-center justify-center gap-2 hover:shadow-indigo-300 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none ${className}`}
     >
       {icon && <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>}
       {children}
@@ -30,19 +33,22 @@ export function GhostButton({
   icon,
   onClick,
   className = "",
-  disabled = false
+  disabled = false,
+  type = "button"
 }: {
   children: React.ReactNode;
   icon?: string;
   onClick?: () => void;
   className?: string;
   disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50 px-4 py-2 rounded-lg font-label-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:pointer-events-none ${className}`}
+      type={type}
+      className={`text-text-secondary hover:text-text-primary hover:bg-surface-variant px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:pointer-events-none ${className}`}
     >
       {icon && <span className="material-symbols-outlined text-sm">{icon}</span>}
       {children}
@@ -65,7 +71,7 @@ export function IconButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`material-symbols-outlined text-slate-600 dark:text-slate-400 p-2 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-full transition-colors disabled:opacity-50 disabled:pointer-events-none ${className}`}
+      className={`material-symbols-outlined text-text-secondary p-2 hover:bg-surface-variant rounded-xl transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none ${className}`}
     >
       {icon}
     </button>
@@ -85,12 +91,12 @@ export function FloatingFAB({
 }) {
   return (
     <div className={`group relative ${className}`}>
-      <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+      <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-foreground text-background text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
         {label}
       </div>
       <button
         onClick={onClick}
-        className="w-14 h-14 bg-primary shadow-xl shadow-primary/20 rounded-2xl flex items-center justify-center text-white hover:scale-105 active:scale-95 transition-all"
+        className="w-14 h-14 primary-gradient shadow-xl shadow-indigo-500/20 rounded-2xl flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-all"
       >
         <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
           {icon}

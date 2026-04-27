@@ -1,11 +1,11 @@
 "use client";
 
+import { useId } from "react";
 import {
   Radar,
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
-  PolarRadiusAxis,
   ResponsiveContainer,
 } from "recharts";
 
@@ -14,22 +14,31 @@ interface RadarChartProps {
 }
 
 export default function CodeQualityRadar({ data }: RadarChartProps) {
+  const gradientId = useId();
+
   return (
-    <div className="w-full h-[300px] flex items-center justify-center">
+    <div className="w-full h-[320px] flex items-center justify-center">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
-          <PolarGrid stroke="rgba(255, 255, 255, 0.05)" />
+          <PolarGrid stroke="currentColor" className="text-border/30" />
           <PolarAngleAxis 
             dataKey="subject" 
-            tick={{ fill: "rgba(255, 255, 255, 0.5)", fontSize: 10, fontWeight: "bold" }}
+            tick={{ fill: "currentColor", fontSize: 9, fontWeight: 900, textAnchor: "middle" }}
+            className="text-text-secondary uppercase tracking-widest"
           />
           <Radar
             name="Developer"
             dataKey="A"
-            stroke="#3b82f6"
-            fill="#3b82f6"
-            fillOpacity={0.3}
+            stroke="#4f46e5"
+            fill={`url(#${gradientId})`}
+            fillOpacity={0.5}
           />
+          <defs>
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#4f46e5" />
+              <stop offset="100%" stopColor="#06b6d4" />
+            </linearGradient>
+          </defs>
         </RadarChart>
       </ResponsiveContainer>
     </div>

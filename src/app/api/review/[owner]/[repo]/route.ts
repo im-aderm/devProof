@@ -87,7 +87,22 @@ export async function GET(
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     const jsonStr = text.replace(/```json\n?|\n?```/g, "").trim();
-    const review = JSON.parse(jsonStr || "{}");
+    
+    let review;
+    try {
+      review = JSON.parse(jsonStr || "{}");
+    } catch (parseError) {
+      console.error("REVIEW_JSON_PARSE_ERROR", parseError, "Raw text:", text);
+      review = {
+        structureScore: 50,
+        readabilityScore: 50,
+        maintainabilityScore: 50,
+        observations: ["Automated review analysis failed to parse. Manual audit recommended."],
+        suggestedRefactors: [],
+        missingPractices: [],
+        bestPracticesScore: 50
+      };
+    }
 
     const finalData = {
       repoData: {

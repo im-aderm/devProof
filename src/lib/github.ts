@@ -35,7 +35,7 @@ export class GitHubService {
         sort: "updated",
         per_page: perPage,
         page,
-        type: "public",
+        type: "owner",
       });
 
       allRepos = [...allRepos, ...data];

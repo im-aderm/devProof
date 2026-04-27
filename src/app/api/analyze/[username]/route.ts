@@ -25,7 +25,7 @@ export async function GET(
   if (cached) return NextResponse.json(cached);
 
   // 1. Rate Limiting (Public Access)
-  const rl = await rateLimit(`analyze:${username}`, 5, 60000); // 5 per minute per target
+  const rl = await rateLimit(`rl:analyze:${username}`, 5, 60000); // 5 per minute per target
   if (!rl.success) {
     return NextResponse.json(
       { error: "Too many requests for this profile. Please wait." },

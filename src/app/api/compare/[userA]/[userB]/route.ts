@@ -32,18 +32,21 @@ export async function GET(req: Request, { params }: { params: Promise<{ userA: s
 async function fetchUserData(github: GitHubService, username: string) {
   try {
     const profile = await github.getUserProfile(username);
-    const repos = await github.getAllUserRepositories(username);
+    const repos = await github.getDetailedRepositories(username, 10); // Limit to top 10
 
-    const publicRepos = repos.filter((r: any) => !r.private);
-    const repoCount = publicRepos.length;
-    const totalStars = publicRepos.reduce((acc: number, repo: any) => acc + (repo.stargazers_count || 0), 0);
-    const topSkill = publicRepos[0]?.language || "N/A";
-    const readinessScore = 80 + Math.floor(Math.random() * 20); // Mock
+    const totalStars = repos.reduce((acc: number, repo: any) => acc + (repo.stargazers_count || 0), 0);
+    const topSkill = repos[0]?.language || "N/A";
+    
+    // Simple weighted calculation for compare summary
+    const repoCountScore = Math.min(profile.public_repos * 2, 30);
+    const starScore = Math.min(totalStars * 5, 40);
+    const followerScore = Math.min(profile.followers * 2, 30);
+    const readinessScore = repoCountScore + starScore + followerScore;
 
     return {
       readinessScore,
       topSkill,
-      repoCount,
+      repoCount: profile.public_repos,
       totalStars,
     };
   } catch (e) {

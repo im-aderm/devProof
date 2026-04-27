@@ -47,6 +47,8 @@ model User {
   bio                 String?
   onboardingCompleted Boolean   @default(false)
   isAdmin             Boolean   @default(false)
+  experienceLevel     String?   // beginner, intermediate, advanced, pro
+  goals               Json?     // Array of goal strings
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
@@ -54,6 +56,7 @@ model User {
   sessions            Session[]
   reports             Report[]
   snapshots           Snapshot[]
+  exports             ExportLog[]
 }
 
 model VerificationToken {
@@ -103,6 +106,10 @@ model ExportLog {
   type      String   // pdf, csv, json, docx
   fileName  String
   createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Waitlist {
