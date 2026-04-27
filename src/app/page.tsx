@@ -1,69 +1,88 @@
 import Link from "next/link";
-import Image from "next/image";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const session = await getServerSession(authOptions);
+  const isLoggedIn = !!session;
+
   return (
-    <div className="bg-light-bg min-h-screen">
+    <div className="bg-background min-h-screen text-on-surface">
       {/* Navigation */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm top-0 sticky z-50 flex items-center justify-between px-6 h-16 w-full">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-cyan-500">
+      <header className="bg-background/80 backdrop-blur-md border-b border-outline-variant/10 sticky top-0 z-50 flex items-center justify-between px-12 h-24 w-full">
+        <div className="flex items-center gap-12">
+          <Link href="/" className="text-2xl font-display font-bold tracking-tighter bg-primary-gradient bg-clip-text text-transparent uppercase">
             DevProof
           </Link>
-          <nav className="hidden md:flex items-center gap-6 text-small font-medium">
-            <Link href="/" className="text-indigo-600 font-semibold">Home</Link>
-            <Link href="#features" className="text-slate-500 hover:text-slate-900 transition-colors">Features</Link>
-            <Link href="#showcase" className="text-slate-500 hover:text-slate-900 transition-colors">Showcase</Link>
-            <Link href="/pricing" className="text-slate-500 hover:text-slate-900 transition-colors">Pricing</Link>
+          <nav className="hidden md:flex items-center gap-8 text-label-md font-bold uppercase tracking-widest">
+            <Link href="/" className="text-primary">Home</Link>
+            <Link href="#features" className="text-on-surface-variant hover:text-on-surface transition-colors">Intelligence</Link>
+            <Link href="/compare" className="text-on-surface-variant hover:text-on-surface transition-colors">Benchmark</Link>
+            <Link href="/about" className="text-on-surface-variant hover:text-on-surface transition-colors">Protocol</Link>
           </nav>
         </div>
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-small font-bold hover:bg-indigo-700 transition-all active:scale-95">
-            Dashboard
-          </Link>
+        <div className="flex items-center gap-6">
+          {isLoggedIn ? (
+            <Link href="/dashboard" className="px-6 py-2.5 bg-primary text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-primary/20">
+              Terminal
+            </Link>
+          ) : (
+            <Link href="/login" className="px-6 py-2.5 bg-on-surface text-background rounded-lg text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all">
+              Initialize
+            </Link>
+          )}
         </div>
       </header>
 
-      <main className="max-w-content-max mx-auto px-6">
+      <main className="max-w-7xl mx-auto px-6">
         {/* Hero Section */}
-        <section className="py-24 grid lg:grid-cols-2 gap-16 items-center">
-          <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-indigo-600 text-xs font-black uppercase tracking-widest">
+        <section className="py-32 grid lg:grid-cols-2 gap-24 items-center">
+          <div className="space-y-10">
+            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-primary text-[10px] font-black uppercase tracking-[0.3em]">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
-              AI-Powered Intelligence
+              Neural Engineering Audit
             </div>
-            <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tight leading-[1.1]">
-              Turn Your GitHub Into <span className="bg-gradient-to-r from-indigo-600 to-cyan-500 bg-clip-text text-transparent">Proof of Skill</span>
+            <h1 className="text-6xl md:text-8xl font-display font-black tracking-tight leading-[0.9] uppercase">
+              The <span className="bg-primary-gradient bg-clip-text text-transparent">Obsidian</span> Ledger
             </h1>
-            <p className="text-lg text-slate-600 max-w-xl leading-relaxed">
-              Our AI deep-analyzes your engineering patterns, codebase complexity, and contribution velocity to build a verified professional identity recruiters trust.
+            <p className="text-xl text-on-surface-variant max-w-xl leading-relaxed font-medium">
+              Transform raw GitHub activity into high-fidelity professional intel. Our AI audits architectural patterns to prove your engineering dominance.
             </p>
-            <div className="flex flex-wrap gap-4 pt-4">
-              <Link href="/dashboard" className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-2xl shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-1 transition-all active:scale-95">
-                Analyze My GitHub
-              </Link>
-              <Link href="/u/demo" className="px-8 py-4 bg-white border border-slate-200 text-slate-900 rounded-2xl font-bold hover:bg-slate-50 hover:-translate-y-1 transition-all active:scale-95">
-                View Demo
+            <div className="flex flex-wrap gap-6 pt-6">
+              {isLoggedIn ? (
+                <Link href="/dashboard" className="px-10 py-5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/40 hover:-translate-y-1 transition-all active:scale-95">
+                  Enter Terminal
+                </Link>
+              ) : (
+                <Link href="/login" className="px-10 py-5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/40 hover:-translate-y-1 transition-all active:scale-95">
+                  Begin Audit
+                </Link>
+              )}
+              <Link href="/u/demo" className="px-10 py-5 bg-surface-container-high text-on-surface rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-surface-container-highest hover:-translate-y-1 transition-all active:scale-95 border border-outline-variant/20">
+                Live Demo
               </Link>
             </div>
           </div>
+          
           <div className="relative group">
-            <div className="absolute -inset-4 bg-gradient-to-tr from-indigo-500 to-cyan-500 rounded-[2.5rem] blur-2xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
-            <div className="relative bg-white border border-slate-200 rounded-[2rem] shadow-2xl overflow-hidden transform group-hover:scale-[1.02] transition-transform duration-500">
-              <div className="h-10 bg-slate-50 border-b border-slate-200 flex items-center px-6 gap-2">
-                <div className="w-3 h-3 rounded-full bg-slate-200"></div>
-                <div className="w-3 h-3 rounded-full bg-slate-200"></div>
-                <div className="w-3 h-3 rounded-full bg-slate-200"></div>
+            <div className="absolute -inset-10 bg-primary/20 rounded-full blur-[120px] opacity-50 group-hover:opacity-80 transition-opacity"></div>
+            <div className="relative bg-surface-container-low border border-outline-variant/30 rounded-[3rem] shadow-2xl overflow-hidden backdrop-blur-3xl transform group-hover:scale-[1.02] transition-transform duration-700">
+              <div className="h-12 bg-surface-container-high/50 border-b border-outline-variant/20 flex items-center px-8 gap-3">
+                <div className="w-3 h-3 rounded-full bg-error/40"></div>
+                <div className="w-3 h-3 rounded-full bg-warning/40"></div>
+                <div className="w-3 h-3 rounded-full bg-success/40"></div>
               </div>
-              <div className="p-8 bg-slate-50/50">
-                <div className="aspect-video bg-white rounded-2xl shadow-inner border border-slate-100 flex flex-col items-center justify-center p-8 text-center space-y-4">
-                  <span className="material-symbols-outlined text-indigo-600 text-6xl" style={{ fontVariationSettings: "'FILL' 1" }}>insights</span>
-                  <div className="space-y-2">
-                    <div className="h-4 w-48 bg-slate-100 rounded-full mx-auto animate-pulse"></div>
-                    <div className="h-3 w-32 bg-slate-50 rounded-full mx-auto animate-pulse"></div>
+              <div className="p-12">
+                <div className="aspect-square bg-background rounded-2xl border border-outline-variant/10 flex flex-col items-center justify-center p-12 text-center space-y-6 relative overflow-hidden group/inner">
+                  <div className="absolute inset-0 bg-primary-gradient opacity-[0.03] group-hover/inner:opacity-[0.07] transition-opacity"></div>
+                  <span className="material-symbols-outlined text-primary text-8xl relative z-10" style={{ fontVariationSettings: "'FILL' 1" }}>biotech</span>
+                  <div className="space-y-3 relative z-10 w-full">
+                    <div className="h-2 w-3/4 bg-surface-container-highest rounded-full mx-auto animate-pulse"></div>
+                    <div className="h-2 w-1/2 bg-surface-container-high rounded-full mx-auto animate-pulse delay-75"></div>
+                    <div className="h-2 w-2/3 bg-surface-container-highest rounded-full mx-auto animate-pulse delay-150"></div>
                   </div>
                 </div>
               </div>
@@ -71,129 +90,60 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Social Proof */}
-        <section className="py-2xl border-y border-slate-100">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-lg">
-            <div className="flex items-center gap-4">
-              <div className="flex -space-x-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-10 w-10 rounded-full border-2 border-white bg-slate-200" />
-                ))}
-                <div className="h-10 w-10 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-600">+10k</div>
-              </div>
-              <p className="text-small text-light-text-secondary">Join <span className="font-bold text-light-text-primary">10k+ Developers</span> building proof</p>
-            </div>
-            <div className="flex items-center gap-xl opacity-30 grayscale font-black text-2xl text-slate-400">
-              <span>GITHUB</span>
-              <span>VERCEL</span>
-              <span>LINEAR</span>
-            </div>
-            <div className="text-right">
-              <p className="text-h3 font-black text-indigo-600">500+</p>
-              <p className="text-caption text-light-text-secondary uppercase tracking-widest font-bold">Reports Generated</p>
-            </div>
-          </div>
-        </section>
-
         {/* Feature Grid */}
-        <section id="features" className="py-3xl">
-          <div className="text-center max-w-2xl mx-auto mb-2xl">
-            <h2 className="text-h2 font-h2 text-light-text-primary mb-md">Engineered for Excellence</h2>
-            <p className="text-body text-light-text-secondary">Deep analysis of your codebase, commit patterns, and project structure to build a profile that recruiters actually trust.</p>
+        <section id="features" className="py-48 border-t border-outline-variant/10">
+          <div className="text-center max-w-3xl mx-auto mb-32 space-y-4">
+            <h2 className="text-label-md font-black text-primary uppercase tracking-[0.4em]">Capabilities</h2>
+            <p className="text-5xl font-display font-black uppercase tracking-tighter">Engineered for the Elite</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-lg">
-            <div className="bento-card md:col-span-2 bg-white p-lg rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-lg items-center">
-              <div className="flex-1 space-y-md">
-                <div className="h-12 w-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
-                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
-                </div>
-                <h3 className="text-h3 font-h3">AI Strength Analysis</h3>
-                <p className="text-small text-light-text-secondary leading-relaxed">
-                  Our proprietary LLMs analyze code quality, complexity, and documentation habits across all your repositories to identify your true technical strengths.
-                </p>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="glass-card p-10 rounded-[2.5rem] space-y-6 group hover:border-primary/30 transition-all">
+              <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
               </div>
-              <div className="flex-1 h-48 bg-slate-50 rounded-2xl p-md border border-slate-100 flex items-end gap-2">
-                <div className="flex-1 bg-indigo-100 rounded-t-lg h-[40%]" />
-                <div className="flex-1 bg-indigo-200 rounded-t-lg h-[60%]" />
-                <div className="flex-1 bg-indigo-400 rounded-t-lg h-[90%]" />
-                <div className="flex-1 bg-indigo-600 rounded-t-lg h-[75%]" />
-                <div className="flex-1 bg-indigo-300 rounded-t-lg h-[50%]" />
-              </div>
+              <h3 className="text-xl font-black uppercase tracking-tight">Persona Generation</h3>
+              <p className="text-on-surface-variant leading-relaxed font-medium">
+                Our LLMs distill years of commit history into a precise architectural persona, identifying your unique engineering signature.
+              </p>
             </div>
 
-            <div className="bento-card bg-indigo-600 text-white p-lg rounded-3xl shadow-xl flex flex-col justify-between">
-              <div>
-                <div className="h-12 w-12 bg-white/20 rounded-2xl flex items-center justify-center mb-md">
-                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>description</span>
-                </div>
-                <h3 className="text-h3 font-h3 mb-sm">Resume Export</h3>
-                <p className="text-small text-white/80 leading-relaxed">Generate recruiter-ready PDF resumes based on your real-world contributions instantly.</p>
+            <div className="glass-card p-10 rounded-[2.5rem] bg-primary-gradient text-white border-none shadow-2xl shadow-primary/20 space-y-6 scale-105 z-10">
+              <div className="h-14 w-14 bg-white/20 rounded-2xl flex items-center justify-center">
+                <span className="material-symbols-outlined text-3xl text-white" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
               </div>
-              <Link href="/resume" className="w-full py-3 bg-white text-indigo-600 rounded-xl font-bold text-small text-center hover:bg-slate-50 transition-colors">
-                Try Builder
+              <h3 className="text-xl font-black uppercase tracking-tight">Verified Proof</h3>
+              <p className="text-white/80 leading-relaxed font-medium">
+                Stop telling recruiters what you can do. Send a cryptographically sound ledger of your real-world technical impact.
+              </p>
+              <Link href="/login" className="w-full py-4 bg-white text-primary rounded-xl font-black text-[10px] uppercase tracking-widest text-center hover:opacity-90 transition-all inline-block">
+                Initialize Account
               </Link>
             </div>
 
-            <div className="bento-card bg-white p-lg rounded-3xl border border-slate-100 shadow-sm">
-              <div className="h-12 w-12 bg-cyan-50 rounded-2xl flex items-center justify-center text-cyan-600 mb-md">
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>folder_open</span>
+            <div className="glass-card p-10 rounded-[2.5rem] space-y-6 group hover:border-primary/30 transition-all">
+              <div className="h-14 w-14 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>monitoring</span>
               </div>
-              <h3 className="text-h4 font-h4 mb-sm">Repo Scoring</h3>
-              <p className="text-small text-light-text-secondary leading-relaxed">Individual repository audits to show project maturity and technical debt management.</p>
-            </div>
-
-            <div className="bento-card bg-white p-lg rounded-3xl border border-slate-100 shadow-sm flex flex-col items-center text-center">
-              <div className="relative h-32 w-32 mb-md">
-                <svg className="h-full w-full transform -rotate-90">
-                  <circle className="text-slate-100" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" strokeWidth="12" />
-                  <circle className="text-indigo-600" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" strokeDasharray="364.4" strokeDashoffset="91.1" strokeWidth="12" strokeLinecap="round" />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-h3 font-bold text-light-text-primary">84%</span>
-                </div>
-              </div>
-              <h3 className="text-h4 font-h4 mb-xs">MLH Readiness</h3>
-              <p className="text-caption text-light-text-secondary">Measure your alignment with MLH and industry standards.</p>
-            </div>
-
-            <div className="bento-card bg-white p-lg rounded-3xl border border-slate-100 shadow-sm">
-              <div className="h-12 w-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 mb-md">
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>lightbulb</span>
-              </div>
-              <h3 className="text-h4 font-h4 mb-sm">Career Advice</h3>
-              <p className="text-small text-light-text-secondary leading-relaxed">Personalized tips on what technologies to learn next based on your current stack and goals.</p>
-            </div>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="py-3xl">
-          <div className="bg-indigo-600 rounded-[3rem] p-2xl text-center relative overflow-hidden shadow-2xl shadow-indigo-200">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/50 to-cyan-500/50"></div>
-            <div className="relative z-10 max-w-2xl mx-auto space-y-lg">
-              <h2 className="text-h1 font-h1 text-white">Ready to turn code into opportunity?</h2>
-              <p className="text-body text-indigo-100">Stop sending links to confusing repos. Start sending proof of your engineering excellence.</p>
-              <div className="pt-lg">
-                <Link href="/dashboard" className="px-12 py-5 bg-white text-indigo-600 rounded-2xl font-bold text-xl shadow-2xl hover:scale-105 transition-transform active:scale-95 inline-block">
-                  Get Your Proof for Free
-                </Link>
-              </div>
-              <p className="text-caption text-indigo-200 font-medium">No credit card required • Secure OAuth login</p>
+              <h3 className="text-xl font-black uppercase tracking-tight">Benchmarking</h3>
+              <p className="text-on-surface-variant leading-relaxed font-medium">
+                Side-by-side architectural parity checks. Compare stack concentration, velocity, and code quality against industry standards.
+              </p>
             </div>
           </div>
         </section>
       </main>
 
-      <footer className="bg-white border-t border-slate-200 mt-2xl py-xl px-6">
-        <div className="max-w-content-max mx-auto flex flex-col md:flex-row justify-between items-center gap-lg">
-          <div className="space-y-sm">
-            <span className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-cyan-500">DevProof</span>
-            <p className="text-caption text-light-text-secondary">© 2026 DevProof Intelligence Corp. All rights reserved.</p>
+      <footer className="border-t border-outline-variant/10 py-24 px-12 bg-surface-container-lowest/50">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
+          <div className="space-y-4">
+            <span className="text-2xl font-display font-black bg-primary-gradient bg-clip-text text-transparent uppercase tracking-tighter">DevProof</span>
+            <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-50">© 2026 Obsidian Intelligence Protocol</p>
           </div>
-          <div className="flex gap-xl text-small font-medium text-light-text-secondary">
-            <Link href="/privacy" className="hover:text-indigo-600 transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-indigo-600 transition-colors">Terms</Link>
-            <Link href="/contact" className="hover:text-indigo-600 transition-colors">Contact</Link>
+          <div className="flex gap-12 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">
+            <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
+            <Link href="/contact" className="hover:text-primary transition-colors">Contact</Link>
           </div>
         </div>
       </footer>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import Link from "next/link";
 import LoadingSkeleton from "@/components/dashboard/LoadingSkeleton";
@@ -10,10 +11,30 @@ import StrengthScore from "@/components/dashboard/StrengthScore";
 import GrowthForecast from "@/components/dashboard/GrowthForecast";
 import OptimizationChecklist from "@/components/dashboard/OptimizationChecklist";
 import FloatingExportActions from "@/components/dashboard/FloatingExportActions";
+import { motion } from "framer-motion";
+
+function PremiumOverlay({ title }: { title: string }) {
+  return (
+    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 bg-dark-bg/40 backdrop-blur-md rounded-3xl border border-white/10 text-center">
+      <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-xl shadow-indigo-500/20">
+        <span className="material-symbols-outlined text-white">lock</span>
+      </div>
+      <h4 className="text-xl font-bold mb-2">Unlock {title}</h4>
+      <p className="text-sm text-slate-300 mb-6 max-w-[200px]">Sign in with GitHub to view your detailed historical insights.</p>
+      <Link 
+        href="/login" 
+        className="px-6 py-2.5 bg-white text-slate-900 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-all active:scale-95"
+      >
+        Connect GitHub
+      </Link>
+    </div>
+  );
+}
 
 export default function AnalyzePage() {
   const { username } = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -87,8 +108,14 @@ export default function AnalyzePage() {
   }
 
   const { profile, collabStats, repos, aiSummary, scoringResult, growthForecast } = data;
+  const isPremium = !!session;
 
   const handleExport = (format: string) => {
+      if (!isPremium && format !== 'pdf') {
+        alert("JSON, CSV, and DOCX exports require a connected GitHub account.");
+        router.push("/login");
+        return;
+      }
       alert(`Exporting as ${format.toUpperCase()}... The Obsidian Ledger is being prepared.`);
   };
 
@@ -191,19 +218,28 @@ export default function AnalyzePage() {
 
             {/* Top Repositories Grid */}
             <section>
-               <h2 className="font-display text-headline-sm text-on-surface uppercase tracking-widest mb-12 flex items-center gap-4">
-                 Top Repositories
-                 <div className="h-px flex-grow bg-surface-container-highest"></div>
-              </h2>
+               <div className="flex justify-between items-center mb-12">
+                  <h2 className="font-display text-headline-sm text-on-surface uppercase tracking-widest flex items-center gap-4">
+                    Top Repositories
+                  </h2>
+                  <Link href={isPremium ? `/repos` : "/login"} className="text-primary font-bold text-xs uppercase tracking-widest flex items-center gap-2 hover:underline">
+                    {isPremium ? "View All" : "Connect to See More"}
+                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                  </Link>
+               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {repos.slice(0, 6).map((repo: any) => (
                   <Link 
                     key={repo.id}
-                    href={`/repo/${username}/${repo.name}`}
+                    href={isPremium ? `/repo/${username}/${repo.name}` : "/login"}
                     className="group block p-8 bg-surface-container-low hover:bg-surface-container-high rounded-2xl transition-all border border-outline-variant hover:shadow-2xl hover:-translate-y-1 relative overflow-hidden"
                   >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors"></div>
                     
+                    {!isPremium && (
+                       <div className="absolute inset-0 z-10 bg-dark-bg/5 backdrop-blur-[2px] pointer-events-none"></div>
+                    )}
+
                     <div className="flex justify-between items-start mb-6 relative z-10">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center border border-outline-variant group-hover:border-primary/30 transition-colors">
@@ -239,15 +275,18 @@ export default function AnalyzePage() {
             </section>
 
             {/* Optimization Checklist */}
-            <section>
+            <section className="relative">
                 <h2 className="font-display text-headline-sm text-on-surface uppercase tracking-widest mb-12 flex items-center gap-4">
                   Optimization Checklist
                   <div className="h-px flex-grow bg-surface-container-highest"></div>
                </h2>
-               <OptimizationChecklist 
-                completedItems={scoringResult.recommendations.length === 0 ? ["Strong repo naming", "Has portfolio linked", "Active contributions"] : ["Public profile accessible"]}
-                items={scoringResult.recommendations}
-               />
+               {!isPremium && <PremiumOverlay title="Checklist" />}
+               <div className={!isPremium ? "blur-md pointer-events-none select-none" : ""}>
+                 <OptimizationChecklist 
+                  completedItems={scoringResult.recommendations.length === 0 ? ["Strong repo naming", "Has portfolio linked", "Active contributions"] : ["Public profile accessible"]}
+                  items={scoringResult.recommendations}
+                 />
+               </div>
             </section>
           </div>
 
@@ -275,14 +314,17 @@ export default function AnalyzePage() {
             </section>
 
             {/* Growth Forecast */}
-            <section className="p-8 bg-surface-container-low rounded-3xl border border-outline-variant">
+            <section className="p-8 bg-surface-container-low rounded-3xl border border-outline-variant relative overflow-hidden">
                <h3 className="text-label-md font-bold text-on-surface-variant uppercase tracking-[0.2em] mb-8">Growth Forecast</h3>
-               <GrowthForecast 
-                velocity={growthForecast.velocity}
-                tier={growthForecast.tier}
-                status={growthForecast.status}
-                description={growthForecast.description}
-               />
+               {!isPremium && <PremiumOverlay title="Growth Insights" />}
+               <div className={!isPremium ? "blur-md pointer-events-none select-none" : ""}>
+                 <GrowthForecast 
+                  velocity={growthForecast.velocity}
+                  tier={growthForecast.tier}
+                  status={growthForecast.status}
+                  description={growthForecast.description}
+                 />
+               </div>
             </section>
 
             {/* Language Progress bars */}

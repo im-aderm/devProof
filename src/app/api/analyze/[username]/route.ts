@@ -4,6 +4,9 @@ import { AIService } from "@/lib/ai";
 import { ScoringEngine, type RepoMetrics } from "@/lib/scoring";
 import { rateLimit } from "@/lib/rate-limit";
 import { getCachedData, setCachedData } from "@/lib/cache";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: Request,
@@ -11,6 +14,7 @@ export async function GET(
 ) {
   const resolvedParams = await params;
   const { username } = resolvedParams;
+  const session = await getServerSession(authOptions);
 
   if (!username) {
     return NextResponse.json({ error: "Username is required" }, { status: 400 });
@@ -77,7 +81,41 @@ export async function GET(
       growthForecast,
     };
 
-    // 6. Cache for 1 hour
+    // 6. Persistence Logic
+    if (session?.user?.id) {
+      // Save the report
+      await prisma.report.create({
+        data: {
+          userId: session.user.id,
+          type: "profile",
+          targetA: username,
+          score: scoringResult.score,
+          summary: aiSummary.summary,
+          payload: JSON.stringify(finalData),
+        },
+      });
+
+      // If it's the user's own profile, save a snapshot
+      if (session.user.githubUsername === username) {
+        await prisma.snapshot.create({
+          data: {
+            userId: session.user.id,
+            stars: repoMetrics.reduce((acc, r) => acc + r.stars, 0),
+            repos: profile.public_repos,
+            followers: profile.followers,
+            languages: JSON.stringify(finalData.repos.reduce((acc: any, r: any) => {
+               Object.entries(r.languages).forEach(([name, size]) => {
+                 acc[name] = (acc[name] || 0) + (size as number);
+               });
+               return acc;
+            }, {})),
+            activityScore: scoringResult.score,
+          }
+        });
+      }
+    }
+
+    // 7. Cache for 1 hour
     await setCachedData(`analyze:${username}`, finalData, 3600);
 
     return NextResponse.json(finalData);

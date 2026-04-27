@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const navItems = [
   { name: "Dashboard", icon: "dashboard", href: "/dashboard" },
   { name: "Repositories", icon: "folder_open", href: "/repos" },
-  { name: "Portfolio", icon: "person_pin", href: "/u/profile" }, // Will need to replace profile with dynamic username later
+  { name: "Portfolio", icon: "person_pin", href: "/u/profile" },
   { name: "Resume", icon: "description", href: "/resume" },
   { name: "Readiness", icon: "verified", href: "/readiness" },
   { name: "Compare", icon: "compare_arrows", href: "/compare" },
@@ -17,14 +17,14 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 h-full flex flex-col py-4 bg-slate-50 dark:bg-slate-950 w-64 border-r border-slate-200 dark:border-slate-800 z-50">
+    <aside className="fixed left-0 top-0 h-full flex flex-col py-4 bg-background w-64 border-r border-outline-variant/10 z-50">
       <div className="px-6 mb-8 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+        <div className="w-10 h-10 rounded-xl bg-primary-gradient flex items-center justify-center shadow-lg shadow-primary/20">
           <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span>
         </div>
         <div>
-          <h2 className="font-black text-slate-900 dark:text-white text-lg leading-tight">DevProof</h2>
-          <p className="text-[10px] text-slate-500 font-bold tracking-wide uppercase">Developer Intelligence</p>
+          <h2 className="font-black text-on-surface text-lg leading-tight tracking-tighter">DevProof</h2>
+          <p className="text-[10px] text-on-surface-variant font-bold tracking-wide uppercase opacity-50">Developer Intelligence</p>
         </div>
       </div>
 
@@ -35,13 +35,13 @@ export default function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 ease-in-out text-sm font-medium ${
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 ease-in-out text-sm font-bold ${
                 isActive
-                  ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900"
+                  ? "bg-primary-container/20 text-primary"
+                  : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50"
               }`}
             >
-              <span className="material-symbols-outlined">{item.icon}</span>
+              <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
               {item.name}
             </Link>
           );
@@ -49,13 +49,13 @@ export default function Sidebar() {
       </nav>
 
       <div className="px-4 mt-auto">
-        <div className="p-4 bg-slate-900 dark:bg-indigo-900/40 rounded-xl border border-slate-800">
-          <p className="text-white text-[10px] font-bold mb-2 uppercase tracking-wider">Analysis Plan</p>
-          <div className="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden mb-3">
-            <div className="h-full w-2/3 bg-cyan-400"></div>
+        <div className="p-6 bg-surface-container-low rounded-2xl border border-outline-variant/20">
+          <p className="text-on-surface text-[10px] font-black mb-3 uppercase tracking-widest opacity-50">Analysis Protocol</p>
+          <div className="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden mb-4">
+            <div className="h-full w-2/3 bg-primary transition-all"></div>
           </div>
-          <button className="w-full py-2 bg-white text-slate-900 rounded-lg text-xs font-bold hover:bg-slate-100 transition-colors active:scale-95 duration-200">
-            Upgrade Now
+          <button className="w-full py-2.5 bg-on-surface text-background rounded-lg text-xs font-black hover:opacity-90 transition-all active:scale-95 duration-200 uppercase tracking-widest">
+            Upgrade
           </button>
         </div>
       </div>

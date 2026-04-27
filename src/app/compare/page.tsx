@@ -2,10 +2,32 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import Link from "next/link";
+
+function PremiumOverlay({ title }: { title: string }) {
+  return (
+    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 bg-dark-bg/60 backdrop-blur-xl rounded-3xl border border-white/10 text-center">
+      <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-indigo-500/40">
+        <span className="material-symbols-outlined text-white text-3xl">lock</span>
+      </div>
+      <h4 className="text-2xl font-bold mb-3">Unlock {title}</h4>
+      <p className="text-slate-300 mb-8 max-w-sm">Comparing developers and repositories requires a verified GitHub identity. Sign in to unlock full architectural benchmarking.</p>
+      <Link 
+        href="/login" 
+        className="px-10 py-4 bg-white text-slate-900 rounded-2xl font-bold text-lg hover:scale-105 transition-all active:scale-95 shadow-xl"
+      >
+        Connect GitHub to Unlock
+      </Link>
+    </div>
+  );
+}
 
 export default function CompareEntryPage() {
   const router = useRouter();
+  const { data: session } = useSession();
+  const isPremium = !!session;
   const [activeTab, setActiveTab] = useState<"users" | "repos">("users");
   
   // User state
@@ -18,6 +40,10 @@ export default function CompareEntryPage() {
 
   const handleCompare = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPremium) {
+      router.push("/login");
+      return;
+    }
     if (activeTab === "users") {
       if (userA.trim() && userB.trim()) {
         router.push(`/compare/users/${userA.trim()}/${userB.trim()}`);
@@ -59,8 +85,10 @@ export default function CompareEntryPage() {
            </div>
         </div>
 
-        <form onSubmit={handleCompare} className="glass-card p-12 rounded-2xl border border-outline-variant/20 shadow-2xl space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
+        <form onSubmit={handleCompare} className="relative glass-card p-12 rounded-2xl border border-outline-variant/20 shadow-2xl space-y-8 overflow-hidden">
+          {!isPremium && <PremiumOverlay title="Benchmarking" />}
+          
+          <div className={!isPremium ? "blur-xl pointer-events-none select-none opacity-20" : "grid grid-cols-1 md:grid-cols-2 gap-8 relative"}>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center z-10 hidden md:flex">
                <span className="text-primary font-bold italic">VS</span>
             </div>
@@ -126,12 +154,14 @@ export default function CompareEntryPage() {
             )}
           </div>
 
-          <button 
-            type="submit"
-            className="w-full py-5 bg-primary-gradient text-surface-container-lowest font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/10 active:scale-95 uppercase tracking-widest"
-          >
-            Initiate Comparative Audit
-          </button>
+          {isPremium && (
+            <button 
+              type="submit"
+              className="w-full py-5 bg-primary-gradient text-surface-container-lowest font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/10 active:scale-95 uppercase tracking-widest"
+            >
+              Initiate Comparative Audit
+            </button>
+          )}
         </form>
 
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">

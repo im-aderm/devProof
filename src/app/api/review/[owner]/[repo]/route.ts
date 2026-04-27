@@ -3,6 +3,9 @@ import { GitHubService } from "@/lib/github";
 import { rateLimit } from "@/lib/rate-limit";
 import { getCachedData, setCachedData } from "@/lib/cache";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -13,6 +16,7 @@ export async function GET(
 ) {
   const resolvedParams = await params;
   const { owner, repo } = resolvedParams;
+  const session = await getServerSession(authOptions);
 
   if (!owner || !repo) {
     return NextResponse.json({ error: "Owner and Repo are required" }, { status: 400 });
@@ -93,6 +97,20 @@ export async function GET(
       },
       review
     };
+
+    // 5. Persist if logged in
+    if (session?.user?.id) {
+      await prisma.report.create({
+        data: {
+          userId: session.user.id,
+          type: "review",
+          targetA: repoData.full_name,
+          score: review.structureScore,
+          summary: review.observations?.[0] || "Architecture review completed.",
+          payload: JSON.stringify(finalData),
+        },
+      });
+    }
 
     await setCachedData(cacheKey, finalData, 3600);
     return NextResponse.json(finalData);
