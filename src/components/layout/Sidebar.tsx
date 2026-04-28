@@ -23,13 +23,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     <aside className="h-full flex flex-col py-8 bg-surface w-64 border-r border-border z-50">
       <div className="px-8 mb-12 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-8 h-8 rounded-lg primary-gradient flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
-            <span className="material-symbols-outlined text-white text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span>
-          </div>
-          <div>
-            <h2 className="font-black text-text-primary text-lg leading-tight tracking-tighter uppercase">DevProof</h2>
-            <p className="text-[8px] text-text-secondary font-black tracking-[0.2em] uppercase opacity-40">Intelligence</p>
-          </div>
+          <img src="/logo.png" alt="DevProof" className="h-10 w-auto" />
         </Link>
         {onClose && (
           <button onClick={onClose} className="md:hidden p-2 text-text-secondary hover:text-white transition-colors">

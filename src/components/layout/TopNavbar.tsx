@@ -50,10 +50,7 @@ export default function TopNavbar({ onMenuClick, user, hideMenu, actions }: TopN
             )
           ) : (
             <Link href="/" className="flex items-center gap-3 group mr-4">
-              <div className="w-8 h-8 rounded-lg primary-gradient flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined text-white text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span>
-              </div>
-              <h2 className="font-black text-text-primary text-sm tracking-tighter uppercase hidden sm:block">DevProof</h2>
+              <img src="/logo.png" alt="DevProof" className="h-10 w-auto group-hover:scale-105 transition-transform" />
             </Link>
           )}
           
@@ -77,18 +74,14 @@ export default function TopNavbar({ onMenuClick, user, hideMenu, actions }: TopN
           <div className="relative" ref={dropdownRef}>
             <button 
               onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center gap-4 p-1 rounded-2xl hover:bg-white/5 transition-all group"
+              className="flex items-center p-1 rounded-full hover:bg-white/5 transition-all group"
             >
-              <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors shadow-2xl">
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors shadow-2xl">
                 <img 
                   className="w-full h-full object-cover" 
                   src={displayUser?.image || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120&auto=format&fit=crop"} 
                   alt={displayUser?.name || "User"}
                 />
-              </div>
-              <div className="hidden lg:block text-left">
-                <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1.5">{displayUser?.name || "Developer"}</p>
-                <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em]">Developer Account</p>
               </div>
             </button>
 

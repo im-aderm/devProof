@@ -62,7 +62,9 @@ export default function PublicPortfolioPage() {
       {/* Top Navigation */}
       <nav className="fixed top-0 w-full flex justify-between items-center px-6 py-3 max-w-full mx-auto bg-white/80 dark:bg-slate-950/80 backdrop-blur-md z-50 border-b border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
         <div className="flex items-center gap-8">
-          <Link href="/" className="text-xl font-black tracking-tighter text-slate-900 dark:text-white">DevProof</Link>
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/logo.png" alt="DevProof" className="h-8 w-auto" />
+          </Link>
           <div className="hidden md:flex gap-6">
             <Link className="font-sans antialiased text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Portfolio</Link>
             <Link className="font-sans antialiased text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Analysis</Link>
@@ -247,7 +249,7 @@ export default function PublicPortfolioPage() {
       <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 mt-20">
         <div className="w-full py-12 px-6 flex flex-col md:flex-row justify-between items-center gap-8 max-w-container-max mx-auto">
           <div className="flex flex-col items-center md:items-start gap-2">
-            <span className="text-xl font-black tracking-tighter text-slate-900 dark:text-white">DevProof</span>
+            <img src="/logo.png" alt="DevProof" className="h-8 w-auto mb-2" />
             <p className="text-xs text-slate-500 dark:text-slate-400">© 2026 DevProof. Precision Engineering Metrics.</p>
           </div>
           <div className="flex gap-8 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">

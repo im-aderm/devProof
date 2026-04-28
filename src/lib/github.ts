@@ -13,6 +13,18 @@ export class GitHubService {
     });
   }
 
+  /**
+   * Checks current rate limits to prevent unnecessary 403s.
+   */
+  async checkRateLimit() {
+    try {
+      const { data } = await this.octokit.rest.rateLimit.get();
+      return data.resources.core;
+    } catch (e) {
+      return null;
+    }
+  }
+
   async getUserProfile(username: string) {
     const { data } = await this.octokit.rest.users.getByUsername({
       username,
@@ -29,18 +41,50 @@ export class GitHubService {
     let page = 1;
     const perPage = max && max < 100 ? max : 100;
 
-    while (true) {
-      const { data } = await this.octokit.rest.repos.listForUser({
-        username,
-        sort: "updated",
-        per_page: perPage,
-        page,
-        type: "owner",
-      });
+    try {
+      // Try to get authenticated user to see if we should fetch private repos
+      const { data: authUser } = await this.octokit.rest.users.getAuthenticated();
+      const isSelf = authUser.login === username;
 
-      allRepos = [...allRepos, ...data];
-      if (data.length < perPage || (max && allRepos.length >= max)) break;
-      page++;
+      while (true) {
+        let response;
+        if (isSelf) {
+          response = await this.octokit.rest.repos.listForAuthenticatedUser({
+            sort: "updated",
+            per_page: perPage,
+            page,
+            visibility: "all",
+            affiliation: "owner",
+          });
+        } else {
+          response = await this.octokit.rest.repos.listForUser({
+            username,
+            sort: "updated",
+            per_page: perPage,
+            page,
+            type: "owner",
+          });
+        }
+
+        allRepos = [...allRepos, ...response.data];
+        if (response.data.length < perPage || (max && allRepos.length >= max)) break;
+        page++;
+      }
+    } catch (error) {
+      // Fallback to public list if authenticated user fails or isn't the same
+      while (true) {
+        const { data } = await this.octokit.rest.repos.listForUser({
+          username,
+          sort: "updated",
+          per_page: perPage,
+          page,
+          type: "owner",
+        });
+
+        allRepos = [...allRepos, ...data];
+        if (data.length < perPage || (max && allRepos.length >= max)) break;
+        page++;
+      }
     }
 
     return max ? allRepos.slice(0, max) : allRepos;
@@ -100,29 +144,43 @@ export class GitHubService {
    * Fetches full repository details including languages and topics in parallel.
    */
   async getDetailedRepositories(username: string, limit = 10) {
-    // Only fetch as many repos as we need for details
-    const repos = await this.getUserRepositories(username, limit);
-    
-    const detailedRepos = await Promise.all(
-      repos.map(async (repo) => {
-        try {
-          const languages = await this.getRepositoryLanguages(username, repo.name);
-          return {
-            ...repo,
-            languages,
-            topics: repo.topics || [], // Topics are usually included in the repo list
-          };
-        } catch (e) {
-          return {
-            ...repo,
-            languages: {},
-            topics: [],
-          };
-        }
-      })
-    );
+    try {
+      // 1. Fetch repositories
+      const repos = await this.getUserRepositories(username, limit);
+      
+      // 2. Concurrency Control: Fetch languages in small batches to avoid secondary rate limits
+      const detailedRepos = [];
+      const batchSize = 3;
+      
+      for (let i = 0; i < repos.length; i += batchSize) {
+        const batch = repos.slice(i, i + batchSize);
+        const batchResults = await Promise.all(
+          batch.map(async (repo) => {
+            try {
+              const languages = await this.getRepositoryLanguages(username, repo.name);
+              return {
+                ...repo,
+                languages,
+                topics: repo.topics || [],
+              };
+            } catch (e) {
+              console.error(`[GitHubService] Error fetching details for ${repo.name}:`, e);
+              return {
+                ...repo,
+                languages: {},
+                topics: repo.topics || [],
+              };
+            }
+          })
+        );
+        detailedRepos.push(...batchResults);
+      }
 
-    return detailedRepos;
+      return detailedRepos;
+    } catch (error) {
+      console.error("[GitHubService] Failed to get detailed repositories:", error);
+      return [];
+    }
   }
 
   async getUserOrganizations(username: string) {

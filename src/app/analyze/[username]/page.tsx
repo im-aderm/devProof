@@ -444,7 +444,7 @@ export default function AnalyzePage() {
         </main>
         
         <footer className="mt-auto py-12 px-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-8 text-text-secondary">
-          <div className="font-black uppercase tracking-tighter text-sm">DevProof Intelligence</div>
+          <img src="/logo.png" alt="DevProof" className="h-8 w-auto opacity-80" />
           <div className="text-[10px] font-black uppercase tracking-widest opacity-40">© 2026 Developer Skill Verification</div>
           <div className="flex gap-6">
              <span className="material-symbols-outlined text-xl hover:text-primary transition-colors cursor-pointer">language</span>

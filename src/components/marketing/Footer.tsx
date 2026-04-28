@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="border-t border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-4 px-6 py-12 md:flex-row">
         <div className="flex flex-col gap-2">
-          <span className="font-bold text-slate-900 dark:text-white">DevProof</span>
+          <img src="/logo.png" alt="DevProof" className="h-8 w-auto mb-2" />
           <p className="text-xs font-normal text-slate-500 dark:text-slate-400">
             © 2024 DevProof. Precision Engineering Metrics.
           </p>

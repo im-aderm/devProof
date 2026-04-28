@@ -1,7 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+// Use gemini-1.5-flash as it has more stable free-tier quotas than 2.0-flash
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 export class AIService {
   /**
@@ -45,8 +46,19 @@ export class AIService {
           growthAreas: []
         };
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("AI_USER_SUMMARY_ERROR", error);
+      
+      // Specific handling for quota errors
+      if (error?.message?.includes("429") || error?.message?.includes("quota")) {
+        return {
+          summary: "Deep analysis is currently paused due to API rate limits. Please wait a moment or try again later.",
+          persona: "Developer (Analyzing...)",
+          topSkills: ["GitHub Proficiency"],
+          growthAreas: ["Analyze Profile Later"]
+        };
+      }
+
       return {
         summary: "Profile summary unavailable at this time.",
         persona: "Developer",

@@ -6,6 +6,11 @@ import { useRouter } from "next/navigation";
 import { GlassCard, MetricCard } from "@/components/ui/Cards";
 import { PrimaryButton, IconButton } from "@/components/ui/Buttons";
 import { motion } from "framer-motion";
+import { MetricSkeleton, ChartSkeleton, Skeleton } from "@/components/ui/Skeleton";
+import { 
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, Cell
+} from "recharts";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -41,21 +46,35 @@ export default function DashboardPage() {
 
   if (status === "loading" || (status === "authenticated" && loading)) {
     return (
-      <div className="flex flex-col items-center justify-center p-24 min-h-[40vh]">
-        <motion.div 
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full mb-6"
-        />
-        <p className="text-text-secondary font-black uppercase tracking-widest text-xs animate-pulse">Syncing Dashboard...</p>
+      <div className="flex flex-col gap-10 w-full animate-pulse-soft">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-3">
+             <Skeleton className="w-64 h-10" />
+             <Skeleton className="w-96 h-4" />
+          </div>
+          <Skeleton className="w-48 h-12 rounded-2xl" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+           <MetricSkeleton />
+           <MetricSkeleton />
+           <MetricSkeleton />
+           <MetricSkeleton />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+           <ChartSkeleton />
+           <ChartSkeleton />
+        </div>
       </div>
     );
   }
 
-  const { stats, reports, snapshots } = data || { 
-    stats: { score: 0, stars: 0, repos: 0, followers: 0, growth: 0 }, 
+  const { stats, reports, snapshots, languages } = data || { 
+    stats: { score: 0, stars: 0, repos: 0, followers: 0, growth: 0, privateRepos: 0 }, 
     reports: [], 
-    snapshots: [] 
+    snapshots: [],
+    languages: []
   };
 
   const containerVariants = {
@@ -105,7 +124,12 @@ export default function DashboardPage() {
           <MetricCard title="Total Stars" value={stats.stars} icon="grade" />
         </motion.div>
         <motion.div variants={itemVariants}>
-          <MetricCard title="Repositories" value={stats.repos} icon="folder" />
+          <MetricCard 
+            title="Repositories" 
+            value={stats.repos} 
+            icon="folder" 
+            trend={stats.privateRepos > 0 ? `${stats.privateRepos} Private` : undefined}
+          />
         </motion.div>
         <motion.div variants={itemVariants}>
           <MetricCard 
@@ -116,6 +140,78 @@ export default function DashboardPage() {
             trendPositive={stats.growth >= 0} 
           />
         </motion.div>
+      </div>
+
+      {/* Visual Analytics Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+         <motion.div variants={itemVariants}>
+            <GlassCard className="p-8 h-full">
+               <h3 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.3em] mb-10">Engineering Velocity</h3>
+               <div className="h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                     <AreaChart data={snapshots}>
+                        <defs>
+                           <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                           </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                        <XAxis 
+                          dataKey="timestamp" 
+                          tickFormatter={(str) => new Date(str).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                          stroke="rgba(255,255,255,0.2)"
+                          fontSize={10}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <YAxis 
+                          stroke="rgba(255,255,255,0.2)"
+                          fontSize={10}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <Tooltip 
+                          contentStyle={{ backgroundColor: '#0F172A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                          labelStyle={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px', textTransform: 'uppercase', marginBottom: '4px' }}
+                        />
+                        <Area type="monotone" dataKey="activityScore" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorScore)" />
+                     </AreaChart>
+                  </ResponsiveContainer>
+               </div>
+            </GlassCard>
+         </motion.div>
+
+         <motion.div variants={itemVariants}>
+            <GlassCard className="p-8 h-full">
+               <h3 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.3em] mb-10">Language Distribution</h3>
+               <div className="h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                     <BarChart data={languages} layout="vertical" margin={{ left: 20 }}>
+                        <XAxis type="number" hide />
+                        <YAxis 
+                          dataKey="name" 
+                          type="category" 
+                          stroke="rgba(255,255,255,0.5)"
+                          fontSize={10}
+                          width={80}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <Tooltip 
+                          cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                          contentStyle={{ backgroundColor: '#0F172A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                        />
+                        <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
+                           {languages.map((entry: any, index: number) => (
+                             <Cell key={`cell-${index}`} fill={index === 0 ? '#4f46e5' : '#06b6d4'} fillOpacity={1 - index * 0.1} />
+                           ))}
+                        </Bar>
+                     </BarChart>
+                  </ResponsiveContainer>
+               </div>
+            </GlassCard>
+         </motion.div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">

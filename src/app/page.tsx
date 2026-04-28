@@ -134,8 +134,11 @@ export default function HomePage() {
       </main>
 
       <footer className="w-full max-w-7xl mx-auto px-8 py-12 flex flex-col md:flex-row items-center justify-between gap-8 z-10 border-t border-white/5">
-        <div className="text-[10px] font-black uppercase tracking-[0.4em] text-white/60">
-          Built for engineers • Powered by GitHub Data
+        <div className="flex flex-col md:flex-row items-center gap-6">
+          <img src="/logo.png" alt="DevProof" className="h-6 w-auto opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all" />
+          <div className="text-[10px] font-black uppercase tracking-[0.4em] text-white/60">
+            Built for engineers • Powered by GitHub Data
+          </div>
         </div>
         <div className="flex gap-8 text-[10px] font-black uppercase tracking-[0.4em] text-white/60">
           <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>

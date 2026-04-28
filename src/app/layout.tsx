@@ -21,8 +21,32 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "DevProof | GitHub Intelligence Platform",
-  description: "Analyze and compare public GitHub profiles and repositories instantly.",
+  title: "DevProof | Advanced Engineering Intelligence",
+  description: "Quantify engineering excellence through automated GitHub ledger analysis and AI-driven skill verification.",
+  icons: {
+    icon: "/favicon.png",
+  },
+  openGraph: {
+    title: "DevProof | Engineering Intelligence Protocol",
+    description: "Verified technical dossiers and repository analysis for modern developers.",
+    url: "https://devproof.io",
+    siteName: "DevProof",
+    images: [
+      {
+        url: "/logo.png",
+        width: 800,
+        height: 600,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DevProof | Engineering Intelligence",
+    description: "Quantify your technical impact.",
+    images: ["/logo.png"],
+  },
 };
 
 export default function RootLayout({

@@ -10,8 +10,7 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/50 backdrop-blur-xl border-b border-white/5">
       <div className="max-w-7xl mx-auto px-6 h-20 md:h-24 flex items-center justify-between gap-8">
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-          <span className="text-xl font-black tracking-tighter text-white uppercase">DevProof</span>
+          <img src="/logo.png" alt="DevProof" className="h-10 md:h-12 w-auto" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-10">

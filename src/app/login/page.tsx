@@ -32,9 +32,7 @@ export default function LoginPage() {
       >
         <div className="text-center">
           <Link href="/" className="inline-block mb-10 group">
-            <span className="text-4xl font-black tracking-tighter hero-gradient-text transition-transform duration-500 group-hover:scale-110 block">
-              DevProof
-            </span>
+            <img src="/logo.png" alt="DevProof" className="h-16 w-auto transition-transform duration-500 group-hover:scale-105" />
           </Link>
           <h1 className="text-4xl font-black text-text-primary mb-4 tracking-tighter uppercase">Protocol Entry</h1>
           <p className="text-text-secondary font-medium italic">Synchronize your GitHub ledger to access full intelligence suite.</p>
