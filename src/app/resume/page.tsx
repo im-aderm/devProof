@@ -34,6 +34,8 @@ export default function ResumeBuilderPage() {
   const [interests, setInterests] = useState<string[]>([]);
   const [references, setReferences] = useState("");
   const [sectionOrder, setSectionOrder] = useState<string[]>(["experience", "projects", "education", "skills", "awards", "languages"]);
+  const [isPublic, setIsPublic] = useState(false);
+  const [currentSlug, setCurrentSlug] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,6 +54,8 @@ export default function ResumeBuilderPage() {
           setInterests(data.interests || []);
           setReferences(data.references || "");
           setSectionOrder(data.sectionOrder || ["experience", "projects", "education", "skills", "awards", "volunteer", "languages", "interests"]);
+          setIsPublic(data.isPublic || false);
+          setCurrentSlug(data.slug || "");
         }
       } catch (error) {
         console.error("Failed to fetch resume data", error);
@@ -83,15 +87,21 @@ export default function ResumeBuilderPage() {
           languages,
           interests,
           references,
-          sectionOrder
+          sectionOrder,
+          isPublic
         }),
         headers: { "Content-Type": "application/json" }
       });
+      const data = await res.json();
       if (res.ok) {
+        setCurrentSlug(data.slug);
         alert("Dossier Synchronized Successfully.");
+      } else {
+        alert(`Save Failed: ${data.error || "Unknown Error"}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to save resume", error);
+      alert(`Connection Error: ${error.message}`);
     } finally {
       setSaving(false);
     }
@@ -182,7 +192,38 @@ export default function ResumeBuilderPage() {
           <div className="h-6 w-px bg-border mx-2"></div>
           <h2 className="text-[10px] font-black text-text-primary uppercase tracking-[0.3em]">Resume Dossier Protocol</h2>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center bg-surface-variant/50 rounded-xl p-1 border border-border">
+            <button 
+              onClick={() => setIsPublic(false)}
+              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${!isPublic ? 'bg-surface text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+            >
+              Private
+            </button>
+            <button 
+              onClick={() => setIsPublic(true)}
+              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${isPublic ? 'bg-surface text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+            >
+              Public
+            </button>
+          </div>
+
+          {isPublic && currentSlug && (
+            <button 
+              onClick={() => {
+                const url = `${window.location.origin}/resume/${currentSlug}`;
+                navigator.clipboard.writeText(url);
+                alert("Public Link Copied to Clipboard!");
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border hover:bg-surface-variant transition-colors text-[9px] font-black uppercase tracking-widest text-primary"
+            >
+              <span className="material-symbols-outlined text-sm">content_copy</span>
+              Copy Link
+            </button>
+          )}
+
+          <div className="h-6 w-px bg-border"></div>
+
           <button 
             onClick={handleSave}
             disabled={saving}

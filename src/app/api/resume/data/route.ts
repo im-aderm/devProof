@@ -22,7 +22,12 @@ export async function GET() {
     });
 
     if (resume) {
-      return NextResponse.json(resume.data);
+      const data = typeof resume.data === "string" ? JSON.parse(resume.data) : resume.data;
+      return NextResponse.json({
+        ...(data as any || {}),
+        isPublic: resume.isPublic,
+        slug: resume.slug
+      });
     }
 
     // Generate Defaults from GitHub

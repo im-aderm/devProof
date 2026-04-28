@@ -23,11 +23,12 @@ export async function POST(req: Request) {
       languages, 
       interests, 
       references, 
-      sectionOrder 
+      sectionOrder,
+      isPublic
     } = body;
 
     const username = session.user.githubUsername || session.user.id;
-    const baseSlug = `${username.toLowerCase()}-resume`;
+    const baseSlug = `${username.toLowerCase().replace(/[^a-z0-9]/g, "-")}-resume`;
 
     // Find existing resume for this user
     const existingResume = await prisma.resume.findFirst({
@@ -53,6 +54,7 @@ export async function POST(req: Request) {
         where: { id: existingResume.id },
         data: {
           data: resumeData,
+          isPublic: isPublic ?? false,
           updatedAt: new Date()
         }
       });
@@ -63,7 +65,8 @@ export async function POST(req: Request) {
           userId: session.user.id,
           title: "Main Resume",
           slug: baseSlug,
-          data: resumeData
+          data: resumeData,
+          isPublic: isPublic ?? false
         }
       });
       return NextResponse.json({ success: true, slug: newResume.slug });
