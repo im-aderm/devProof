@@ -11,9 +11,11 @@ interface TopNavbarProps {
     image?: string | null;
     email?: string | null;
   };
+  hideMenu?: boolean;
+  actions?: React.ReactNode;
 }
 
-export default function TopNavbar({ onMenuClick, user }: TopNavbarProps) {
+export default function TopNavbar({ onMenuClick, user, hideMenu, actions }: TopNavbarProps) {
   const { data: session } = useSession();
   
   // Use provided user info, or fallback to session user
@@ -34,75 +36,93 @@ export default function TopNavbar({ onMenuClick, user }: TopNavbarProps) {
   }, []);
 
   return (
-    <header className="bg-background/80 backdrop-blur-xl border-b border-border sticky top-0 z-40 flex items-center justify-between px-8 md:px-12 h-24 w-full">
-      <div className="flex items-center gap-6 flex-1">
-        {onMenuClick && (
-          <button 
-            onClick={onMenuClick}
-            className="md:hidden p-2 text-text-secondary hover:text-white transition-colors"
-          >
-            <span className="material-symbols-outlined">menu</span>
-          </button>
-        )}
-        
-        <div className="max-w-xl w-full hidden md:block">
+    <header className="bg-background/80 backdrop-blur-xl border-b border-border sticky top-0 z-40 h-24 w-full">
+      <div className="max-w-7xl mx-auto h-full px-6 md:px-12 flex items-center justify-between gap-8">
+        <div className="flex items-center gap-6 flex-1">
+          {!hideMenu ? (
+            onMenuClick && (
+              <button 
+                onClick={onMenuClick}
+                className="md:hidden p-2 text-text-secondary hover:text-white transition-colors"
+              >
+                <span className="material-symbols-outlined">menu</span>
+              </button>
+            )
+          ) : (
+            <Link href="/" className="flex items-center gap-3 group mr-4">
+              <div className="w-8 h-8 rounded-lg primary-gradient flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-white text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span>
+              </div>
+              <h2 className="font-black text-text-primary text-sm tracking-tighter uppercase hidden sm:block">DevProof</h2>
+            </Link>
+          )}
+          
+          <div className="max-w-md w-full hidden md:block">
           <div className="relative group">
             <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors text-xl">search</span>
             <input 
               type="text" 
-              placeholder="Execute Global Command..." 
-              className="w-full pl-14 pr-6 py-3 bg-white/5 border border-white/5 rounded-2xl focus:ring-1 focus:ring-primary/40 outline-none font-black text-[10px] uppercase tracking-[0.2em] transition-all placeholder:text-white/10"
+              placeholder="Search Profile..." 
+              className="w-full pl-14 pr-6 py-3 bg-white/5 border border-white/5 rounded-2xl focus:ring-1 focus:ring-primary/40 outline-none font-black text-[10px] uppercase tracking-[0.2em] transition-all placeholder:text-white/20"
             />
           </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-8">
-        <div className="hidden lg:flex items-center gap-4 px-6 py-2.5 bg-white/5 border border-white/5 rounded-2xl">
-           <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></div>
-           <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Protocol Active</span>
-        </div>
+        <div className="flex items-center gap-4 md:gap-6">
 
-        <div className="relative" ref={dropdownRef}>
-          <button 
-            onClick={() => setShowDropdown(!showDropdown)}
-            className="flex items-center gap-4 p-1 rounded-2xl hover:bg-white/5 transition-all group"
+        {actions && <div className="flex items-center gap-2 md:gap-4">{actions}</div>}
+
+        {displayUser ? (
+          <div className="relative" ref={dropdownRef}>
+            <button 
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="flex items-center gap-4 p-1 rounded-2xl hover:bg-white/5 transition-all group"
+            >
+              <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors shadow-2xl">
+                <img 
+                  className="w-full h-full object-cover" 
+                  src={displayUser?.image || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120&auto=format&fit=crop"} 
+                  alt={displayUser?.name || "User"}
+                />
+              </div>
+              <div className="hidden lg:block text-left">
+                <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1.5">{displayUser?.name || "Developer"}</p>
+                <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em]">Developer Account</p>
+              </div>
+            </button>
+
+            {showDropdown && (
+              <div className="absolute top-full right-0 mt-4 w-64 bg-surface border border-white/10 rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] p-3 z-50 overflow-hidden">
+                 <div className="px-5 py-4 border-b border-white/5 mb-2">
+                    <p className="text-[10px] font-black text-white uppercase tracking-widest">{displayUser?.email || "Account Active"}</p>
+                 </div>
+                 <Link href="/u/profile" className="flex items-center gap-4 px-5 py-4 rounded-2xl hover:bg-white/5 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white">
+                    <span className="material-symbols-outlined text-lg">person</span>
+                    My Profile
+                 </Link>
+                 <Link href="/settings" className="flex items-center gap-4 px-5 py-4 rounded-2xl hover:bg-white/5 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white">
+                    <span className="material-symbols-outlined text-lg">settings</span>
+                    Settings
+                 </Link>
+                 <button 
+                   onClick={() => signOut()}
+                   className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl hover:bg-rose-500/10 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-rose-500 mt-2"
+                 >
+                    <span className="material-symbols-outlined text-lg">logout</span>
+                    Sign Out
+                 </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Link 
+            href="/login" 
+            className="px-8 py-3 rounded-2xl primary-gradient text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform"
           >
-            <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors shadow-2xl">
-              <img 
-                className="w-full h-full object-cover" 
-                src={displayUser?.image || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120&auto=format&fit=crop"} 
-                alt={displayUser?.name || "User"}
-              />
-            </div>
-            <div className="hidden lg:block text-left">
-              <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1.5">{displayUser?.name || "Developer"}</p>
-              <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em]">System Op</p>
-            </div>
-          </button>
-
-          {showDropdown && (
-            <div className="absolute top-full right-0 mt-4 w-64 bg-surface border border-white/10 rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] p-3 z-50 overflow-hidden">
-               <div className="px-5 py-4 border-b border-white/5 mb-2">
-                  <p className="text-[10px] font-black text-white uppercase tracking-widest">{displayUser?.email || "Protocol Active"}</p>
-               </div>
-               <Link href="/u/profile" className="flex items-center gap-4 px-5 py-4 rounded-2xl hover:bg-white/5 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white">
-                  <span className="material-symbols-outlined text-lg">person</span>
-                  Ledger Profile
-               </Link>
-               <Link href="/settings" className="flex items-center gap-4 px-5 py-4 rounded-2xl hover:bg-white/5 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white">
-                  <span className="material-symbols-outlined text-lg">settings</span>
-                  Configuration
-               </Link>
-               <button 
-                 onClick={() => signOut()}
-                 className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl hover:bg-rose-500/10 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-rose-500 mt-2"
-               >
-                  <span className="material-symbols-outlined text-lg">logout</span>
-                  Terminate
-               </button>
-            </div>
-          )}
+            Log In
+          </Link>
+        )}
         </div>
       </div>
     </header>

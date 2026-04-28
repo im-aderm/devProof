@@ -11,7 +11,12 @@ import StrengthScore from "@/components/dashboard/StrengthScore";
 import CodeQualityRadar from "@/components/dashboard/RadarChart";
 import GrowthForecast from "@/components/dashboard/GrowthForecast";
 import OptimizationChecklist from "@/components/dashboard/OptimizationChecklist";
+import ContributionGraph from "@/components/dashboard/ContributionGraph";
+import CollaborationChart from "@/components/dashboard/CollaborationChart";
+import TopicExpertise from "@/components/dashboard/TopicExpertise";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSession } from "next-auth/react";
+import { useId } from "react";
 
 export default function AnalyzePage() {
   const { username } = useParams();
@@ -22,6 +27,9 @@ export default function AnalyzePage() {
   const [typewriterText, setTypewriterText] = useState("");
   const [typewriterIdx, setTypewriterIdx] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,10 +72,10 @@ export default function AnalyzePage() {
           className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full mb-8"
         />
         <h1 className="text-2xl font-black text-text-primary uppercase tracking-widest animate-pulse">
-          Synchronizing Ledger: {username}
+          Analyzing Profile: {username}
         </h1>
         <p className="text-text-secondary mt-4 font-bold uppercase tracking-widest text-xs opacity-50">
-          Auditing GitHub Repositories & Contributions...
+          Scanning repositories and contribution history...
         </p>
       </div>
     );
@@ -79,16 +87,16 @@ export default function AnalyzePage() {
         <div className="w-20 h-20 bg-error/10 rounded-3xl flex items-center justify-center mb-8 border border-error/20">
           <span className="material-symbols-outlined text-4xl text-error">warning</span>
         </div>
-        <h1 className="text-3xl font-black text-text-primary mb-4 uppercase tracking-tighter">Analysis Protocol Failed</h1>
+        <h1 className="text-3xl font-black text-text-primary mb-4 uppercase tracking-tighter">Analysis Failed</h1>
         <p className="text-text-secondary mb-10 max-w-md mx-auto font-medium leading-relaxed">{error}</p>
         <PrimaryButton onClick={() => router.push("/")} icon="arrow_back">
-          Return to Terminal
+          Go Back
         </PrimaryButton>
       </div>
     );
   }
 
-  const { profile, collabStats, repos, aiSummary, scoringResult, growthForecast: growth } = data;
+  const { profile, collabStats, repos, aiSummary, scoringResult, growthForecast: growth, heatmap, organizations, topics } = data;
   const totalStars = repos.reduce((acc: number, r: any) => acc + (r.stargazers_count || 0), 0);
 
   const containerVariants = {
@@ -106,15 +114,35 @@ export default function AnalyzePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <div className="md:pl-64 flex flex-col min-h-screen w-full">
+      {isAuthenticated && (
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      )}
+      <div className={`${isAuthenticated ? "md:pl-64" : ""} flex flex-col min-h-screen w-full`}>
         <TopNavbar 
           onMenuClick={() => setIsSidebarOpen(true)} 
-          user={data ? {
-            name: data.profile.name || data.profile.login,
-            image: data.profile.avatar_url,
-            email: `@${data.profile.login}`
-          } : undefined}
+          hideMenu={!isAuthenticated}
+          actions={
+            <div className="flex items-center gap-2 md:gap-4 print:hidden">
+               <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  setShowToast(true);
+                  setTimeout(() => setShowToast(false), 3000);
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-text-primary hover:bg-white/10 transition-all"
+               >
+                  <span className="material-symbols-outlined text-sm">share</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Share</span>
+               </button>
+               <button 
+                onClick={() => window.print()}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-white hover:bg-white/5 transition-all shadow-lg premium-gradient-border"
+               >
+                  <span className="material-symbols-outlined text-sm">description</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Export Resume</span>
+               </button>
+            </div>
+          }
         />
         
         <main className="p-6 md:p-12 max-w-7xl mx-auto w-full">
@@ -124,6 +152,30 @@ export default function AnalyzePage() {
             animate="visible"
             className="flex flex-col gap-12"
           >
+            {!isAuthenticated && (
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-6 bg-primary/5 border border-primary/20 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6"
+              >
+                <div className="flex items-center gap-4 text-center md:text-left">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 flex-shrink-0">
+                    <span className="material-symbols-outlined text-primary">lock_open</span>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-text-primary uppercase tracking-tight">Unlock Advanced Features</h3>
+                    <p className="text-xs text-text-secondary">Log in to compare profiles, analyze private repositories, and get detailed code reviews.</p>
+                  </div>
+                </div>
+                <Link 
+                  href="/login"
+                  className="px-8 py-3 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform shadow-lg shadow-primary/20"
+                >
+                  Log In Now
+                </Link>
+              </motion.div>
+            )}
+
             {/* Header / Hero Section */}
             <section className="flex flex-col md:flex-row justify-between items-center md:items-end gap-8">
               <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-center md:items-start w-full">
@@ -162,6 +214,26 @@ export default function AnalyzePage() {
                        {profile.bio || "No public bio provided. This developer operates with silent precision across the global codebase."}
                     </motion.p>
 
+                     {organizations && organizations.length > 0 && (
+                        <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center md:justify-start gap-6 pt-2">
+                           <span className="text-[9px] font-black text-text-secondary uppercase tracking-[0.3em] opacity-40">Affiliations:</span>
+                           <div className="flex flex-wrap gap-4">
+                              {organizations.map((org: any) => (
+                                 <div key={org.login} className="group relative" title={org.login}>
+                                    <img 
+                                       src={org.avatar_url} 
+                                       alt={org.login} 
+                                       className="w-8 h-8 rounded-lg grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all border border-white/10 hover:border-primary/50"
+                                    />
+                                    <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-surface border border-white/10 rounded text-[8px] font-black uppercase tracking-widest text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                                       {org.login}
+                                    </div>
+                                 </div>
+                              ))}
+                           </div>
+                        </motion.div>
+                     )}
+
                     <motion.div variants={itemVariants} className="flex flex-wrap justify-center md:justify-start gap-6 md:gap-8 pt-2">
                        <div className="text-center md:text-left">
                           <span className="block text-xl md:text-2xl font-black text-text-primary tracking-tighter">{collabStats.prCount + collabStats.issueCount}</span>
@@ -179,15 +251,6 @@ export default function AnalyzePage() {
                  </div>
               </div>
               
-              <motion.div variants={itemVariants} className="w-full md:w-auto">
-                <PrimaryButton 
-                  className="w-full md:w-auto" 
-                  icon="download"
-                  onClick={() => alert("Exporting profile report...")}
-                >
-                   Export Report
-                </PrimaryButton>
-              </motion.div>
             </section>
 
             {/* Main Grid */}
@@ -207,7 +270,7 @@ export default function AnalyzePage() {
                           <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center border border-indigo-100 dark:border-indigo-800/50">
                              <span className="material-symbols-outlined text-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
                           </div>
-                          <h2 className="text-sm font-black text-text-primary uppercase tracking-widest">AI Intelligence Summary</h2>
+                          <h2 className="text-sm font-black text-text-primary uppercase tracking-widest">AI Professional Summary</h2>
                        </div>
 
                        <div className="space-y-12">
@@ -227,7 +290,7 @@ export default function AnalyzePage() {
                                 </div>
                              </div>
                              <div className="space-y-6">
-                                <h4 className="text-[10px] font-black text-error uppercase tracking-[0.2em]">Optimization Vectors</h4>
+                                <h4 className="text-[10px] font-black text-error uppercase tracking-[0.2em]">Growth Areas</h4>
                                 <ul className="space-y-4">
                                    {aiSummary.growthAreas.map((area: string) => (
                                      <li key={area} className="text-xs text-text-secondary flex items-start gap-4 group/item">
@@ -245,7 +308,7 @@ export default function AnalyzePage() {
                   {/* Top Repositories */}
                   <div className="space-y-6">
                     <motion.div variants={itemVariants} className="flex justify-between items-end">
-                       <h2 className="text-xl font-black text-text-primary uppercase tracking-tighter">Elite Repositories</h2>
+                       <h2 className="text-xl font-black text-text-primary uppercase tracking-tighter">Top Repositories</h2>
                        <Link href="/dashboard" className="text-primary text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:underline">
                           View All
                           <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -271,13 +334,37 @@ export default function AnalyzePage() {
                     </div>
                   </div>
 
-                  {/* Optimization Checklist */}
-                  <motion.div variants={itemVariants} className="space-y-6">
-                     <h2 className="text-xl font-black text-text-primary uppercase tracking-tighter">Performance Audit</h2>
-                     <OptimizationChecklist 
-                       completedItems={scoringResult.recommendations.length === 0 ? ["High Contribution Velocity", "Clean Documentation", "Complex System Architecture"] : ["Verified Public Presence"]}
-                       items={scoringResult.recommendations}
-                     />
+                  {/* Improvement Checklist */}
+                  <motion.div variants={itemVariants} className="space-y-12">
+                     <div className="space-y-6">
+                       <h2 className="text-xl font-black text-text-primary uppercase tracking-tighter">Improvement Checklist</h2>
+                       <OptimizationChecklist 
+                         completedItems={scoringResult.recommendations.length === 0 ? ["High Contribution Velocity", "Clean Documentation", "Complex System Architecture"] : ["Verified Public Presence"]}
+                         items={scoringResult.recommendations}
+                       />
+                     </div>
+
+                     <div className="space-y-6">
+                       <h2 className="text-xl font-black text-text-primary uppercase tracking-tighter">Contribution Pulse</h2>
+                       <GlassCard className="p-8">
+                          <ContributionGraph data={heatmap} />
+                       </GlassCard>
+                     </div>
+
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-6">
+                           <h2 className="text-xl font-black text-text-primary uppercase tracking-tighter">Ecosystem Pulse</h2>
+                           <GlassCard className="p-8">
+                              <CollaborationChart stats={collabStats} />
+                           </GlassCard>
+                        </div>
+                        <div className="space-y-6">
+                           <h2 className="text-xl font-black text-text-primary uppercase tracking-tighter">Topic Expertise</h2>
+                           <GlassCard className="p-8 min-h-[240px]">
+                              <TopicExpertise topics={topics} />
+                           </GlassCard>
+                        </div>
+                     </div>
                   </motion.div>
                </div>
 
@@ -286,7 +373,7 @@ export default function AnalyzePage() {
                   
                   {/* Developer Strength */}
                   <motion.div variants={itemVariants}>
-                    <SummaryCard title="Developer Strength" icon="bolt">
+                    <SummaryCard title="Technical Score" icon="bolt">
                        <StrengthScore 
                          score={scoringResult.score} 
                          percentile={scoringResult.percentile} 
@@ -297,14 +384,14 @@ export default function AnalyzePage() {
 
                   {/* Code Quality Radar */}
                   <motion.div variants={itemVariants}>
-                    <SummaryCard title="Capability Matrix" icon="radar">
+                    <SummaryCard title="Skills Matrix" icon="radar">
                        <CodeQualityRadar data={scoringResult.radarData} />
                     </SummaryCard>
                   </motion.div>
 
-                  {/* Growth Forecast */}
+                  {/* Career Trajectory */}
                   <motion.div variants={itemVariants}>
-                    <SummaryCard title="Growth Trajectory" icon="trending_up">
+                    <SummaryCard title="Career Trajectory" icon="trending_up">
                        <GrowthForecast 
                          velocity={growth.velocity}
                          tier={growth.tier}
@@ -316,7 +403,7 @@ export default function AnalyzePage() {
 
                   {/* Stack Concentration */}
                   <motion.div variants={itemVariants}>
-                    <SummaryCard title="Stack Concentration" icon="terminal">
+                    <SummaryCard title="Language Breakdown" icon="terminal">
                        <div className="space-y-6 pt-2">
                           {Object.entries(
                             repos.reduce((acc: any, r: any) => {
@@ -357,8 +444,8 @@ export default function AnalyzePage() {
         </main>
         
         <footer className="mt-auto py-12 px-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-8 text-text-secondary">
-          <div className="font-black uppercase tracking-tighter text-sm">DevProof Intelligence Engine</div>
-          <div className="text-[10px] font-black uppercase tracking-widest opacity-40">© 2026 Developer Skill Verification System</div>
+          <div className="font-black uppercase tracking-tighter text-sm">DevProof Intelligence</div>
+          <div className="text-[10px] font-black uppercase tracking-widest opacity-40">© 2026 Developer Skill Verification</div>
           <div className="flex gap-6">
              <span className="material-symbols-outlined text-xl hover:text-primary transition-colors cursor-pointer">language</span>
              <span className="material-symbols-outlined text-xl hover:text-primary transition-colors cursor-pointer">terminal</span>
@@ -366,14 +453,25 @@ export default function AnalyzePage() {
         </footer>
       </div>
 
-      <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 flex flex-col gap-4">
-         <FloatingFAB icon="share" label="Share Ledger" onClick={() => {
-           navigator.clipboard.writeText(window.location.href);
-           alert("Link copied!");
-         }} />
-         <FloatingFAB icon="description" label="Generate Resume" onClick={() => alert("Generating resume...")} />
-         <FloatingFAB icon="person_pin" label="View Portfolio" onClick={() => alert("Viewing portfolio...")} />
-      </div>
+
+
+      <AnimatePresence>
+        {showToast && (
+          <motion.div 
+            initial={{ opacity: 0, y: 100, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: 100, x: "-50%" }}
+            className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[100]"
+          >
+            <div className="bg-surface border border-primary/20 px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4">
+               <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center border border-success/30">
+                  <span className="material-symbols-outlined text-success text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
+               </div>
+               <span className="text-[10px] font-black text-text-primary uppercase tracking-widest">Profile Link Copied to Clipboard</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

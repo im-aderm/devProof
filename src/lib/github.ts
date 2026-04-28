@@ -97,7 +97,7 @@ export class GitHubService {
   }
 
   /**
-   * Fetches full repository details including languages in parallel.
+   * Fetches full repository details including languages and topics in parallel.
    */
   async getDetailedRepositories(username: string, limit = 10) {
     // Only fetch as many repos as we need for details
@@ -110,17 +110,34 @@ export class GitHubService {
           return {
             ...repo,
             languages,
+            topics: repo.topics || [], // Topics are usually included in the repo list
           };
         } catch (e) {
           return {
             ...repo,
             languages: {},
+            topics: [],
           };
         }
       })
     );
 
     return detailedRepos;
+  }
+
+  async getUserOrganizations(username: string) {
+    try {
+      const { data } = await this.octokit.rest.orgs.listForUser({
+        username,
+      });
+      return data.map(org => ({
+        login: org.login,
+        avatar_url: org.avatar_url,
+        description: org.description,
+      }));
+    } catch (error) {
+      return [];
+    }
   }
 
   /**

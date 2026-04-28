@@ -59,3 +59,84 @@
     @apply align-middle;
   }
 }
+
+@keyframes gradient-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.premium-gradient-border {
+  background: linear-gradient(rgba(5, 7, 10, 0.8), rgba(5, 7, 10, 0.8)) padding-box,
+              linear-gradient(90deg, #4f46e5, #06b6d4, #4f46e5) border-box;
+  border: 1px solid transparent;
+  background-size: 200% auto;
+  animation: gradient-move 4s linear infinite;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 2cm;
+  }
+
+  body {
+    background-color: white !important;
+    color: black !important;
+    font-size: 11pt;
+  }
+  
+  .print\:hidden,
+  header,
+  footer,
+  aside,
+  .fixed,
+  button {
+    display: none !important;
+  }
+  
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+  
+  .flex, .grid {
+    display: block !important;
+  }
+  
+  .md\:pl-64 {
+    padding-left: 0 !important;
+  }
+
+  .glass-card {
+    background: white !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    padding: 1.5rem !important;
+    margin-bottom: 2rem !important;
+    page-break-inside: avoid;
+  }
+
+  h1 { font-size: 24pt !important; margin-bottom: 1rem !important; }
+  h2 { font-size: 18pt !important; margin-bottom: 1rem !important; margin-top: 2rem !important; }
+  h3 { font-size: 14pt !important; }
+  p, span, li { color: #334155 !important; }
+
+  .primary-gradient {
+    background: #4f46e5 !important;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Force page break after AI summary and first set of repos */
+  section:first-of-type {
+    margin-bottom: 3rem !important;
+  }
+
+  /* Page break logic */
+  .lg\:col-span-8 > div:nth-child(2) {
+    page-break-after: always;
+  }
+}

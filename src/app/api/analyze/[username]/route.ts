@@ -37,10 +37,12 @@ export async function GET(
     const github = new GitHubService();
     
     // 2. Parallel Data Fetching
-    const [profile, collabStats, detailedRepos] = await Promise.all([
+    const [profile, collabStats, detailedRepos, heatmap, organizations] = await Promise.all([
       github.getUserProfile(username),
       github.getUserCollaborationStats(username),
       github.getDetailedRepositories(username, 10), // Limit to top 10 for speed
+      github.getContributionHeatmap(username),
+      github.getUserOrganizations(username),
     ]);
 
     // 3. AI Insights
@@ -72,6 +74,19 @@ export async function GET(
         description: recentRepos.length > 3 ? "Commit frequency increasing" : "Consistent development patterns"
     };
 
+    // 5. Aggregate Topics
+    const topics = detailedRepos.reduce((acc: Record<string, number>, repo) => {
+        (repo.topics || []).forEach((topic: string) => {
+            acc[topic] = (acc[topic] || 0) + 1;
+        });
+        return acc;
+    }, {});
+
+    const sortedTopics = Object.entries(topics)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 15);
+
     const finalData = {
       profile,
       collabStats,
@@ -79,6 +94,9 @@ export async function GET(
       aiSummary,
       scoringResult,
       growthForecast,
+      heatmap,
+      organizations,
+      topics: sortedTopics,
     };
 
     // 6. Persistence Logic

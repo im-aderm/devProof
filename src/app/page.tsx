@@ -60,7 +60,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#05070A] text-white flex flex-col">
+    <div className="relative h-screen w-full bg-[#05070A] text-white flex flex-col">
       <Navbar />
 
       {/* Parallax Background */}
@@ -83,11 +83,11 @@ export default function HomePage() {
             className="w-full space-y-8"
           >
             <h1 className="text-4xl md:text-7xl font-black tracking-tight uppercase leading-[0.95] hero-gradient-text">
-              Turn Your GitHub Into <br />
-              <span className="text-white">Proof of Skill</span>
+              GitHub Skill <br />
+              <span className="text-white">Verification</span>
             </h1>
-            <p className="text-lg md:text-2xl text-white/50 max-w-2xl mx-auto font-medium leading-relaxed">
-              Analyze any GitHub profile instantly with AI-powered architectural intelligence.
+            <p className="text-lg md:text-2xl text-white/70 max-w-2xl mx-auto font-medium leading-relaxed">
+              Analyze your GitHub profile to verify your technical skills and generate a professional report.
             </p>
           </motion.div>
 
@@ -98,7 +98,7 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mt-16 w-full max-w-2xl"
           >
-            <div className={`relative flex flex-col md:flex-row items-center gap-2 p-2 rounded-[2rem] border transition-all duration-500 ${isFocused ? 'bg-white/5 border-primary/50' : 'bg-white/5 border-white/10 hover:border-white/20'}`}>
+            <div className={`relative flex flex-col md:flex-row items-center gap-2 p-2 rounded-[2rem] border transition-all duration-500 ${isFocused ? 'bg-white/20 border-primary/50' : 'bg-white/15 border-white/60 hover:border-white/80'}`}>
               <input 
                 type="text" 
                 value={username}
@@ -106,18 +106,18 @@ export default function HomePage() {
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 placeholder="Enter GitHub username..." 
-                className="w-full bg-transparent border-none py-6 px-8 text-xl md:text-2xl font-bold placeholder:text-white/10 focus:ring-0 outline-none"
+                className="w-full bg-transparent border-none py-6 px-8 text-xl md:text-2xl font-bold placeholder:text-white/40 focus:ring-0 outline-none"
               />
               <button 
                 type="submit"
                 disabled={!username.trim()}
-                className="w-full md:w-auto px-10 py-5 rounded-2xl bg-white text-black font-black uppercase text-xs tracking-widest hover:bg-indigo-50 transition-all disabled:opacity-30 flex items-center justify-center gap-2"
+                className="w-full md:w-auto px-10 py-5 rounded-2xl bg-white text-black font-black uppercase text-xs tracking-widest hover:bg-indigo-50 cursor-pointer transition-all disabled:opacity-30 flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(255,255,255,0.5)]"
               >
                 Analyze <span className="material-symbols-outlined text-sm">bolt</span>
               </button>
             </div>
             
-            <div className="mt-10 flex flex-wrap justify-center gap-8 opacity-20 hover:opacity-50 transition-opacity">
+            <div className="mt-10 flex flex-wrap justify-center gap-8 opacity-60 hover:opacity-100 transition-opacity">
                {['vercel', 'openai', 'facebook'].map(suggestion => (
                  <button 
                    key={suggestion}
@@ -134,10 +134,10 @@ export default function HomePage() {
       </main>
 
       <footer className="w-full max-w-7xl mx-auto px-8 py-12 flex flex-col md:flex-row items-center justify-between gap-8 z-10 border-t border-white/5">
-        <div className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">
+        <div className="text-[10px] font-black uppercase tracking-[0.4em] text-white/60">
           Built for engineers • Powered by GitHub Data
         </div>
-        <div className="flex gap-8 text-[10px] font-black uppercase tracking-[0.4em] text-white/20">
+        <div className="flex gap-8 text-[10px] font-black uppercase tracking-[0.4em] text-white/60">
           <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
           <a href="/terms" className="hover:text-white transition-colors">Terms</a>
         </div>
