@@ -8,32 +8,44 @@ import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Reorder, AnimatePresence } from "framer-motion";
+import Sidebar from "@/components/layout/Sidebar";
+import TopNavbar from "@/components/layout/TopNavbar";
+import { useRouter } from "next/navigation";
 
 export default function ResumeBuilderPage() {
+  const router = useRouter();
   const { status } = useSession();
   const [loading, setLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("content"); // content | design
 
   const [profile, setProfile] = useState({
     name: "",
     title: "",
     email: "",
+    phone: "",
     location: "",
+    linkedin: "",
     github: "",
     portfolio: "",
+    website: "",
     summary: ""
   });
+  const [verificationData, setVerificationData] = useState<{ trustScore: number, signals: any[] }>({ trustScore: 0, signals: [] });
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [resumeId, setResumeId] = useState<string | null>(null);
 
   const [experience, setExperience] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [education, setEducation] = useState<any[]>([]);
   const [skills, setSkills] = useState<{ technical: string[], soft: string[] }>({ technical: [], soft: [] });
   const [awards, setAwards] = useState<any[]>([]);
+  const [certifications, setCertifications] = useState<any[]>([]);
   const [volunteer, setVolunteer] = useState<any[]>([]);
   const [languages, setLanguages] = useState<any[]>([]);
   const [interests, setInterests] = useState<string[]>([]);
   const [references, setReferences] = useState("");
-  const [sectionOrder, setSectionOrder] = useState<string[]>(["experience", "projects", "education", "skills", "awards", "languages"]);
+  const [sectionOrder, setSectionOrder] = useState<string[]>(["experience", "projects", "education", "skills", "certifications", "awards", "languages"]);
   const [isPublic, setIsPublic] = useState(false);
   const [currentSlug, setCurrentSlug] = useState("");
 
@@ -49,6 +61,7 @@ export default function ResumeBuilderPage() {
           setProjects(data.projects || []);
           setEducation(data.education || []);
           setAwards(data.awards || []);
+          setCertifications(data.certifications || []);
           setVolunteer(data.volunteer || []);
           setLanguages(data.languages || []);
           setInterests(data.interests || []);
@@ -56,6 +69,16 @@ export default function ResumeBuilderPage() {
           setSectionOrder(data.sectionOrder || ["experience", "projects", "education", "skills", "awards", "volunteer", "languages", "interests"]);
           setIsPublic(data.isPublic || false);
           setCurrentSlug(data.slug || "");
+          if (data.id) setResumeId(data.id);
+          
+          // Fetch verification if we have an ID
+          if (data.id) {
+            fetch(`/api/resume/verify?resumeId=${data.id}`)
+              .then(res => res.json())
+              .then(vData => {
+                if (!vData.error) setVerificationData(vData);
+              });
+          }
         }
       } catch (error) {
         console.error("Failed to fetch resume data", error);
@@ -71,6 +94,26 @@ export default function ResumeBuilderPage() {
 
   const [saving, setSaving] = useState(false);
 
+  const handleVerify = async () => {
+    if (!resumeId) return;
+    setIsVerifying(true);
+    try {
+      const res = await fetch("/api/resume/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setVerificationData({ trustScore: data.trustScore, signals: data.signals });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -83,6 +126,7 @@ export default function ResumeBuilderPage() {
           projects,
           education,
           awards,
+          certifications,
           volunteer,
           languages,
           interests,
@@ -139,11 +183,25 @@ export default function ResumeBuilderPage() {
     setExperience(experience.filter((_, i) => i !== index));
   };
 
+  const addCertification = () => {
+    setCertifications([...certifications, { title: "", issuer: "", date: "" }]);
+  };
+
+  const removeCertification = (index: number) => {
+    setCertifications(certifications.filter((_, i) => i !== index));
+  };
+
+  const handleCertificationChange = (index: number, field: string, value: any) => {
+    const newCertifications = [...certifications];
+    newCertifications[index][field] = value;
+    setCertifications(newCertifications);
+  };
+
   const handleProfileChange = (field: string, value: string) => {
     setProfile(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleExperienceChange = (index: number, field: string, value: string) => {
+  const handleExperienceChange = (index: number, field: string, value: any) => {
     const newExp = [...experience];
     newExp[index] = { ...newExp[index], [field]: value };
     setExperience(newExp);
@@ -182,73 +240,70 @@ export default function ResumeBuilderPage() {
   }
 
   return (
-    <div className="bg-background min-h-screen flex flex-col font-body">
-      {/* Top Header */}
-      <header className="bg-surface/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-border sticky top-0 z-50 flex items-center justify-between px-6 h-16 w-full">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="text-xl font-black tracking-tighter primary-gradient bg-clip-text text-transparent">
-            DevProof
-          </Link>
-          <div className="h-6 w-px bg-border mx-2"></div>
-          <h2 className="text-[10px] font-black text-text-primary uppercase tracking-[0.3em]">Resume Dossier Protocol</h2>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center bg-surface-variant/50 rounded-xl p-1 border border-border">
-            <button 
-              onClick={() => setIsPublic(false)}
-              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${!isPublic ? 'bg-surface text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
-            >
-              Private
-            </button>
-            <button 
-              onClick={() => setIsPublic(true)}
-              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${isPublic ? 'bg-surface text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
-            >
-              Public
-            </button>
-          </div>
+    <div className="min-h-screen bg-background">
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <div className="md:pl-64 flex flex-col min-h-screen w-full transition-all duration-300">
+        <TopNavbar 
+          onMenuClick={() => setIsSidebarOpen(true)} 
+          actions={
+            <div className="flex items-center gap-4 no-print">
+              <div className="flex items-center bg-surface-variant/50 rounded-xl p-1 border border-border">
+                <button 
+                  onClick={() => setIsPublic(false)}
+                  className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${!isPublic ? 'bg-surface text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+                >
+                  Private
+                </button>
+                <button 
+                  onClick={() => setIsPublic(true)}
+                  className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${isPublic ? 'bg-surface text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+                >
+                  Public
+                </button>
+              </div>
 
-          {isPublic && currentSlug && (
-            <button 
-              onClick={() => {
-                const url = `${window.location.origin}/resume/${currentSlug}`;
-                navigator.clipboard.writeText(url);
-                alert("Public Link Copied to Clipboard!");
-              }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border hover:bg-surface-variant transition-colors text-[9px] font-black uppercase tracking-widest text-primary"
-            >
-              <span className="material-symbols-outlined text-sm">content_copy</span>
-              Copy Link
-            </button>
-          )}
+              {isPublic && currentSlug && (
+                <button 
+                  onClick={() => {
+                    const url = `${window.location.origin}/resume/${currentSlug}`;
+                    navigator.clipboard.writeText(url);
+                    alert("Public Link Copied to Clipboard!");
+                  }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border hover:bg-surface-variant transition-colors text-[9px] font-black uppercase tracking-widest text-primary"
+                >
+                  <span className="material-symbols-outlined text-sm">content_copy</span>
+                  Copy Link
+                </button>
+              )}
 
-          <div className="h-6 w-px bg-border"></div>
+              <div className="h-6 w-px bg-border"></div>
 
-          <button 
-            onClick={handleSave}
-            disabled={saving}
-            className="hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-xl border border-border hover:bg-surface-variant transition-colors text-[10px] font-black uppercase tracking-widest text-text-secondary disabled:opacity-50"
-          >
-            {saving ? (
-              <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              <span className="material-symbols-outlined text-sm">save</span>
-            )}
-            Save Progress
-          </button>
-          <PrimaryButton 
-            onClick={() => window.print()}
-            icon="download"
-            className="px-6 py-2.5"
-          >
-            Export PDF
-          </PrimaryButton>
-        </div>
-      </header>
+              <button 
+                onClick={handleSave}
+                disabled={saving}
+                className="hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-xl border border-border hover:bg-surface-variant transition-colors text-[10px] font-black uppercase tracking-widest text-text-secondary disabled:opacity-50"
+              >
+                {saving ? (
+                  <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <span className="material-symbols-outlined text-sm">save</span>
+                )}
+                Save Progress
+              </button>
+              <PrimaryButton 
+                onClick={() => window.print()}
+                icon="download"
+                className="px-6 py-2.5"
+              >
+                Export PDF
+              </PrimaryButton>
+            </div>
+          }
+        />
 
-      <main className="flex flex-1 h-[calc(100vh-64px)] overflow-hidden">
+        <main className="flex flex-1 h-[calc(100vh-96px)] overflow-hidden">
         {/* Left Panel: Editor */}
-        <section className="w-full md:w-1/2 h-full overflow-y-auto bg-surface-variant/30 border-r border-border p-8 space-y-8 no-print">
+        <section className="no-print w-full md:w-1/2 h-full overflow-y-auto bg-surface-variant/30 border-r border-border p-8 space-y-8">
           {/* Personal Profile */}
           <div className="bg-surface rounded-3xl border border-border p-8 shadow-sm space-y-6">
             <div className="flex items-center gap-3 mb-2">
@@ -286,12 +341,42 @@ export default function ResumeBuilderPage() {
                 />
               </div>
               <div className="space-y-2">
+                <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">Phone Number</label>
+                <input 
+                  className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
+                  type="tel" 
+                  placeholder="+1 (555) 000-0000"
+                  value={profile.phone}
+                  onChange={(e) => handleProfileChange("phone", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
                 <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">Location</label>
                 <input 
                   className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
                   type="text" 
                   value={profile.location}
                   onChange={(e) => handleProfileChange("location", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">LinkedIn URL</label>
+                <input 
+                  className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
+                  type="text" 
+                  placeholder="linkedin.com/in/username"
+                  value={profile.linkedin}
+                  onChange={(e) => handleProfileChange("linkedin", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">GitHub URL</label>
+                <input 
+                  className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
+                  type="text" 
+                  placeholder="github.com/username"
+                  value={profile.github}
+                  onChange={(e) => handleProfileChange("github", e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -304,6 +389,25 @@ export default function ResumeBuilderPage() {
                   onChange={(e) => handleProfileChange("portfolio", e.target.value)}
                 />
               </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">Personal Website</label>
+                <input 
+                  className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
+                  type="text" 
+                  placeholder="https://yourwebsite.com"
+                  value={profile.website}
+                  onChange={(e) => handleProfileChange("website", e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">Short Summary / Bio</label>
+              <textarea 
+                className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-4 h-32 outline-none transition-all font-medium" 
+                placeholder="Brief professional summary..."
+                value={profile.summary}
+                onChange={(e) => handleProfileChange("summary", e.target.value)}
+              />
             </div>
           </div>
 
@@ -331,12 +435,53 @@ export default function ResumeBuilderPage() {
                                 <button onClick={() => removeExperience(idx)} className="absolute top-4 right-4 text-text-secondary hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">
                                    <span className="material-symbols-outlined text-lg">delete</span>
                                 </button>
-                                <input className="bg-transparent font-black text-sm border-none p-0 focus:ring-0 w-full text-text-primary uppercase tracking-tight mb-2" value={exp.company} onChange={(e) => handleExperienceChange(idx, "company", e.target.value)} placeholder="Company" />
-                                <div className="grid grid-cols-2 gap-4 mb-4">
-                                   <input className="bg-surface border border-border rounded-lg p-2 text-[10px] font-bold" type="date" value={exp.startDate} onChange={(e) => handleExperienceChange(idx, "startDate", e.target.value)} />
-                                   {!exp.isCurrent && <input className="bg-surface border border-border rounded-lg p-2 text-[10px] font-bold" type="date" value={exp.endDate} onChange={(e) => handleExperienceChange(idx, "endDate", e.target.value)} />}
+                                <input className="bg-transparent font-black text-sm border-none p-0 focus:ring-0 w-full text-text-primary uppercase tracking-tight mb-2" value={exp.company || ""} onChange={(e) => handleExperienceChange(idx, "company", e.target.value)} placeholder="Company" />
+                                <input className="bg-transparent text-[10px] text-primary font-black border-none p-0 focus:ring-0 w-full uppercase tracking-widest mb-4" value={exp.role || ""} onChange={(e) => handleExperienceChange(idx, "role", e.target.value)} placeholder="Role" />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                  <div className="space-y-1">
+                                     <label className="text-[8px] font-black text-text-secondary uppercase tracking-widest">Start Date</label>
+                                     <input className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="date" value={exp.startDate} onChange={(e) => handleExperienceChange(idx, "startDate", e.target.value)} />
+                                  </div>
+                                  <div className="space-y-1">
+                                     <label className="text-[8px] font-black text-text-secondary uppercase tracking-widest">End Date</label>
+                                     {exp.isCurrent ? (
+                                        <div className="w-full bg-surface-variant/50 border border-border border-dashed rounded-lg p-2 text-[10px] font-black text-primary uppercase tracking-widest text-center">Present</div>
+                                     ) : (
+                                        <input className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="date" value={exp.endDate} onChange={(e) => handleExperienceChange(idx, "endDate", e.target.value)} />
+                                     )}
+                                  </div>
                                 </div>
-                                <textarea className="w-full bg-surface rounded-xl border border-border text-xs h-32 p-4 outline-none font-medium" value={exp.desc} onChange={(e) => handleExperienceChange(idx, "desc", e.target.value)} placeholder="Achievements..." />
+                                <div className="flex items-center gap-3 mb-4">
+                                  <input 
+                                     type="checkbox" 
+                                     id={`current-${idx}`}
+                                     className="w-4 h-4 rounded border-border text-primary focus:ring-primary/20"
+                                     checked={exp.isCurrent} 
+                                     onChange={(e) => handleExperienceChange(idx, "isCurrent", e.target.checked)} 
+                                  />
+                                  <label htmlFor={`current-${idx}`} className="text-[10px] font-black text-text-primary uppercase tracking-widest cursor-pointer">I am currently working here</label>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                  <div className="space-y-1">
+                                     <label className="text-[8px] font-black text-text-secondary uppercase tracking-widest">Employment Type</label>
+                                     <select className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" value={exp.type || "Full-time"} onChange={(e) => handleExperienceChange(idx, "type", e.target.value)}>
+                                        <option value="Full-time">Full-time</option>
+                                        <option value="Part-time">Part-time</option>
+                                        <option value="Contract">Contract</option>
+                                        <option value="Freelance">Freelance</option>
+                                        <option value="Internship">Internship</option>
+                                     </select>
+                                  </div>
+                                  <div className="space-y-1">
+                                     <label className="text-[8px] font-black text-text-secondary uppercase tracking-widest">Location</label>
+                                     <input className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="text" placeholder="London, UK" value={exp.location || ""} onChange={(e) => handleExperienceChange(idx, "location", e.target.value)} />
+                                   </div>
+                                </div>
+                                <textarea className="w-full bg-surface rounded-xl border border-border text-xs h-32 p-4 outline-none font-medium mb-4" value={exp.desc} onChange={(e) => handleExperienceChange(idx, "desc", e.target.value)} placeholder="Achievements..." />
+                                <div className="space-y-1">
+                                   <label className="text-[8px] font-black text-text-secondary uppercase tracking-widest">Skills Used (comma separated)</label>
+                                   <input className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="text" placeholder="React, Node.js, TypeScript" value={exp.skillsUsed || ""} onChange={(e) => handleExperienceChange(idx, "skillsUsed", e.target.value)} />
+                                </div>
                              </div>
                           ))}
                        </div>
@@ -394,9 +539,29 @@ export default function ResumeBuilderPage() {
                                 <input className="bg-transparent font-black text-sm border-none p-0 focus:ring-0 w-full text-text-primary uppercase tracking-tight mb-2" value={edu.institution} onChange={(e) => {
                                    const n = [...education]; n[idx].institution = e.target.value; setEducation(n);
                                 }} />
-                                <input className="bg-transparent text-[10px] text-primary font-black border-none p-0 focus:ring-0 w-full uppercase tracking-widest" value={edu.degree} onChange={(e) => {
+                                <input className="bg-transparent text-[10px] text-primary font-black border-none p-0 focus:ring-0 w-full uppercase tracking-widest mb-4" value={edu.degree} onChange={(e) => {
                                    const n = [...education]; n[idx].degree = e.target.value; setEducation(n);
                                 }} />
+                                <div className="grid grid-cols-3 gap-4">
+                                   <div className="space-y-1">
+                                      <label className="text-[8px] font-black text-text-secondary uppercase tracking-widest">Start Year</label>
+                                      <input className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="text" placeholder="2020" value={edu.startYear || ""} onChange={(e) => {
+                                         const n = [...education]; n[idx].startYear = e.target.value; setEducation(n);
+                                      }} />
+                                   </div>
+                                   <div className="space-y-1">
+                                      <label className="text-[8px] font-black text-text-secondary uppercase tracking-widest">End Year</label>
+                                      <input className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="text" placeholder="2024" value={edu.endYear || ""} onChange={(e) => {
+                                         const n = [...education]; n[idx].endYear = e.target.value; setEducation(n);
+                                      }} />
+                                   </div>
+                                   <div className="space-y-1">
+                                      <label className="text-[8px] font-black text-text-secondary uppercase tracking-widest">Grade/GPA</label>
+                                      <input className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="text" placeholder="First Class" value={edu.grade || ""} onChange={(e) => {
+                                         const n = [...education]; n[idx].grade = e.target.value; setEducation(n);
+                                      }} />
+                                   </div>
+                                </div>
                              </div>
                           ))}
                        </div>
@@ -419,9 +584,51 @@ export default function ResumeBuilderPage() {
                                     {s} <button onClick={() => setSkills({...skills, technical: skills.technical.filter(sk => sk !== s)})}><span className="material-symbols-outlined text-xs">close</span></button>
                                  </span>
                               ))}
-                              <button onClick={() => {const s = prompt("Skill?"); if(s) setSkills({...skills, technical: [...skills.technical, s]})}} className="px-3 py-1.5 border border-dashed border-border rounded-lg text-[10px] font-bold hover:bg-surface-variant">+ Add</button>
+                              <button onClick={() => {const s = prompt("Technical Skill?"); if(s) setSkills({...skills, technical: [...skills.technical, s]})}} className="px-3 py-1.5 border border-dashed border-border rounded-lg text-[10px] font-bold hover:bg-surface-variant">+ Add Technical</button>
                            </div>
                         </div>
+                        <div className="space-y-4 pt-4 border-t border-border border-dashed">
+                           <label className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">Soft Capabilities</label>
+                           <div className="flex flex-wrap gap-2">
+                              {skills.soft?.map(s => (
+                                 <span key={s} className="px-3 py-1.5 bg-surface-variant border border-border rounded-lg text-[10px] font-bold flex items-center gap-2">
+                                    {s} <button onClick={() => setSkills({...skills, soft: (skills.soft || []).filter(sk => sk !== s)})}><span className="material-symbols-outlined text-xs">close</span></button>
+                                 </span>
+                              ))}
+                              <button onClick={() => {const s = prompt("Soft Skill?"); if(s) setSkills({...skills, soft: [...(skills.soft || []), s]})}} className="px-3 py-1.5 border border-dashed border-border rounded-lg text-[10px] font-bold hover:bg-surface-variant">+ Add Soft</button>
+                           </div>
+                        </div>
+                    </div>
+                 )}
+
+                 {section === "certifications" && (
+                    <div className="bg-surface rounded-3xl border border-border p-8 shadow-sm space-y-6">
+                       <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-3">
+                             <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-primary border border-indigo-100 dark:border-indigo-800/50 cursor-grab">
+                                <span className="material-symbols-outlined text-xl">drag_indicator</span>
+                             </div>
+                             <h3 className="text-sm font-black text-text-primary uppercase tracking-widest">Certifications</h3>
+                          </div>
+                          <button onClick={addCertification} className="text-primary font-black text-[10px] flex items-center gap-2 hover:underline uppercase tracking-widest">
+                             <span className="material-symbols-outlined text-sm">add_circle</span>
+                             Add Entry
+                          </button>
+                       </div>
+                       <div className="space-y-4">
+                          {certifications.map((cert, idx) => (
+                             <div key={idx} className="p-4 rounded-xl border border-border bg-surface-variant/30 relative group">
+                                <button onClick={() => removeCertification(idx)} className="absolute top-2 right-2 text-text-secondary hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">
+                                   <span className="material-symbols-outlined text-sm">delete</span>
+                                </button>
+                                <input className="bg-transparent font-black text-xs border-none p-0 focus:ring-0 w-full text-text-primary uppercase tracking-tight mb-2" value={cert.title} onChange={(e) => handleCertificationChange(idx, "title", e.target.value)} placeholder="Certification Title" />
+                                <div className="grid grid-cols-2 gap-4">
+                                   <input className="bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" value={cert.issuer} onChange={(e) => handleCertificationChange(idx, "issuer", e.target.value)} placeholder="Issuer" />
+                                   <input className="bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="text" placeholder="Year" value={cert.date} onChange={(e) => handleCertificationChange(idx, "date", e.target.value)} />
+                                </div>
+                             </div>
+                          ))}
+                       </div>
                     </div>
                  )}
 
@@ -490,16 +697,27 @@ export default function ResumeBuilderPage() {
         {/* Right Panel: Live Preview */}
         <section className="hidden md:flex flex-1 h-full bg-border/20 overflow-y-auto justify-center p-12 relative overflow-x-hidden">
           {/* Resume Template A4 */}
-          <div className="w-full max-w-[800px] bg-white shadow-2xl p-16 flex flex-col text-slate-900 min-h-[1131px] aspect-[1/1.414] rounded-sm origin-top scale-95 transition-transform">
+          <div className="resume-container w-full max-w-[800px] bg-white shadow-2xl p-16 flex flex-col text-slate-900 min-h-[1131px] aspect-[1/1.414] rounded-sm origin-top scale-95 transition-transform">
             <header className="border-b-8 border-indigo-600 pb-10 mb-10">
               <h1 className="text-5xl font-black text-slate-900 mb-2 tracking-tighter uppercase">{profile.name}</h1>
               <p className="text-2xl font-bold text-indigo-600 mb-6 tracking-tight">{profile.title}</p>
               <div className="flex flex-wrap gap-x-8 gap-y-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
                 <span className="flex items-center gap-2"><span className="material-symbols-outlined text-sm text-indigo-500">mail</span> {profile.email}</span>
+                {profile.phone && (
+                  <span className="flex items-center gap-2"><span className="material-symbols-outlined text-sm text-indigo-500">call</span> {profile.phone}</span>
+                )}
                 <span className="flex items-center gap-2"><span className="material-symbols-outlined text-sm text-indigo-500">location_on</span> {profile.location}</span>
-                <span className="flex items-center gap-2"><span className="material-symbols-outlined text-sm text-indigo-500">link</span> {profile.github}</span>
+                {profile.github && (
+                  <span className="flex items-center gap-2"><span className="material-symbols-outlined text-sm text-indigo-500">link</span> {profile.github}</span>
+                )}
+                {profile.linkedin && (
+                  <span className="flex items-center gap-2"><span className="material-symbols-outlined text-sm text-indigo-500">share</span> {profile.linkedin}</span>
+                )}
                 {profile.portfolio && (
                   <span className="flex items-center gap-2"><span className="material-symbols-outlined text-sm text-indigo-500">language</span> {profile.portfolio}</span>
+                )}
+                {profile.website && (
+                  <span className="flex items-center gap-2"><span className="material-symbols-outlined text-sm text-indigo-500">public</span> {profile.website}</span>
                 )}
               </div>
             </header>
@@ -515,13 +733,25 @@ export default function ResumeBuilderPage() {
                           {experience?.map((exp, idx) => (
                             <div key={idx} className="space-y-3">
                               <div className="flex justify-between items-baseline">
-                                <h5 className="font-black text-lg text-slate-900 tracking-tight uppercase">{exp.company}</h5>
+                                 <div className="flex items-center gap-2">
+                                  <h5 className="font-black text-lg text-slate-900 tracking-tight uppercase">{exp.company}</h5>
+                                  {verificationData.signals.some(s => s.type === "identity" || s.type === "work") && (
+                                    <span className="material-symbols-outlined text-indigo-500 text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                                  )}
+                                </div>
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                   {exp.startDate ? new Date(exp.startDate).toLocaleDateString([], { month: 'short', year: 'numeric' }) : ""} — {exp.isCurrent ? "Present" : (exp.endDate ? new Date(exp.endDate).toLocaleDateString([], { month: 'short', year: 'numeric' }) : "")}
                                 </span>
                               </div>
-                              <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em]">{exp.role}</p>
+                              <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em]">{exp.role} • {exp.type || "Full-time"} • {exp.location || "Remote"}</p>
                               <p className="text-xs text-slate-500 leading-relaxed text-justify font-medium">{exp.desc}</p>
+                              {exp.skillsUsed && (
+                                 <div className="flex flex-wrap gap-2 mt-3">
+                                    {exp.skillsUsed.split(',').map((s: string) => (
+                                       <span key={s} className="text-[8px] font-black text-slate-400 uppercase tracking-widest border border-slate-100 px-2 py-0.5 rounded">{s.trim()}</span>
+                                    ))}
+                                 </div>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -536,6 +766,9 @@ export default function ResumeBuilderPage() {
                             <div key={idx} className="space-y-2">
                               <div className="flex items-center gap-3">
                                 <h5 className="font-black text-md text-slate-900 tracking-tight uppercase">{project.name}</h5>
+                                {verificationData.signals.some(s => s.type === "github_project" && s.payload?.url === project.url) && (
+                                  <span className="material-symbols-outlined text-indigo-500 text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                                )}
                                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
                               </div>
                               <p className="text-xs text-slate-500 leading-relaxed font-medium">{project.description}</p>
@@ -551,8 +784,14 @@ export default function ResumeBuilderPage() {
                         <div className="space-y-6">
                           {education?.map((edu, idx) => (
                             <div key={idx} className="space-y-1">
-                              <h5 className="font-black text-md text-slate-900 uppercase tracking-tight">{edu.institution}</h5>
-                              <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">{edu.degree}</p>
+                              <div className="flex justify-between items-baseline">
+                                <h5 className="font-black text-md text-slate-900 uppercase tracking-tight">{edu.institution}</h5>
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{edu.startYear} — {edu.endYear || "Present"}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">{edu.degree}</p>
+                                {edu.grade && <span className="text-[9px] font-black text-slate-900 uppercase tracking-widest bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">{edu.grade}</span>}
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -565,16 +804,32 @@ export default function ResumeBuilderPage() {
               <div className="col-span-1 space-y-12">
                 {sectionOrder.filter(s => ["skills", "languages", "awards", "interests"].includes(s)).map((section) => (
                   <div key={section}>
-                    {section === "skills" && skills?.technical?.length > 0 && (
+                    {section === "skills" && (
                       <section>
-                        <h4 className="text-[10px] font-black text-indigo-600 border-b-2 border-slate-100 pb-3 mb-8 uppercase tracking-[0.3em]">Technical Stack</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {skills.technical.map((skill) => (
-                            <span key={skill} className="px-3 py-1.5 bg-slate-50 border border-slate-100 text-slate-900 rounded-lg text-[9px] font-black uppercase tracking-widest">
-                              {skill}
-                            </span>
-                          ))}
-                        </div>
+                        {skills.technical?.length > 0 && (
+                          <div className="mb-10">
+                            <h4 className="text-[10px] font-black text-indigo-600 border-b-2 border-slate-100 pb-3 mb-6 uppercase tracking-[0.3em]">Technical Stack</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {skills.technical.map((skill: string) => (
+                                <span key={skill} className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-slate-200">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {skills.soft?.length > 0 && (
+                          <div>
+                            <h4 className="text-[10px] font-black text-indigo-600 border-b-2 border-slate-100 pb-3 mb-6 uppercase tracking-[0.3em]">Soft Capabilities</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {skills.soft.map((skill: string) => (
+                                <span key={skill} className="px-3 py-1.5 bg-slate-50 border border-slate-100 text-slate-900 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </section>
                     )}
 
@@ -586,6 +841,23 @@ export default function ResumeBuilderPage() {
                             <div key={l.name} className="flex justify-between items-center">
                               <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{l.name}</span>
                               <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">{l.level}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    )}
+
+                    {section === "certifications" && certifications?.length > 0 && (
+                      <section className="mt-12">
+                        <h4 className="text-[10px] font-black text-indigo-600 border-b-2 border-slate-100 pb-3 mb-8 uppercase tracking-[0.3em]">Professional Certifications</h4>
+                        <div className="space-y-4">
+                          {certifications?.map((cert, idx) => (
+                            <div key={idx} className="flex justify-between items-center">
+                              <div>
+                                <h5 className="font-black text-[11px] text-slate-900 uppercase tracking-tight">{cert.title}</h5>
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{cert.issuer}</p>
+                              </div>
+                              <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest">{cert.date}</span>
                             </div>
                           ))}
                         </div>
@@ -608,14 +880,27 @@ export default function ResumeBuilderPage() {
                   </div>
                 ))}
 
-                <section className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 mt-auto">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="material-symbols-outlined text-indigo-600 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                    <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Verified Dossier</span>
+                <section className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 mt-auto relative group">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-indigo-600 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                      <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Verified Dossier</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                       <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Trust Score:</span>
+                       <span className="text-sm font-black text-indigo-600">{verificationData.trustScore}%</span>
+                    </div>
                   </div>
-                  <p className="text-[9px] text-indigo-900/60 leading-relaxed font-bold uppercase tracking-widest">
+                  <p className="text-[9px] text-indigo-900/60 leading-relaxed font-bold uppercase tracking-widest mb-4">
                     This document is cryptographically verified against authenticated GitHub ledger contributions.
                   </p>
+                  <button 
+                    onClick={handleVerify}
+                    disabled={isVerifying || !resumeId}
+                    className="w-full py-2 bg-indigo-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-colors disabled:opacity-50 no-print"
+                  >
+                    {isVerifying ? "Verifying..." : "Refresh Verification"}
+                  </button>
                 </section>
               </div>
             </div>
@@ -626,6 +911,7 @@ export default function ResumeBuilderPage() {
           </div>
         </section>
       </main>
+      </div>
     </div>
   );
 }

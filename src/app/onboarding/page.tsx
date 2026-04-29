@@ -38,7 +38,7 @@ export default function OnboardingPage() {
         body: JSON.stringify({ goals, experience }),
       });
       setTimeout(() => {
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       }, 3000);
     } catch (error) {
       console.error("Onboarding failed", error);

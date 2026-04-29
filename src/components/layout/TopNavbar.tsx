@@ -99,7 +99,7 @@ export default function TopNavbar({ onMenuClick, user, hideMenu, actions }: TopN
                     Settings
                  </Link>
                  <button 
-                   onClick={() => signOut()}
+                   onClick={() => signOut({ callbackUrl: "/" })}
                    className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl hover:bg-rose-500/10 transition-all text-[10px] font-black uppercase tracking-[0.2em] text-rose-500 mt-2"
                  >
                     <span className="material-symbols-outlined text-lg">logout</span>

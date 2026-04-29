@@ -11,6 +11,10 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Cell
 } from "recharts";
+import CollaborationChart from "@/components/dashboard/CollaborationChart";
+import TopicExpertise from "@/components/dashboard/TopicExpertise";
+import GrowthForecast from "@/components/dashboard/GrowthForecast";
+import OptimizationChecklist from "@/components/dashboard/OptimizationChecklist";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -21,8 +25,10 @@ export default function DashboardPage() {
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
+    } else if (status === "authenticated" && !session?.user?.onboardingCompleted) {
+      router.push("/onboarding");
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -70,11 +76,12 @@ export default function DashboardPage() {
     );
   }
 
-  const { stats, reports, snapshots, languages } = data || { 
-    stats: { score: 0, stars: 0, repos: 0, followers: 0, growth: 0, privateRepos: 0 }, 
+  const { stats, reports, snapshots, languages, topics } = data || { 
+    stats: { score: 0, stars: 0, repos: 0, followers: 0, growth: 0, privateRepos: 0, collaboration: { prCount: 0, issueCount: 0, reviewCount: 0 } }, 
     reports: [], 
     snapshots: [],
-    languages: []
+    languages: [],
+    topics: []
   };
 
   const containerVariants = {
@@ -142,12 +149,12 @@ export default function DashboardPage() {
         </motion.div>
       </div>
 
-      {/* Visual Analytics Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-         <motion.div variants={itemVariants}>
+      {/* Primary Analytics Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+         <motion.div variants={itemVariants} className="lg:col-span-8">
             <GlassCard className="p-8 h-full">
                <h3 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.3em] mb-10">Engineering Velocity</h3>
-               <div className="h-[300px] w-full">
+               <div className="h-[350px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                      <AreaChart data={snapshots}>
                         <defs>
@@ -182,34 +189,54 @@ export default function DashboardPage() {
             </GlassCard>
          </motion.div>
 
-         <motion.div variants={itemVariants}>
+         <motion.div variants={itemVariants} className="lg:col-span-4">
             <GlassCard className="p-8 h-full">
-               <h3 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.3em] mb-10">Language Distribution</h3>
-               <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                     <BarChart data={languages} layout="vertical" margin={{ left: 20 }}>
-                        <XAxis type="number" hide />
-                        <YAxis 
-                          dataKey="name" 
-                          type="category" 
-                          stroke="rgba(255,255,255,0.5)"
-                          fontSize={10}
-                          width={80}
-                          tickLine={false}
-                          axisLine={false}
-                        />
-                        <Tooltip 
-                          cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                          contentStyle={{ backgroundColor: '#0F172A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                        />
-                        <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
-                           {languages.map((entry: any, index: number) => (
-                             <Cell key={`cell-${index}`} fill={index === 0 ? '#4f46e5' : '#06b6d4'} fillOpacity={1 - index * 0.1} />
-                           ))}
-                        </Bar>
-                     </BarChart>
-                  </ResponsiveContainer>
+               <h3 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.3em] mb-10">Collaboration Matrix</h3>
+               <CollaborationChart stats={stats.collaboration} />
+               <div className="mt-8 pt-8 border-t border-white/5 space-y-4">
+                  <div className="flex justify-between items-center">
+                     <span className="text-[9px] font-black text-text-secondary uppercase tracking-widest">Efficiency Rating</span>
+                     <span className="text-xs font-black text-success">Optimized</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                     <span className="text-[9px] font-black text-text-secondary uppercase tracking-widest">Active Threads</span>
+                     <span className="text-xs font-black text-text-primary">24</span>
+                  </div>
                </div>
+            </GlassCard>
+         </motion.div>
+      </div>
+
+      {/* Secondary Analytics Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+         <motion.div variants={itemVariants} className="lg:col-span-4">
+            <GlassCard className="p-8 h-full">
+               <h3 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.3em] mb-10">Growth Projection</h3>
+               <GrowthForecast 
+                 velocity={`${stats.growth >= 0 ? "+" : ""}${stats.growth}%`}
+                 tier={stats.readiness?.badge || "Associate"}
+                 status={stats.readiness?.score > 70 ? "Synchronized" : "Pending Sync"}
+                 description={stats.readiness?.recommendations[0] || "Based on recent commit patterns and architectural complexity."}
+               />
+            </GlassCard>
+         </motion.div>
+
+         <motion.div variants={itemVariants} className="lg:col-span-8">
+            <GlassCard className="p-8 h-full">
+               <h3 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.3em] mb-10">Topic Expertise</h3>
+               <TopicExpertise topics={topics} />
+            </GlassCard>
+         </motion.div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+         <motion.div variants={itemVariants} className="lg:col-span-12">
+            <GlassCard className="p-8">
+               <h3 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.3em] mb-10">System Optimization Checklist</h3>
+               <OptimizationChecklist 
+                 items={stats.readiness?.recommendations || ["Implement Unit Tests", "Optimize README Metadata", "Link Portfolio Dossier"]}
+                 completedItems={stats.readiness?.checklist.filter((c: any) => c.score > 70).map((c: any) => c.name) || ["Synchronize GitHub Ledger"]}
+               />
             </GlassCard>
          </motion.div>
       </div>

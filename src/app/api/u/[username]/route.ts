@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { GitHubService } from "@/lib/github";
 import { AIService } from "@/lib/ai";
 
@@ -6,13 +8,22 @@ export async function GET(req: Request, { params }: { params: Promise<{ username
   try {
     const resolvedParams = await params;
     const { username } = resolvedParams;
+    const session = await getServerSession(authOptions);
 
-    const github = new GitHubService();
+    let targetUsername = username;
+    if (username === "profile") {
+      if (!session?.user?.githubUsername) {
+        return NextResponse.json({ error: "No session found. Please login." }, { status: 401 });
+      }
+      targetUsername = session.user.githubUsername;
+    }
+
+    const github = new GitHubService(session?.accessToken as string);
 
     // Dynamic Public Analyzer
     try {
-      const profile = await github.getUserProfile(username);
-      const repos = await github.getAllUserRepositories(username);
+      const profile = await github.getUserProfile(targetUsername);
+      const repos = await github.getAllUserRepositories(targetUsername);
 
       const publicRepos = repos
         .filter((r: any) => !r.private)

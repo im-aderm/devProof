@@ -41,6 +41,7 @@ model User {
   name                String?
   email               String?   @unique
   emailVerified       DateTime?
+  password            String?   // For Credentials provider
   image               String?
   githubId            String?   @unique
   username            String?   @unique
@@ -72,8 +73,23 @@ model Resume {
   updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verificationSignals VerificationSignal[]
 
   @@index([userId])
+}
+
+model VerificationSignal {
+  id        String   @id @default(cuid())
+  resumeId  String
+  type      String   // github_project, github_contribution, email, identity, work
+  status    String   // verified, pending, unverified
+  payload   Json?    // Evidence or extra data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resume    Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
 }
 
 model VerificationToken {
@@ -82,6 +98,7 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 // --- DevProof Business Models ---

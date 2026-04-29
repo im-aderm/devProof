@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
   { name: "Dashboard", icon: "dashboard", href: "/dashboard" },
-  { name: "Portfolio", icon: "person_pin", href: "/u/profile" },
+  { name: "Repository Ledger", icon: "folder_managed", href: "/repositories" },
   { name: "Resume", icon: "description", href: "/resume" },
   { name: "Compare", icon: "compare_arrows", href: "/compare" },
 ];

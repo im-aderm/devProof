@@ -7,7 +7,33 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const router = useRouter();
+
+  // Debounced Search Effect
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (query.length >= 2) {
+        setIsSearching(true);
+        try {
+          const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+          if (res.ok) {
+            const data = await res.json();
+            setSearchResults(data.results || []);
+          }
+        } catch (error) {
+          console.error("Search error", error);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [query]);
 
   const togglePalette = useCallback(() => setIsOpen((prev) => !prev), []);
 
@@ -86,9 +112,10 @@ export default function CommandPalette() {
             </div>
 
             <div className="max-h-[400px] overflow-y-auto p-3">
-               {filteredCommands.length > 0 ? (
+               {query.length < 2 ? (
                  <div className="space-y-1">
-                    {filteredCommands.map((command) => (
+                    <p className="px-4 py-2 text-[8px] font-black text-text-secondary uppercase tracking-[0.3em]">Quick Protocols</p>
+                    {commands.map((command) => (
                       <button
                         key={command.id}
                         onClick={() => handleAction(command)}
@@ -98,26 +125,55 @@ export default function CommandPalette() {
                            <div className="w-10 h-10 rounded-xl bg-surface-variant flex items-center justify-center border border-border group-hover:border-primary/30 group-hover:text-primary transition-all">
                               <span className="material-symbols-outlined text-xl">{command.icon}</span>
                            </div>
-                           <div>
-                              <p className="text-xs font-black text-text-primary uppercase tracking-widest">{command.title}</p>
-                              {query && (command.id === 'analyze' || command.id === 'repo') && (
-                                <p className="text-[10px] text-primary font-black uppercase tracking-widest mt-1">Target: {query}</p>
-                              )}
-                           </div>
+                           <p className="text-xs font-black text-text-primary uppercase tracking-widest">{command.title}</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                           <span className="text-[10px] font-black text-text-secondary opacity-20 uppercase tracking-widest group-hover:opacity-100 transition-opacity">Execute Protocol</span>
-                           <div className="w-6 h-6 rounded-lg bg-surface border border-border flex items-center justify-center text-[10px] font-black text-text-secondary uppercase">
-                              {command.shortcut}
-                           </div>
+                        <div className="w-6 h-6 rounded-lg bg-surface border border-border flex items-center justify-center text-[10px] font-black text-text-secondary uppercase">
+                           {command.shortcut}
                         </div>
                       </button>
                     ))}
                  </div>
                ) : (
-                 <div className="p-12 text-center space-y-4">
-                    <span className="material-symbols-outlined text-4xl text-text-secondary opacity-20">search_off</span>
-                    <p className="text-xs font-black text-text-secondary uppercase tracking-widest opacity-40">No intelligence protocols found for &quot;{query}&quot;</p>
+                 <div className="space-y-1">
+                    <p className="px-4 py-2 text-[8px] font-black text-text-secondary uppercase tracking-[0.3em]">
+                      {isSearching ? "Searching Global Ledger..." : `Results for "${query}"`}
+                    </p>
+                    
+                    {searchResults.length > 0 ? (
+                      searchResults.map((result) => (
+                        <button
+                          key={`${result.type}-${result.id}`}
+                          onClick={() => {
+                            router.push(result.url);
+                            setIsOpen(false);
+                            setQuery("");
+                          }}
+                          className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-surface-variant group transition-all text-left"
+                        >
+                          <div className="flex items-center gap-4">
+                             <div className="w-10 h-10 rounded-xl bg-surface-variant overflow-hidden flex items-center justify-center border border-border group-hover:border-primary/30 transition-all">
+                                {result.image ? (
+                                  <img src={result.image} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  <span className="material-symbols-outlined text-xl">
+                                    {result.type === 'repo' ? 'folder' : 'person'}
+                                  </span>
+                                )}
+                             </div>
+                             <div>
+                                <p className="text-xs font-black text-text-primary uppercase tracking-widest">{result.title}</p>
+                                <p className="text-[10px] text-text-secondary font-medium italic mt-1">{result.type === 'user' ? 'Operative Identity' : 'Repository Asset'}</p>
+                             </div>
+                          </div>
+                          <span className="material-symbols-outlined text-text-secondary opacity-0 group-hover:opacity-100 transition-all">north_west</span>
+                        </button>
+                      ))
+                    ) : !isSearching && (
+                      <div className="p-12 text-center space-y-4">
+                        <span className="material-symbols-outlined text-4xl text-text-secondary opacity-20">search_off</span>
+                        <p className="text-xs font-black text-text-secondary uppercase tracking-widest opacity-40">No intelligence matches found</p>
+                      </div>
+                    )}
                  </div>
                )}
             </div>

@@ -14,19 +14,18 @@ export class AIService {
       .join("\n");
     
     const prompt = `
-      You are a technical recruiter assistant. Based on the following GitHub profile and repositories, 
-      provide a professional summary of the developer's persona, top skills, and growth areas.
+      You are an elite technical assessment agent. Analyze the following GitHub ledger and profile to generate a high-signal engineering intelligence report.
       
-      Profile Bio: ${profile.bio || "N/A"}
+      Target Bio: ${profile.bio || "N/A"}
       Location: ${profile.location || "N/A"}
-      Repositories:
+      Repository Matrix:
       ${repoDetails}
       
-      Return the response strictly as a JSON object with:
-      - summary: A 2-3 sentence professional bio.
-      - persona: A title for the developer (e.g., "Full-Stack System Architect").
-      - topSkills: An array of 5 identified technical skills.
-      - growthAreas: An array of 3 suggested areas for improvement.
+      Return a JSON object with this precise structure:
+      - summary: A 2-3 sentence high-impact professional narrative. Avoid filler; focus on architectural depth and technical impact.
+      - persona: A punchy, 2-4 word professional designation (e.g., "Distributed Systems Architect", "Full-Stack Security Specialist").
+      - topSkills: Array of 5 most significant technical competencies identified from the codebase.
+      - growthAreas: Array of 3 specific technical or documentation vectors for improvement.
     `;
 
     try {
@@ -73,13 +72,14 @@ export class AIService {
    */
   static async generateRepoSummary(repo: any) {
     const prompt = `
-      Summarize the following GitHub repository professionally for a portfolio.
-      Name: ${repo.name}
+      Perform an architectural summary of the following GitHub repository for a professional dossier.
+      Identifier: ${repo.name}
       Description: ${repo.description || "N/A"}
-      Language: ${repo.language}
+      Primary Stack: ${repo.language}
       
-      Explain what the project likely does and why it is technically significant.
-      Max 3 sentences. Return as a plain string.
+      Synthesize the technical significance, core functionality, and architectural value.
+      Maintain a professional, dense, and objective tone.
+      Limit: 3 sentences. Plain text response only.
     `;
 
     try {
