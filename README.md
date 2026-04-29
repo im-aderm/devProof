@@ -61,7 +61,13 @@
 
 ## 🏗️ Deployment
 
-DevProof is optimized for deployment on the [Vercel](https://vercel.com) platform. Ensure all environment variables are correctly configured in your deployment settings.
+DevProof is optimized for deployment on the [Vercel](https://vercel.com) platform.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fim-aderm%2FdevProof)
+
+**Live Demo:** [https://devproof-seven.vercel.app/](https://devproof-seven.vercel.app/)
+
+Ensure all environment variables are correctly configured in your deployment settings.
 
 ```bash
 npm run build

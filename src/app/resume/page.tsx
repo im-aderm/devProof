@@ -318,7 +318,7 @@ export default function ResumeBuilderPage() {
                 <input 
                   className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
                   type="text" 
-                  value={profile.name}
+                  value={profile.name || ""}
                   onChange={(e) => handleProfileChange("name", e.target.value)}
                 />
               </div>
@@ -327,7 +327,7 @@ export default function ResumeBuilderPage() {
                 <input 
                   className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
                   type="text" 
-                  value={profile.title}
+                  value={profile.title || ""}
                   onChange={(e) => handleProfileChange("title", e.target.value)}
                 />
               </div>
@@ -336,7 +336,7 @@ export default function ResumeBuilderPage() {
                 <input 
                   className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
                   type="email" 
-                  value={profile.email}
+                  value={profile.email || ""}
                   onChange={(e) => handleProfileChange("email", e.target.value)}
                 />
               </div>
@@ -346,7 +346,7 @@ export default function ResumeBuilderPage() {
                   className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
                   type="tel" 
                   placeholder="+1 (555) 000-0000"
-                  value={profile.phone}
+                  value={profile.phone || ""}
                   onChange={(e) => handleProfileChange("phone", e.target.value)}
                 />
               </div>
@@ -355,7 +355,7 @@ export default function ResumeBuilderPage() {
                 <input 
                   className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
                   type="text" 
-                  value={profile.location}
+                  value={profile.location || ""}
                   onChange={(e) => handleProfileChange("location", e.target.value)}
                 />
               </div>
@@ -365,7 +365,7 @@ export default function ResumeBuilderPage() {
                   className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
                   type="text" 
                   placeholder="linkedin.com/in/username"
-                  value={profile.linkedin}
+                  value={profile.linkedin || ""}
                   onChange={(e) => handleProfileChange("linkedin", e.target.value)}
                 />
               </div>
@@ -375,7 +375,7 @@ export default function ResumeBuilderPage() {
                   className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
                   type="text" 
                   placeholder="github.com/username"
-                  value={profile.github}
+                  value={profile.github || ""}
                   onChange={(e) => handleProfileChange("github", e.target.value)}
                 />
               </div>
@@ -385,7 +385,7 @@ export default function ResumeBuilderPage() {
                   className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
                   type="text" 
                   placeholder="https://yourportfolio.com"
-                  value={profile.portfolio}
+                  value={profile.portfolio || ""}
                   onChange={(e) => handleProfileChange("portfolio", e.target.value)}
                 />
               </div>
@@ -395,7 +395,7 @@ export default function ResumeBuilderPage() {
                   className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-3 outline-none transition-all font-bold" 
                   type="text" 
                   placeholder="https://yourwebsite.com"
-                  value={profile.website}
+                  value={profile.website || ""}
                   onChange={(e) => handleProfileChange("website", e.target.value)}
                 />
               </div>
@@ -405,7 +405,7 @@ export default function ResumeBuilderPage() {
               <textarea 
                 className="w-full rounded-xl border-border bg-surface focus:ring-2 focus:ring-primary/20 text-sm p-4 h-32 outline-none transition-all font-medium" 
                 placeholder="Brief professional summary..."
-                value={profile.summary}
+                value={profile.summary || ""}
                 onChange={(e) => handleProfileChange("summary", e.target.value)}
               />
             </div>
@@ -440,14 +440,14 @@ export default function ResumeBuilderPage() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                                   <div className="space-y-1">
                                      <label className="text-[8px] font-black text-text-secondary uppercase tracking-widest">Start Date</label>
-                                     <input className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="date" value={exp.startDate} onChange={(e) => handleExperienceChange(idx, "startDate", e.target.value)} />
+                                     <input className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="date" value={exp.startDate || ""} onChange={(e) => handleExperienceChange(idx, "startDate", e.target.value)} />
                                   </div>
                                   <div className="space-y-1">
                                      <label className="text-[8px] font-black text-text-secondary uppercase tracking-widest">End Date</label>
                                      {exp.isCurrent ? (
                                         <div className="w-full bg-surface-variant/50 border border-border border-dashed rounded-lg p-2 text-[10px] font-black text-primary uppercase tracking-widest text-center">Present</div>
                                      ) : (
-                                        <input className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="date" value={exp.endDate} onChange={(e) => handleExperienceChange(idx, "endDate", e.target.value)} />
+                                        <input className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="date" value={exp.endDate || ""} onChange={(e) => handleExperienceChange(idx, "endDate", e.target.value)} />
                                      )}
                                   </div>
                                 </div>
@@ -477,7 +477,7 @@ export default function ResumeBuilderPage() {
                                      <input className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="text" placeholder="London, UK" value={exp.location || ""} onChange={(e) => handleExperienceChange(idx, "location", e.target.value)} />
                                    </div>
                                 </div>
-                                <textarea className="w-full bg-surface rounded-xl border border-border text-xs h-32 p-4 outline-none font-medium mb-4" value={exp.desc} onChange={(e) => handleExperienceChange(idx, "desc", e.target.value)} placeholder="Achievements..." />
+                                <textarea className="w-full bg-surface rounded-xl border border-border text-xs h-32 p-4 outline-none font-medium mb-4" value={exp.desc || ""} onChange={(e) => handleExperienceChange(idx, "desc", e.target.value)} placeholder="Achievements..." />
                                 <div className="space-y-1">
                                    <label className="text-[8px] font-black text-text-secondary uppercase tracking-widest">Skills Used (comma separated)</label>
                                    <input className="w-full bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="text" placeholder="React, Node.js, TypeScript" value={exp.skillsUsed || ""} onChange={(e) => handleExperienceChange(idx, "skillsUsed", e.target.value)} />
@@ -508,8 +508,8 @@ export default function ResumeBuilderPage() {
                                 <button onClick={() => removeProject(idx)} className="absolute top-4 right-4 text-text-secondary hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">
                                    <span className="material-symbols-outlined text-lg">delete</span>
                                 </button>
-                                <input className="bg-transparent font-black text-sm border-none p-0 focus:ring-0 w-full text-text-primary uppercase tracking-tight mb-2" value={project.name} onChange={(e) => handleProjectChange(idx, "name", e.target.value)} />
-                                <textarea className="w-full bg-surface rounded-xl border border-border text-xs h-24 p-4 outline-none font-medium" value={project.description} onChange={(e) => handleProjectChange(idx, "description", e.target.value)} />
+                                <input className="bg-transparent font-black text-sm border-none p-0 focus:ring-0 w-full text-text-primary uppercase tracking-tight mb-2" value={project.name || ""} onChange={(e) => handleProjectChange(idx, "name", e.target.value)} />
+                                <textarea className="w-full bg-surface rounded-xl border border-border text-xs h-24 p-4 outline-none font-medium" value={project.description || ""} onChange={(e) => handleProjectChange(idx, "description", e.target.value)} />
                              </div>
                           ))}
                        </div>
@@ -536,10 +536,10 @@ export default function ResumeBuilderPage() {
                                 <button onClick={() => setEducation(education.filter((_, i) => i !== idx))} className="absolute top-4 right-4 text-text-secondary hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">
                                    <span className="material-symbols-outlined text-lg">delete</span>
                                 </button>
-                                <input className="bg-transparent font-black text-sm border-none p-0 focus:ring-0 w-full text-text-primary uppercase tracking-tight mb-2" value={edu.institution} onChange={(e) => {
+                                <input className="bg-transparent font-black text-sm border-none p-0 focus:ring-0 w-full text-text-primary uppercase tracking-tight mb-2" value={edu.institution || ""} onChange={(e) => {
                                    const n = [...education]; n[idx].institution = e.target.value; setEducation(n);
                                 }} />
-                                <input className="bg-transparent text-[10px] text-primary font-black border-none p-0 focus:ring-0 w-full uppercase tracking-widest mb-4" value={edu.degree} onChange={(e) => {
+                                <input className="bg-transparent text-[10px] text-primary font-black border-none p-0 focus:ring-0 w-full uppercase tracking-widest mb-4" value={edu.degree || ""} onChange={(e) => {
                                    const n = [...education]; n[idx].degree = e.target.value; setEducation(n);
                                 }} />
                                 <div className="grid grid-cols-3 gap-4">
@@ -621,10 +621,10 @@ export default function ResumeBuilderPage() {
                                 <button onClick={() => removeCertification(idx)} className="absolute top-2 right-2 text-text-secondary hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">
                                    <span className="material-symbols-outlined text-sm">delete</span>
                                 </button>
-                                <input className="bg-transparent font-black text-xs border-none p-0 focus:ring-0 w-full text-text-primary uppercase tracking-tight mb-2" value={cert.title} onChange={(e) => handleCertificationChange(idx, "title", e.target.value)} placeholder="Certification Title" />
+                                <input className="bg-transparent font-black text-xs border-none p-0 focus:ring-0 w-full text-text-primary uppercase tracking-tight mb-2" value={cert.title || ""} onChange={(e) => handleCertificationChange(idx, "title", e.target.value)} placeholder="Certification Title" />
                                 <div className="grid grid-cols-2 gap-4">
-                                   <input className="bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" value={cert.issuer} onChange={(e) => handleCertificationChange(idx, "issuer", e.target.value)} placeholder="Issuer" />
-                                   <input className="bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="text" placeholder="Year" value={cert.date} onChange={(e) => handleCertificationChange(idx, "date", e.target.value)} />
+                                   <input className="bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" value={cert.issuer || ""} onChange={(e) => handleCertificationChange(idx, "issuer", e.target.value)} placeholder="Issuer" />
+                                   <input className="bg-surface border border-border rounded-lg p-2 text-[10px] font-bold outline-none" type="text" placeholder="Year" value={cert.date || ""} onChange={(e) => handleCertificationChange(idx, "date", e.target.value)} />
                                 </div>
                              </div>
                           ))}
@@ -650,8 +650,8 @@ export default function ResumeBuilderPage() {
                           {awards.map((aw, idx) => (
                              <div key={idx} className="p-4 rounded-xl border border-border bg-surface-variant/30 relative">
                                 <button onClick={() => setAwards(awards.filter((_, i) => i !== idx))} className="absolute top-2 right-2 text-text-secondary hover:text-error"><span className="material-symbols-outlined text-sm">delete</span></button>
-                                <input className="bg-transparent font-black text-xs border-none p-0 w-full mb-1" value={aw.title} onChange={e => {const n=[...awards]; n[idx].title=e.target.value; setAwards(n);}} />
-                                <input className="bg-transparent text-[10px] text-text-secondary border-none p-0 w-full" value={aw.issuer} onChange={e => {const n=[...awards]; n[idx].issuer=e.target.value; setAwards(n);}} />
+                                <input className="bg-transparent font-black text-xs border-none p-0 w-full mb-1" value={aw.title || ""} onChange={e => {const n=[...awards]; n[idx].title=e.target.value; setAwards(n);}} />
+                                <input className="bg-transparent text-[10px] text-text-secondary border-none p-0 w-full" value={aw.issuer || ""} onChange={e => {const n=[...awards]; n[idx].issuer=e.target.value; setAwards(n);}} />
                              </div>
                           ))}
                        </div>
@@ -675,8 +675,8 @@ export default function ResumeBuilderPage() {
                        <div className="grid grid-cols-1 gap-4">
                           {languages.map((l, idx) => (
                              <div key={idx} className="flex items-center gap-4 p-4 rounded-xl border border-border bg-surface-variant/30">
-                                <input className="bg-transparent font-black text-xs border-none p-0 flex-1" value={l.name} onChange={e => {const n=[...languages]; n[idx].name=e.target.value; setLanguages(n);}} />
-                                <select className="bg-surface border border-border rounded-lg p-2 text-[10px] font-bold" value={l.level} onChange={e => {const n=[...languages]; n[idx].level=e.target.value; setLanguages(n);}}>
+                                <input className="bg-transparent font-black text-xs border-none p-0 flex-1" value={l.name || ""} onChange={e => {const n=[...languages]; n[idx].name=e.target.value; setLanguages(n);}} />
+                                <select className="bg-surface border border-border rounded-lg p-2 text-[10px] font-bold" value={l.level || "Professional"} onChange={e => {const n=[...languages]; n[idx].level=e.target.value; setLanguages(n);}}>
                                    <option>Native</option>
                                    <option>Professional</option>
                                    <option>Intermediate</option>
@@ -697,7 +697,7 @@ export default function ResumeBuilderPage() {
         {/* Right Panel: Live Preview */}
         <section className="hidden md:flex flex-1 h-full bg-border/20 overflow-y-auto justify-center p-12 relative overflow-x-hidden">
           {/* Resume Template A4 */}
-          <div className="resume-container w-full max-w-[800px] bg-white shadow-2xl p-16 flex flex-col text-slate-900 min-h-[1131px] aspect-[1/1.414] rounded-sm origin-top scale-95 transition-transform">
+          <div className="resume-container w-full max-w-[800px] bg-white shadow-2xl p-16 flex flex-col text-slate-900 min-h-[1131px] rounded-sm origin-top scale-95 transition-transform overflow-hidden">
             <header className="border-b-8 border-indigo-600 pb-10 mb-10">
               <h1 className="text-5xl font-black text-slate-900 mb-2 tracking-tighter uppercase">{profile.name}</h1>
               <p className="text-2xl font-bold text-indigo-600 mb-6 tracking-tight">{profile.title}</p>
@@ -881,7 +881,7 @@ export default function ResumeBuilderPage() {
                 ))}
 
                 <section className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 mt-auto relative group">
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                     <div className="flex items-center gap-3">
                       <span className="material-symbols-outlined text-indigo-600 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                       <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Verified Dossier</span>
