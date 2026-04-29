@@ -56,7 +56,7 @@ export async function GET() {
         name: profile.name || profile.login,
         title: aiSummary.persona || "Software Engineer",
         email: profile.email || `${profile.login}@users.noreply.github.com`,
-        phone: profile.phone || "",
+        phone: "",
         location: profile.location || "Remote",
         linkedin: "",
         github: `github.com/${profile.login}`,

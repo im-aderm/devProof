@@ -33,18 +33,18 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
-        const user = await prisma.user.findUnique({
+        const user: any = await prisma.user.findUnique({
           where: { email: credentials.email },
           select: {
             id: true,
             email: true,
             name: true,
-            password: true, // Assuming this field exists or will be added
+            password: true,
             username: true,
             onboardingCompleted: true,
             emailVerified: true,
           }
-        } as any);
+        });
 
         if (!user || !user.password) {
           throw new Error("User not found");

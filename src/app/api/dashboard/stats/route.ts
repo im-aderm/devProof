@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { GitHubService } from "@/lib/github";
+import { ScoringEngine } from "@/lib/scoring";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -82,7 +83,7 @@ export async function GET() {
       });
 
       topics = Object.entries(topicsMap)
-        .map(([name, count]) => ({ name, count }))
+        .map(([name, count]) => ({ name, count: count as number }))
         .sort((a, b) => b.count - a.count)
         .slice(0, 10);
     }

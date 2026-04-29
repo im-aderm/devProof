@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { v4 as uuidv4 } from "uuid";
+import { GitHubService } from "./github";
 
 export type VerificationType = "github_project" | "github_contribution" | "email" | "identity" | "work";
 export type VerificationStatus = "verified" | "pending" | "unverified";
@@ -94,7 +95,9 @@ export class VerificationService {
 
                 const isOwner = repo.data.owner.login.toLowerCase() === user.username?.toLowerCase();
                 
-                if (isOwner || (participation.owner && participation.owner > 0)) {
+                const hasCommits = participation.owner && (participation.owner as number[]).some(c => c > 0);
+
+                if (isOwner || hasCommits) {
                   signals.push({
                     type: "github_project",
                     status: "verified",

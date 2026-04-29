@@ -1,8 +1,8 @@
 import React from "react";
 
-export function GlassCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+export function GlassCard({ children, className = "", ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`glass-card rounded-2xl p-6 md:p-8 ${className}`}>
+    <div className={`glass-card rounded-2xl p-6 md:p-8 ${className}`} {...props}>
       {children}
     </div>
   );

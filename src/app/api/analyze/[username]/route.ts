@@ -83,7 +83,7 @@ export async function GET(
     }, {});
 
     const sortedTopics = Object.entries(topics)
-        .map(([name, count]) => ({ name, count }))
+        .map(([name, count]) => ({ name, count: count as number }))
         .sort((a, b) => b.count - a.count)
         .slice(0, 15);
 

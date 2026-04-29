@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-session"; // Wait, I should use next-auth
-import { useSession as useAuthSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import TopNavbar from "@/components/layout/TopNavbar";
@@ -11,7 +10,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { motion } from "framer-motion";
 
 export default function RepositoriesPage() {
-  const { data: session, status } = useAuthSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [repos, setRepos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
