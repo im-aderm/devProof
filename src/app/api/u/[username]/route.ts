@@ -67,8 +67,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ username
       const heatmap = await github.getContributionHeatmap(username);
 
       const sortedLanguages = Object.entries(languageStats)
-        .map(([name, size]) => ({ name, size: size as number }))
-        .sort((a, b) => b.size - a.size);
+        .map(([name, size]) => ({ name, size }))
+        .sort((a: any, b: any) => b.size - a.size);
 
       // Calculate a dynamic score based on real metrics
       const totalStars = repoData.reduce((acc, r) => acc + (r.stars || 0), 0);
